@@ -139,8 +139,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
-import { useLocalStorage } from '@vueuse/core';
+import { computed, ref, watch } from 'vue';
 import BagPanel from './components/BagPanel.vue';
 import BoardPanel from './components/BoardPanel.vue';
 import CharacterPanel from './components/CharacterPanel.vue';
@@ -153,6 +152,7 @@ import TabNav from './components/TabNav.vue';
 import TopCards from './components/TopCards.vue';
 import WorldPanel from './components/WorldPanel.vue';
 import WorldAtlasPanel from './components/WorldAtlasPanel.vue';
+import { scopeStatusStorageKey } from './storageScope';
 import { useStatusView } from './useStatusView';
 
 const tabs = [
@@ -172,8 +172,31 @@ const tabs = [
   { id: 'nsfw', label: 'NSFW', tone: 'violet' },
 ];
 
-const activeTab = useLocalStorage('zero_gate.status.vue.active_tab', 'character');
-if (!tabs.some(tab => tab.id === activeTab.value)) activeTab.value = 'character';
+function readStoredTab(key: string) {
+  try {
+    if (!globalThis.localStorage) return '';
+    return globalThis.localStorage.getItem(key)?.trim() || '';
+  } catch {
+    return '';
+  }
+}
+
+function writeStoredTab(key: string, value: string) {
+  try {
+    if (!globalThis.localStorage) return;
+    globalThis.localStorage.setItem(key, value);
+  } catch {
+    // Ignore storage write failures and keep the in-memory state usable.
+  }
+}
+
+const activeTabStorageKey = scopeStatusStorageKey('zero_gate.status.vue.v7.active_tab');
+const initialActiveTab = readStoredTab(activeTabStorageKey);
+const activeTab = ref(tabs.some(tab => tab.id === initialActiveTab) ? initialActiveTab : 'character');
+
+watch(activeTab, value => {
+  writeStoredTab(activeTabStorageKey, value);
+});
 
 const activeTabTone = computed(() => tabs.find(tab => tab.id === activeTab.value)?.tone ?? 'green');
 const sectionStorage = {

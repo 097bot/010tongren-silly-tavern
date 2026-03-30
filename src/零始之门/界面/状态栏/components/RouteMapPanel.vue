@@ -106,14 +106,18 @@ function syncFocusNode() {
 }
 
 function centerCurrentNode(behavior: ScrollBehavior = 'auto') {
+  const scroller = scrollEl.value;
   const targetId = props.currentNode?.id || focusNode.value?.id;
   const target = targetId ? nodeRefs.get(targetId) : null;
-  if (!target) return;
+  if (!scroller || !target) return;
 
-  target.scrollIntoView({
+  const targetCenter = target.offsetLeft + target.offsetWidth / 2;
+  const left = targetCenter - scroller.clientWidth / 2;
+  const maxLeft = Math.max(0, scroller.scrollWidth - scroller.clientWidth);
+
+  scroller.scrollTo({
+    left: Math.max(0, Math.min(left, maxLeft)),
     behavior,
-    inline: 'center',
-    block: 'nearest',
   });
 }
 

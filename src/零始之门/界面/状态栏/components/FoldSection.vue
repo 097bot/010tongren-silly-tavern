@@ -26,7 +26,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
+import { scopeStatusStorageKey } from '../storageScope';
 
 const props = withDefaults(
   defineProps<{
@@ -68,16 +69,18 @@ function writeStoredOpen(key: string, value: boolean) {
   }
 }
 
+const scopedStorageKey = computed(() => scopeStatusStorageKey(props.storageKey));
+
 function resolveOpenState() {
-  if (!props.storageKey) return props.open;
-  const stored = readStoredOpen(props.storageKey);
+  if (!scopedStorageKey.value) return props.open;
+  const stored = readStoredOpen(scopedStorageKey.value);
   return stored ?? props.open;
 }
 
 const currentOpen = ref(resolveOpenState());
 
 watch(
-  () => props.storageKey,
+  scopedStorageKey,
   () => {
     currentOpen.value = resolveOpenState();
   },
@@ -86,7 +89,7 @@ watch(
 watch(
   () => props.open,
   value => {
-    if (!props.storageKey || readStoredOpen(props.storageKey) === null) {
+    if (!scopedStorageKey.value || readStoredOpen(scopedStorageKey.value) === null) {
       currentOpen.value = value;
     }
   },
@@ -96,8 +99,8 @@ function handleToggle(event: Event) {
   const next = (event.currentTarget as HTMLDetailsElement | null)?.open ?? false;
   currentOpen.value = next;
 
-  if (props.storageKey) {
-    writeStoredOpen(props.storageKey, next);
+  if (scopedStorageKey.value) {
+    writeStoredOpen(scopedStorageKey.value, next);
   }
 }
 </script>
