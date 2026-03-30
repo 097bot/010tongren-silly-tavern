@@ -1,0 +1,117 @@
+<%_ {
+const openState = getvar('stat_data.开局状态') || {};
+const relation = getvar('stat_data.关系面板') || {};
+const general = getvar('stat_data.通用状态栏') || {};
+const world = getvar('stat_data.世界信息') || {};
+
+const selectedRole = String(openState['已选择角色'] || '');
+const selectedLine = String(openState['已选择线路'] || '');
+const currentCP = String(relation['当前主CP'] || '');
+const relationEvent = String(relation['当前关系事件'] || '无');
+const place = String(world['场所'] || '未知');
+const sceneTagsRaw = world['当前场景标签'];
+const sceneTags = Array.isArray(sceneTagsRaw) ? sceneTagsRaw.map(x => String(x)) : [];
+const currentBName = String((((general['角色B'] || {})['姓名']) || ''));
+const team = general['队伍'] || {};
+const npcArchive = getvar('stat_data.NPC档案') || {};
+
+function display_existsInScene(name){
+  if (!name) return false;
+  const inTeam = !!team[name];
+  const inNpc = !!npcArchive[name];
+  const hinted = sceneTags.some(t => t.includes(name)) || place.includes(name);
+  return inTeam || inNpc || hinted;
+}
+
+function display_fallbackB(){
+  if (currentBName) return currentBName;
+
+  if (selectedRole === '周成宰') return '金义材';
+  if (selectedRole === '金义材') return '周成宰';
+
+  if (selectedRole === '韩佳温') {
+    if (selectedLine === '成艺彬线') return '成艺彬';
+    if (selectedLine === '朴武镇线') return '朴武镇';
+  }
+  if (selectedRole === '成艺彬') return '韩佳温';
+  if (selectedRole === '朴武镇') return '韩佳温';
+
+  if (selectedRole === '刘率') return '崔诺亚';
+  if (selectedRole === '崔诺亚') return '刘率';
+
+  if (selectedRole === '李宇林') return '白耀汉';
+  if (selectedRole === '白耀汉') return '李宇林';
+
+  if (selectedRole === '河载京') return '徐泰贤';
+  if (selectedRole === '徐泰贤') return '河载京';
+
+  if (selectedRole === '申成日') return '闵时厚';
+  if (selectedRole === '闵时厚') return '申成日';
+
+  return '';
+}
+
+const expectedA = selectedRole || '{{user}}';
+const expectedB = currentCP || display_fallbackB() || '当前主要互动对象';
+const cpPresent = currentCP ? display_existsInScene(currentCP) : false;
+_%>
+
+<角色A角色B动态提示>
+# 主显示位总规则
+- 通用状态栏只负责当前场景的基础状态、当前位置和双角色当前状态，不是角色名单。
+- 角色A固定为当前玩家视角角色，也就是当前的 {{user}}。
+- 角色B优先写 {{user}} 当前主绑定CP对象。
+- 只有在“当前没有明确主绑定CP对象”时，角色B才退回“当前主要互动对象”。
+- 不要因为路过的人、短暂插话者、普通 NPC、路人、敌人而频繁改写角色B。
+- 若当前主绑定CP对象虽然暂时不在近身现场，但仍是本轮情绪与互动焦点，角色B仍可保持为该对象。
+- 角色A / 角色B 的姓名、状态、内心，应与正文当前真正的情绪焦点和互动结构一致。
+
+# 当前建议显示位
+- 角色A应为：<%= expectedA || '{{user}}' %>
+- 角色B优先应为：<%= expectedB %>
+
+<%_ if (currentCP) { _%>
+# 当前主CP锁定
+- 关系面板.当前主CP 当前为：<%= currentCP %>
+- 因此，角色B默认继续显示为 <%= currentCP %>。
+<%_ if (cpPresent) { _%>
+- 当前主CP在当前场景中有存在依据（队伍 / NPC / 场景标签 / 地点），可以直接作为角色B。
+<%_ } else { _%>
+- 当前主CP虽然未明确出现在当前地点标签里，但只要本轮关系焦点、情绪牵引或待处理事件仍围绕他/她展开，角色B依然不需要轻易切走。
+<%_ } _%>
+<%_ } else { _%>
+# 当前无明确主CP
+- 关系面板里当前没有明确主CP，因此角色B才允许退到“当前主要互动对象”。
+- 所谓“当前主要互动对象”，应指本轮真正与 {{user}} 发生主要互动、并对情绪或行动形成核心牵引的人，不是单纯说了两句话的路人。
+<%_ } _%>
+
+# 开局角色补正
+- 当前开局选择角色：<%= selectedRole || '未指定' %>
+<%_ if (selectedRole === '韩佳温') { _%>
+- 韩佳温是特殊三角关系角色。若线路已定：
+  - 成艺彬线 → 角色B优先为成艺彬
+  - 朴武镇线 → 角色B优先为朴武镇
+- 另一人可以存在于关系张力里，但不要在没有关系面板变化的前提下，随便把角色B来回切换。
+<%_ } _%>
+
+# 切换角色B的合法条件
+- 可以切换角色B的情况：
+  - 当前主CP明确变化
+  - 当前没有主CP，且本轮的主要互动对象发生清晰替换
+  - 原角色B已经长期离场，且本轮焦点持续稳定落在另一人身上
+- 不应切换角色B的情况：
+  - 只是第三人短暂出场
+  - 只是战斗中多了一个敌人或路人
+  - 只是临时对话对象插了一句
+  - 只是为了“画面更热闹”想多展示一个人
+
+# 状态同步
+- 若角色A / 角色B 与队伍、NPC档案中存在同名对象，其体力、精神稳定、污染值、伤势、动作、神态、内心等核心状态应保持一致，不得互相矛盾。
+- 若角色B切换了，新的角色B必须立即补足当前神态、动作、希望、内心、体力、精神稳定、污染值、伤势与衣着状态。
+- 若旧角色B不再是主显示位，不代表其关系或剧情意义消失；只是从双角色面板中退出。
+
+# 当前关系事件回响
+- 当前关系事件：<%= relationEvent %>
+- 角色B应优先承接这一事件带来的情绪余波；若事件仍主要围绕某人展开，就不要轻易把角色B切走。
+</角色A角色B动态提示>
+<%_ } _%>

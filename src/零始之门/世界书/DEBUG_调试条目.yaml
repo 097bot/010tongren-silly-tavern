@@ -1,0 +1,21 @@
+<%_ {
+const debugOn = !!getvar('stat_data.调试状态.开启DEBUG');
+
+if (debugOn) {
+  const world = getvar('stat_data.世界信息') || {};
+  const relation = getvar('stat_data.关系面板') || {};
+  const battle = getvar('stat_data.战斗面板') || {};
+  const judge = getvar('stat_data.判定状态') || {};
+  const crisis = getvar('stat_data.危机面板') || {};
+  const plans = getvar('stat_data.计划列表') || {};
+_%>
+[DEBUG-全局] 场所=<%= JSON.stringify(world['场所'] || '') %>
+[DEBUG-全局] 战斗中=<%= JSON.stringify(world['是否战斗中'] || false) %>
+[DEBUG-全局] 主CP=<%= JSON.stringify(relation['当前主CP'] || '') %>
+[DEBUG-全局] 关系事件=<%= JSON.stringify(relation['当前关系事件'] || '无') %>
+[DEBUG-全局] 战斗回合=<%= JSON.stringify(battle['回合'] || 0) %>
+[DEBUG-全局] 判定类型=<%= JSON.stringify(judge['最近类型'] || '无') %>
+[DEBUG-全局] 判定等级=<%= JSON.stringify(judge['结果等级'] || '无') %>
+[DEBUG-全局] 危机键数=<%= JSON.stringify(Object.keys(crisis || {}).length) %>
+[DEBUG-全局] 计划键数=<%= JSON.stringify(Object.keys(plans || {}).length) %>
+<%_ } } _%>

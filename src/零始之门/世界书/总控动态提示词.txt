@@ -1,0 +1,166 @@
+<%_ {
+const debugOn = !!getvar('stat_data.调试状态.开启DEBUG');
+
+const world = getvar('stat_data.世界信息') || {};
+const relation = getvar('stat_data.关系面板') || {};
+const battle = getvar('stat_data.战斗面板') || {};
+const crisisMap = getvar('stat_data.危机面板') || {};
+const plans = getvar('stat_data.计划列表') || {};
+const judge = getvar('stat_data.判定状态') || {};
+const monsters = getvar('stat_data.怪物档案') || {};
+const bag = getvar('stat_data.背包栏') || {};
+
+function ctrl_entriesOf(obj){
+  if (!obj || typeof obj !== 'object') return [];
+  return Object.entries(obj).filter(([_, v]) => v && typeof v === 'object');
+}
+
+function ctrl_realCrises(obj){
+  return ctrl_entriesOf(obj).filter(([_, v]) => {
+    const target = String(v['对象'] || '');
+    const note = String(v['备注'] || '');
+    return target && target !== '无' && !/初始占位|无实际危机/.test(note);
+  });
+}
+
+function ctrl_hasKretMonster(obj){
+  return ctrl_entriesOf(obj).some(([_, v]) => /克锐特/.test(String(v['所属'] || '')));
+}
+
+function ctrl_hasPlan(obj){
+  return ctrl_entriesOf(obj).some(([_, p]) =>
+    ['待完成', '进行中', '搁置'].includes(String(p['状态'] || '待完成'))
+  );
+}
+
+const place = String(world['场所'] || '');
+const eventName = String(world['遭遇事件'] || '无');
+const inBattle = !!world['是否战斗中'];
+const currentCP = String(relation['当前主CP'] || '');
+const relationEvent = String(relation['当前关系事件'] || '无');
+
+const round = Number(battle['回合'] || 0);
+const enemyList = ctrl_entriesOf(battle['敌方'] || {});
+const hasEnemies = enemyList.length > 0;
+
+const realCrises = ctrl_realCrises(crisisMap);
+const hasRealCrisis = realCrises.length > 0;
+
+const risky = !!getvar('stat_data.世界.高风险判定状态');
+const judgeKind = String(judge['最近类型'] || '无');
+const judgeRank = String(judge['结果等级'] || '无');
+const judgeSettled = !!judge['是否已结算'];
+const hasJudgeFocus = risky || (!judgeSettled && judgeKind !== '无') || judgeRank !== '无';
+
+const hasMonsterFocus = ctrl_hasKretMonster(monsters);
+const hasPlanFocus = ctrl_hasPlan(plans);
+
+const bagChange = String(bag['本轮变化'] || '无变化');
+const hasBagFocus = bagChange !== '无变化';
+
+let mainFocus = '日常推进';
+if (hasRealCrisis) mainFocus = '危机';
+else if (inBattle || round > 0 || hasEnemies) mainFocus = '战斗';
+else if (hasJudgeFocus) mainFocus = '判定后果';
+else if (hasMonsterFocus) mainFocus = '怪物与掉落';
+else if (hasBagFocus) mainFocus = '资源与背包';
+else if (currentCP || relationEvent !== '无') mainFocus = '关系';
+else if (eventName !== '无' || place) mainFocus = '区域与遭遇';
+else if (hasPlanFocus) mainFocus = '计划推进';
+
+function ctrl_priorityList(){
+  const list = [];
+  if (hasRealCrisis) list.push('危机');
+  if (inBattle || round > 0 || hasEnemies) list.push('战斗');
+  if (hasJudgeFocus) list.push('判定后果');
+  if (hasMonsterFocus) list.push('怪物与掉落');
+  if (hasBagFocus) list.push('资源与背包');
+  if (currentCP || relationEvent !== '无') list.push('关系');
+  if (eventName !== '无' || place) list.push('区域与遭遇');
+  if (hasPlanFocus) list.push('计划推进');
+  if (list.length === 0) list.push('日常推进');
+  return list;
+}
+
+const priorities = ctrl_priorityList();
+_%>
+
+<总控动态提示>
+# 本轮主导模块
+- 当前主导模块：<%= mainFocus %>
+- 当前优先顺序：<%= priorities.join(' > ') %>
+
+# 总调度规则
+- 多条动态提示词同时触发时，不允许平均分配篇幅，必须按“主导模块优先、次级模块补充”的方式组织正文。
+- 正文首先完成当前主导模块要求，再让次级模块以短补充或后果形式进入。
+- 低优先级模块不能打断高优先级模块的推进。
+- 若危机、战斗、判定后果同时存在，正文必须先写危险和后果，再写关系、计划、区域氛围等慢变量。
+- 若当前没有危险模块，关系、区域、计划才可以获得更多展开空间。
+
+<%_ if (mainFocus === '危机') { _%>
+# 当前写作重心：危机优先
+- 先写危机带来的外显症状、行动限制、对话变化、资源需求。
+- 战斗、关系、计划都只能围绕危机提供补充，不得喧宾夺主。
+- 本轮正文至少要让读者明确感到：危机正在持续，而不是已经过去。
+<%_ } else if (mainFocus === '战斗') { _%>
+# 当前写作重心：战斗优先
+- 先写当前轮的动作、攻防、失手、命中、撤退、压制与即时后果。
+- 危机若存在，应作为战斗中的限制因素嵌入，而不是单独抢走全部篇幅。
+- 关系与区域只能作为战斗气氛或情绪余波出现。
+<%_ } else if (mainFocus === '判定后果') { _%>
+# 当前写作重心：判定后果优先
+- 先把这次 D20 的结果真正落到正文里，再写别的。
+- 不允许只报点数或只写“成功/失败”，必须写出事件后果、代价或优势。
+- 若本轮还有战斗、危机、掉落、关系变化，都要作为判定结果的后续，而不是另起炉灶。
+<%_ } else if (mainFocus === '怪物与掉落') { _%>
+# 当前写作重心：怪物与掉落优先
+- 先明确怪物是否已被解决、核心是否完整、掉落是否允许结算。
+- 掉落、爆核、残留感染不能互相矛盾。
+- 资源入袋必须有正文依据。
+<%_ } else if (mainFocus === '资源与背包') { _%>
+# 当前写作重心：资源与背包优先
+- 先落实本轮获得、消耗、整理、负重压力和生存补给。
+- 背包变化应推动行动选择，而不是只写成面板注释。
+- 若资源已经紧张，应在正文里留下明显压力。
+<%_ } else if (mainFocus === '关系') { _%>
+# 当前写作重心：关系优先
+- 先写当前主CP与当前关系事件的回响，再决定动作和语气。
+- 关系推进必须服从单视角与绑定规则。
+- 其他人物可以出现，但不能抢走关系焦点。
+<%_ } else if (mainFocus === '区域与遭遇') { _%>
+# 当前写作重心：区域与遭遇优先
+- 先用地点、天气、当前遭遇事件确定本轮场景重心。
+- 区域气氛与现场事件要真的影响人物判断与行动。
+- 若有关系或计划，也应服从当前地点逻辑。
+<%_ } else if (mainFocus === '计划推进') { _%>
+# 当前写作重心：计划推进优先
+- 先写当前计划如何推动行动，而不是把计划当装饰。
+- 该推进就推进，该失败就失败，该搁置就搁置。
+- 计划是行动动机，不是任务公告栏。
+<%_ } else { _%>
+# 当前写作重心：日常推进
+- 当前没有高压模块，正文可以自然展开人物互动、地点氛围、轻度关系推进与小事件。
+- 但仍要与变量现状一致。
+<%_ } _%>
+
+# 冲突处理原则
+- 若两个动态提示词要求看起来冲突，以优先顺序更高者为准。
+- 若高优先级模块已经决定当前轮节奏，低优先级模块只保留最必要的信息。
+- 不允许出现“战斗正在进行，但正文主要在悠闲谈情”“危机恶化中，但正文像无事发生”这类违和情况。
+</总控动态提示>
+
+<%_ if (debugOn) { _%>
+[DEBUG-总控] mainFocus=<%= JSON.stringify(mainFocus) %>
+[DEBUG-总控] priorities=<%= JSON.stringify(priorities) %>
+[DEBUG-总控] place=<%= JSON.stringify(place) %>
+[DEBUG-总控] eventName=<%= JSON.stringify(eventName) %>
+[DEBUG-总控] hasRealCrisis=<%= JSON.stringify(hasRealCrisis) %>
+[DEBUG-总控] inBattle=<%= JSON.stringify(inBattle) %>
+[DEBUG-总控] hasJudgeFocus=<%= JSON.stringify(hasJudgeFocus) %>
+[DEBUG-总控] hasMonsterFocus=<%= JSON.stringify(hasMonsterFocus) %>
+[DEBUG-总控] hasBagFocus=<%= JSON.stringify(hasBagFocus) %>
+[DEBUG-总控] currentCP=<%= JSON.stringify(currentCP) %>
+[DEBUG-总控] hasPlanFocus=<%= JSON.stringify(hasPlanFocus) %>
+<%_ } _%>
+
+<%_ } _%>

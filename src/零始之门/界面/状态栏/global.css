@@ -1,0 +1,72 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body,
+#app {
+  width: 100%;
+  overflow-x: hidden;
+}
+
+html,
+body {
+  scrollbar-width: none;
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+:root {
+  --zg-bg: #080f0a;
+  --zg-panel: rgba(10, 18, 12, 0.94);
+  --zg-panel-soft: rgba(12, 20, 14, 0.92);
+  --zg-line: rgba(138, 122, 80, 0.34);
+  --zg-line-strong: rgba(200, 168, 74, 0.5);
+  --zg-gold: #c8a84a;
+  --zg-gold-soft: rgba(200, 168, 74, 0.22);
+  --zg-head: rgba(241, 230, 189, 0.97);
+  --zg-text: #d4cdb8;
+  --zg-soft: rgba(224, 218, 198, 0.86);
+  --zg-muted: rgba(224, 218, 198, 0.64);
+  --zg-chip-bg: rgba(20, 29, 20, 0.92);
+  --zg-chip-border: rgba(112, 136, 102, 0.34);
+  --zg-chip-text: rgba(182, 199, 167, 0.78);
+  --zg-green: #4a6741;
+  --zg-blue: #5f8db4;
+  --zg-red: #c86060;
+  --zg-pink: #cf8faf;
+  --zg-violet: #8f79c9;
+  --zg-space-1: clamp(0.2rem, 0.18rem + 0.12vw, 0.32rem);
+  --zg-space-2: clamp(0.35rem, 0.31rem + 0.16vw, 0.5rem);
+  --zg-space-3: clamp(0.5rem, 0.44rem + 0.18vw, 0.68rem);
+  --zg-space-4: clamp(0.65rem, 0.58rem + 0.22vw, 0.9rem);
+  --zg-space-5: clamp(0.8rem, 0.7rem + 0.28vw, 1rem);
+  --zg-fs-3xs: 0.5625rem;
+  --zg-fs-2xs: 0.625rem;
+  --zg-fs-xs: 0.6875rem;
+  --zg-fs-sm: 0.75rem;
+  --zg-fs-md: 0.8125rem;
+  --zg-fs-lg: 0.875rem;
+  --zg-fs-xl: 1.375rem;
+}
+
+body {
+  background: transparent;
+  color: var(--zg-text);
+  font-family: "Noto Serif SC", "Microsoft YaHei UI", serif;
+  line-height: 1.62;
+  text-rendering: optimizeLegibility;
+}
+
+button,
+select,
+input,
+textarea {
+  font: inherit;
+}

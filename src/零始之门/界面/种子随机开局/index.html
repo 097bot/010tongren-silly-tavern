@@ -1,0 +1,778 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg0:#080e08;--line:rgba(138,122,80,0.34);--khaki:#8a7a50;--gold:#c8a84a;
+  --green:#4a6741;--text:#d4cdb8;--sub:#8a9e7a;--muted:rgba(138,122,80,0.56);
+  --good:#b3d28c;--bad:#c98572;--seed-accent:#b0c898;--seed-signal:#e2c56f;--seed-bright:#d9e7bd;
+  --fs-micro:0.68em;--fs-xxs:0.74em;--fs-xs:0.82em;--fs-sm:0.92em;
+  --fs-md:1em;--fs-lg:1.12em;--fs-xl:1.28em;--fs-xxl:1.55em;--fs-title:1.86em;
+}
+html,body{width:100%;overflow-x:hidden;scrollbar-width:none;-ms-overflow-style:none}
+html::-webkit-scrollbar,body::-webkit-scrollbar{width:0;height:0}
+body{font-family:"Noto Serif SC","黑体",sans-serif;background:transparent}
+.zs-home{position:relative;width:100%;overflow:hidden;border:1px solid var(--line);border-radius:4px;background:linear-gradient(180deg,rgba(8,14,8,0.96),rgba(10,18,10,0.94));box-shadow:0 10px 34px rgba(0,0,0,0.52),inset 0 1px 0 rgba(138,122,80,0.08)}
+.zs-home::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:linear-gradient(180deg,transparent,rgba(138,122,80,0.45),transparent);opacity:.55;pointer-events:none}
+.zs-top{position:relative;padding:12px 16px 10px;border-bottom:1px solid rgba(138,122,80,0.16);background:linear-gradient(180deg,rgba(0,0,0,0.26),rgba(0,0,0,0.06));display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.zs-sig{display:flex;gap:2px;align-items:flex-end;height:11px}
+.zs-sig span{display:block;width:3px;border-radius:1px;background:var(--khaki);opacity:.82}
+.zs-sig span:nth-child(1){height:4px}.zs-sig span:nth-child(2){height:7px}.zs-sig span:nth-child(3){height:10px}
+.zs-left-top{display:flex;align-items:center;gap:8px;color:var(--muted);font-family:monospace;font-size:var(--fs-xs);letter-spacing:.16em}
+.zs-right-top{color:var(--muted);font-family:monospace;font-size:var(--fs-xxs);letter-spacing:.14em;text-align:right;line-height:1.5}
+.zs-head{padding:16px 16px 14px;border-bottom:1px solid rgba(138,122,80,0.12);background:linear-gradient(180deg,rgba(74,103,65,0.10),rgba(0,0,0,0))}
+.zs-kicker{font-family:monospace;font-size:var(--fs-xs);letter-spacing:.24em;color:var(--sub);margin-bottom:6px}
+.zs-title{font-size:var(--fs-title);line-height:1.15;color:var(--gold);font-weight:700;letter-spacing:.05em}
+.zs-subtitle{margin-top:6px;color:var(--text);font-size:var(--fs-md);line-height:1.9}
+.zs-chip-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.zs-chip{padding:3px 8px;border:1px solid rgba(138,122,80,0.28);border-radius:2px;font-size:var(--fs-xs);letter-spacing:.12em;font-family:monospace;color:var(--muted);background:rgba(138,122,80,0.06)}
+.zs-main{display:grid;grid-template-columns:1fr 1.1fr;gap:14px;padding:14px}
+.zs-panel{border:1px solid rgba(138,122,80,0.18);background:rgba(8,14,8,0.56);border-radius:3px;overflow:hidden}
+.zs-panel-h{display:flex;justify-content:space-between;align-items:center;padding:7px 12px;border-bottom:1px solid rgba(138,122,80,0.12);background:rgba(138,122,80,0.06)}
+.zs-panel-h .l{font-family:monospace;font-size:var(--fs-xs);letter-spacing:.16em;color:rgba(138,122,80,0.84)}
+.zs-panel-h .r{font-family:monospace;font-size:var(--fs-micro);letter-spacing:.12em;color:rgba(138,122,80,0.42)}
+.zs-tabs{display:flex;flex-wrap:wrap;border-bottom:1px solid rgba(138,122,80,0.18);background:rgba(0,0,0,0.12)}
+.zs-tab{padding:7px 10px;font-size:var(--fs-xs);font-family:monospace;letter-spacing:.08em;color:rgba(138,122,80,0.55);cursor:pointer;border-bottom:2px solid transparent;transition:.18s;white-space:nowrap;border-right:1px solid rgba(138,122,80,0.08)}
+.zs-tab:hover{color:rgba(200,168,74,0.8);background:rgba(138,122,80,0.06)}
+.zs-tab.active{color:var(--gold);border-bottom-color:var(--gold);background:rgba(138,122,80,0.08)}
+.zs-tab-panels{padding:10px}
+.zs-tab-panel{display:none}.zs-tab-panel.active{display:block}
+.zs-role-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.zs-role{position:relative;border:1px solid rgba(138,122,80,0.18);border-radius:3px;background:rgba(12,20,12,0.74);padding:10px;cursor:pointer;transition:.18s}
+.zs-role:hover{transform:translateY(-1px);border-color:rgba(138,122,80,0.45);background:rgba(18,28,18,0.9)}
+.zs-role.active{border-color:rgba(138,122,80,0.72);background:linear-gradient(180deg,rgba(74,103,65,0.26),rgba(12,20,12,0.88));box-shadow:0 0 0 1px rgba(138,122,80,0.16),inset 0 0 0 1px rgba(74,103,65,0.14)}
+.zs-role-name{font-size:var(--fs-lg);color:var(--text);font-weight:700}
+.zs-role-meta{margin-top:4px;font-size:var(--fs-xs);line-height:1.6;color:var(--muted)}
+.zs-right-body{padding:12px 14px;display:flex;flex-direction:column;gap:12px}
+.zs-seed-section{border:1px solid rgba(138,122,80,0.18);border-radius:3px;background:rgba(0,0,0,0.18);padding:12px}
+.zs-seed-label{font-size:var(--fs-xs);font-family:monospace;letter-spacing:.14em;color:var(--sub);margin-bottom:8px}
+.zs-seed-row{display:flex;gap:8px;align-items:center}
+.zs-seed-input{flex:1;padding:8px 10px;border:1px solid rgba(138,122,80,0.28);border-radius:3px;background:rgba(0,0,0,0.3);color:var(--text);font-family:monospace;font-size:var(--fs-md);outline:none}
+.zs-seed-input:focus{border-color:rgba(138,122,80,0.56)}
+.zs-seed-input::placeholder{color:rgba(138,122,80,0.35)}
+.zs-seed-btn{padding:8px 12px;border:1px solid rgba(138,122,80,0.3);background:rgba(74,103,65,0.18);color:var(--seed-bright);font-size:var(--fs-sm);border-radius:3px;cursor:pointer;white-space:nowrap;transition:.18s}
+.zs-seed-btn:hover{transform:translateY(-1px);border-color:rgba(138,122,80,0.5);background:rgba(74,103,65,0.28)}
+.zs-role-brief{border:1px solid rgba(138,122,80,0.16);border-radius:3px;background:rgba(0,0,0,0.14);padding:10px 12px}
+.zs-brief-name{font-size:var(--fs-xl);color:var(--gold);font-weight:700}
+.zs-brief-meta{margin-top:4px;font-size:var(--fs-sm);color:var(--sub);line-height:1.7}
+.zs-han-hint{display:none;align-items:center;justify-content:space-between;gap:8px;border:1px solid rgba(138,122,80,0.14);background:rgba(0,0,0,0.16);border-radius:3px;padding:8px 10px}
+.zs-han-btns{display:flex;gap:6px}
+.zs-han-btn{border:1px solid rgba(138,122,80,0.26);background:rgba(138,122,80,0.07);color:var(--text);font-size:var(--fs-sm);padding:5px 8px;border-radius:2px;cursor:pointer;transition:.18s}
+.zs-han-btn:hover{transform:translateY(-1px);border-color:rgba(138,122,80,0.52)}
+.zs-han-btn.active{border-color:rgba(138,122,80,0.68);background:rgba(74,103,65,0.22)}
+.zs-generate{width:100%;border:1px solid rgba(138,122,80,0.42);border-radius:3px;background:linear-gradient(180deg,rgba(74,103,65,0.44),rgba(40,55,36,0.72));color:var(--text);font-size:var(--fs-md);font-weight:700;letter-spacing:.08em;padding:10px 12px;cursor:pointer;transition:.18s}
+.zs-generate:hover{transform:translateY(-1px);border-color:rgba(138,122,80,0.72);background:linear-gradient(180deg,rgba(74,103,65,0.6),rgba(50,67,46,0.84))}
+.zs-preview{display:none;border:1px solid rgba(138,122,80,0.16);border-radius:3px;background:rgba(0,0,0,0.18);overflow:hidden}
+.zs-preview.show{display:block}
+.zs-preview-header{padding:8px 12px;border-bottom:1px solid rgba(138,122,80,0.1);background:rgba(138,122,80,0.04);font-family:monospace;font-size:var(--fs-xs);letter-spacing:.14em;color:var(--muted)}
+.zs-preview-body{padding:10px 12px;display:flex;flex-direction:column;gap:8px}
+.zs-pv-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.zs-pv-item{padding:8px 10px;border:1px solid rgba(138,122,80,0.12);background:rgba(0,0,0,0.14);border-radius:3px}
+.zs-pv-label{font-size:var(--fs-xxs);font-family:monospace;letter-spacing:.12em;color:var(--muted);margin-bottom:3px}
+.zs-pv-value{font-size:var(--fs-md);line-height:1.7;color:var(--text)}
+.zs-pv-full{grid-column:1/-1}
+.zs-pv-tags{display:flex;gap:6px;flex-wrap:wrap}
+.zs-pv-tag{padding:2px 7px;border:1px solid rgba(138,122,80,0.22);border-radius:2px;font-size:var(--fs-xs);color:var(--muted);background:rgba(138,122,80,0.06)}
+.zs-pv-tag.warn{border-color:rgba(201,133,114,0.35);color:var(--bad);background:rgba(201,133,114,0.08)}
+.zs-pv-tag.good{border-color:rgba(159,195,122,0.35);color:var(--good);background:rgba(159,195,122,0.08)}
+.zs-pv-section{border:1px solid rgba(138,122,80,0.12);border-radius:3px;background:rgba(0,0,0,0.14);overflow:hidden}
+.zs-pv-section-h{padding:6px 10px;border-bottom:1px solid rgba(138,122,80,0.08);background:rgba(138,122,80,0.04);font-size:var(--fs-xs);font-family:monospace;letter-spacing:.12em;color:var(--muted)}
+.zs-pv-section-body{padding:8px 10px;font-size:var(--fs-sm);line-height:1.8;color:var(--text)}
+.zs-pv-row{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:2px 0}
+.zs-pv-row-name{color:var(--text)}.zs-pv-row-val{color:var(--muted);font-family:monospace;font-size:var(--fs-xs)}
+.zs-pv-bar-wrap{display:flex;align-items:center;gap:8px;padding:4px 0}
+.zs-pv-bar-label{font-size:var(--fs-sm);color:var(--text);min-width:60px}
+.zs-pv-bar{flex:1;height:6px;background:rgba(138,122,80,0.10);border-radius:99px;overflow:hidden}
+.zs-pv-bar-fill{height:100%;border-radius:99px;transition:.3s width}
+.zs-pv-bar-fill.hp{background:linear-gradient(90deg,rgba(74,103,65,0.75),var(--good))}
+.zs-pv-bar-fill.sp{background:linear-gradient(90deg,rgba(74,103,65,0.62),var(--seed-bright))}
+.zs-pv-bar-fill.pol{background:linear-gradient(90deg,rgba(201,133,114,0.5),var(--bad))}
+.zs-pv-bar-num{font-size:var(--fs-xs);font-family:monospace;color:var(--muted);min-width:30px;text-align:right}
+.zs-confirm{width:100%;border:1px solid rgba(138,122,80,0.42);border-radius:3px;background:linear-gradient(180deg,rgba(74,103,65,0.44),rgba(40,55,36,0.72));color:var(--text);font-size:var(--fs-md);font-weight:700;letter-spacing:.08em;padding:10px 12px;cursor:pointer;transition:.18s;display:none}
+.zs-confirm.show{display:block}
+.zs-confirm:hover{transform:translateY(-1px);border-color:rgba(138,122,80,0.72)}
+.zs-status{font-size:var(--fs-xs);color:var(--seed-bright);font-family:monospace;letter-spacing:.12em;text-align:center;padding:4px 0}
+.zs-note{font-size:var(--fs-xs);color:var(--muted);line-height:1.7}
+.zs-foot{padding:10px 14px 13px;border-top:1px solid rgba(138,122,80,0.10);background:rgba(0,0,0,0.18);font-size:var(--fs-sm);line-height:1.8;color:var(--muted)}
+/* ── 自定义覆盖开关区 ── */
+.zs-overrides{position:relative;border:1px solid rgba(138,122,80,0.2);border-radius:3px;background:linear-gradient(180deg,rgba(74,103,65,0.12),rgba(74,103,65,0.04) 18%,rgba(0,0,0,0) 38%),repeating-linear-gradient(0deg,transparent,transparent 24px,rgba(138,122,80,0.012) 24px,rgba(138,122,80,0.012) 25px),rgba(0,0,0,0.18);overflow:hidden;box-shadow:none}
+.zs-overrides::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:linear-gradient(180deg,transparent,rgba(138,122,80,0.46),transparent);opacity:.74;pointer-events:none}
+.zs-overrides::after{content:'';position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(255,255,255,0.012),transparent 42%);opacity:.46}
+.zs-ov-header{position:relative;z-index:1;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:8px 12px;cursor:pointer;background:rgba(138,122,80,0.05);border-bottom:1px solid rgba(138,122,80,0.12);transition:.18s background,.18s border-color}
+.zs-ov-header:hover{background:rgba(74,103,65,0.14)}
+.zs-ov-header-l{flex:1;min-width:0;font-size:var(--fs-sm);font-family:monospace;letter-spacing:.1em;color:rgba(224,233,238,0.97);font-weight:700;line-height:1.65;text-wrap:pretty}
+.zs-ov-header-r{display:inline-flex;align-items:center;justify-content:center;padding:0;font-size:var(--fs-sm);line-height:1;color:var(--seed-bright);transition:.2s transform,.2s color;flex-shrink:0;background:none;border:none}
+.zs-ov-header:hover .zs-ov-header-r{color:rgba(229,239,205,0.98)}
+.zs-ov-header-r.open{transform:rotate(180deg)}
+.zs-ov-body{position:relative;z-index:1;display:none;padding:9px 12px 10px;flex-direction:column;gap:0;background:rgba(0,0,0,0.04)}
+.zs-ov-body.open{display:flex}
+.zs-ov-row{display:grid;grid-template-columns:minmax(3.9rem,auto) auto minmax(0,1fr);align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid rgba(138,122,80,0.08)}
+.zs-ov-row:last-child{border-bottom:none}
+.zs-ov-label{font-size:var(--fs-sm);color:rgba(217,228,233,0.96);min-width:0;font-weight:700;line-height:1.45}
+.zs-ov-toggle{position:relative;width:42px;height:20px;flex-shrink:0;display:inline-block}
+.zs-ov-toggle input{opacity:0;width:0;height:0}
+.zs-ov-slider{position:absolute;cursor:pointer;inset:0;border:1px solid rgba(138,122,80,0.22);background:rgba(15,21,15,0.96);border-radius:2px;transition:.2s background,.2s border-color,.2s box-shadow;box-shadow:none}
+.zs-ov-slider::before{content:'';position:absolute;left:2px;top:2px;width:15px;height:14px;background:rgba(214,199,148,0.9);border-radius:2px;transition:.2s transform,.2s background,.2s box-shadow;box-shadow:none}
+.zs-ov-slider::after{content:'OFF';position:absolute;right:4px;top:50%;transform:translateY(-50%);font-size:var(--fs-micro);font-family:monospace;letter-spacing:.12em;color:rgba(145,135,104,0.68);transition:.2s color,.2s left,.2s right}
+.zs-ov-toggle:hover .zs-ov-slider{border-color:rgba(138,122,80,0.34);background:rgba(18,26,18,0.98)}
+.zs-ov-toggle input:focus-visible+.zs-ov-slider{border-color:rgba(138,122,80,0.5);box-shadow:0 0 0 1px rgba(138,122,80,0.08)}
+.zs-ov-toggle input:checked+.zs-ov-slider{background:rgba(35,52,31,0.98);border-color:rgba(138,122,80,0.32);box-shadow:none}
+.zs-ov-toggle input:checked+.zs-ov-slider::before{transform:translateX(21px);background:rgba(228,218,176,0.94);box-shadow:none}
+.zs-ov-toggle input:checked+.zs-ov-slider::after{content:'ON';left:5px;right:auto;color:rgba(217,236,182,0.9)}
+.zs-ov-input{min-width:0;width:100%;padding:7px 10px;border:1px solid rgba(138,122,80,0.18);border-radius:3px;background:rgba(12,20,13,0.82);color:rgba(223,231,235,0.98);font-size:var(--fs-sm);outline:none;display:none;transition:.18s border-color,.18s background,.18s box-shadow}
+.zs-ov-input.show{display:block}
+.zs-ov-input:focus{border-color:rgba(138,122,80,0.46);background:rgba(15,24,15,0.94);box-shadow:0 0 0 1px rgba(138,122,80,0.08)}
+.zs-ov-input::placeholder{color:rgba(182,201,154,0.44);font-size:var(--fs-xs)}
+.zs-ov-hint{grid-column:3/4;font-size:var(--fs-micro);color:rgba(176,200,152,0.82);display:none;line-height:1.55}
+.zs-ov-hint.show{display:block}
+@media(max-width:760px){.zs-main{grid-template-columns:1fr}}
+@media(max-width:450px){.zs-role-grid{grid-template-columns:1fr}.zs-pv-grid{grid-template-columns:1fr}.zs-title{font-size:calc(var(--fs-title)*0.88)}.zs-seed-row{flex-direction:column}.zs-seed-btn{width:100%}.zs-ov-header{align-items:flex-start}.zs-ov-row{grid-template-columns:minmax(3.2rem,auto) auto;align-items:start}.zs-ov-input.show,.zs-ov-hint.show{grid-column:1/-1}}
+</style>
+</head>
+<body>
+<div class="zs-home">
+  <div class="zs-top">
+    <div class="zs-left-top"><div class="zs-sig"><span></span><span></span><span></span></div><span>GATE ZERO / SEED RANDOM</span></div>
+    <div class="zs-right-top">2030 · KR<br>SEED INIT / RNG</div>
+  </div>
+  <div class="zs-head">
+    <div class="zs-kicker">末世韩国 · 种子随机开局</div>
+    <div class="zs-title">零始之门同人</div>
+    <div class="zs-subtitle">选择角色 → 自定义+随机种子 → 生成预览 → 确认开局。输入内容和随机可以互相结合。相同角色+相同种子=完全相同的开局。</div>
+    <div class="zs-chip-row">
+      <span class="zs-chip">种子随机</span><span class="zs-chip">CP绑定</span><span class="zs-chip">自动写入变量</span>
+    </div>
+  </div>
+  <div class="zs-main">
+    <div class="zs-panel">
+      <div class="zs-panel-h"><span class="l">▌ 视角选择</span><span class="r">SELECT</span></div>
+      <div class="zs-tabs" id="zs-tabs"></div>
+      <div class="zs-tab-panels" id="zs-tab-panels"></div>
+    </div>
+    <div class="zs-panel">
+      <div class="zs-panel-h"><span class="l">▌ 种子开局</span><span class="r">SEED GEN</span></div>
+      <div class="zs-right-body">
+        <div class="zs-role-brief"><div class="zs-brief-name" id="zs-bn">—</div><div class="zs-brief-meta" id="zs-bm">请在左侧选择角色</div></div>
+        <div class="zs-han-hint" id="zs-hh"><span style="font-size:var(--fs-sm);color:var(--sub)">韩佳温三角关系，请选线路：</span><div class="zs-han-btns"><button class="zs-han-btn" id="zs-ha">成艺彬线</button><button class="zs-han-btn" id="zs-hb">朴武镇线</button></div></div>
+        <div class="zs-seed-section"><div class="zs-seed-label">▎ SEED</div><div class="zs-seed-row"><input class="zs-seed-input" id="zs-si" placeholder="输入种子或点随机…" maxlength="48" autocomplete="off"><button class="zs-seed-btn" id="zs-sr">🎲 随机</button></div></div>
+        <div class="zs-overrides">
+          <div class="zs-ov-header" id="zs-ov-toggle"><span class="zs-ov-header-l">✏️ 自定义覆盖 — 不想随机的内容可以手动填写</span><span class="zs-ov-header-r" id="zs-ov-arrow">▼</span></div>
+          <div class="zs-ov-body" id="zs-ov-body">
+            <div class="zs-ov-row"><span class="zs-ov-label">地点</span><label class="zs-ov-toggle"><input type="checkbox" data-ov="place"><span class="zs-ov-slider"></span></label><input class="zs-ov-input" data-ov-input="place" placeholder="自定义地点…"><span class="zs-ov-hint" data-ov-hint="place">开启后使用你填写的地点</span></div>
+            <div class="zs-ov-row"><span class="zs-ov-label">时间</span><label class="zs-ov-toggle"><input type="checkbox" data-ov="time"><span class="zs-ov-slider"></span></label><input class="zs-ov-input" data-ov-input="time" placeholder="如: 2030-11-12 14:30"><span class="zs-ov-hint" data-ov-hint="time">格式: YYYY-MM-DD HH:MM</span></div>
+            <div class="zs-ov-row"><span class="zs-ov-label">天气</span><label class="zs-ov-toggle"><input type="checkbox" data-ov="weather"><span class="zs-ov-slider"></span></label><input class="zs-ov-input" data-ov-input="weather" placeholder="如: 暴雨、晴朗微风…"><span class="zs-ov-hint" data-ov-hint="weather">自定义天气描述</span></div>
+            <div class="zs-ov-row"><span class="zs-ov-label">遭遇</span><label class="zs-ov-toggle"><input type="checkbox" data-ov="encounter"><span class="zs-ov-slider"></span></label><input class="zs-ov-input" data-ov-input="encounter" placeholder="自定义开局遭遇事件…"><span class="zs-ov-hint" data-ov-hint="encounter">替换随机遭遇</span></div>
+            <div class="zs-ov-row"><span class="zs-ov-label">状态</span><label class="zs-ov-toggle"><input type="checkbox" data-ov="status"><span class="zs-ov-slider"></span></label><input class="zs-ov-input" data-ov-input="status" placeholder="如: 满状态 / 轻伤 / 重伤残余…"><span class="zs-ov-hint" data-ov-hint="status">输入状态名或留空=满状态</span></div>
+            <div class="zs-ov-row"><span class="zs-ov-label">关系</span><label class="zs-ov-toggle"><input type="checkbox" data-ov="relation"><span class="zs-ov-slider"></span></label><input class="zs-ov-input" data-ov-input="relation" placeholder="自定义开局关系事件…"><span class="zs-ov-hint" data-ov-hint="relation">替换随机关系事件</span></div>
+            <div class="zs-ov-row"><span class="zs-ov-label">NPC</span><label class="zs-ov-toggle"><input type="checkbox" data-ov="npc"><span class="zs-ov-slider"></span></label><input class="zs-ov-input" data-ov-input="npc" placeholder="自定义NPC在场描述…或留空=无"><span class="zs-ov-hint" data-ov-hint="npc">留空则开局无NPC</span></div>
+          </div>
+        </div>
+        <button class="zs-generate" id="zs-gen">⟐ 生成开局预览</button>
+        <div class="zs-preview" id="zs-pv">
+          <div class="zs-preview-header">▎ RESULT — <span id="zs-pv-echo"></span></div>
+          <div class="zs-preview-body" id="zs-pv-body"></div>
+        </div>
+        <button class="zs-confirm" id="zs-cf">▶ 确认开局 · 写入变量并发送给 AI</button>
+        <div class="zs-status" id="zs-st">WAITING</div>
+        <div class="zs-note">确认后将角色信息、世界信息、背包、状态、遭遇等全部写入 MVU 变量，并将开局摘要填入输入框供 AI 直接展开剧情。</div>
+      </div>
+    </div>
+  </div>
+  <div class="zs-foot">种子随机开局：系统根据种子确定性地生成7维开局场景（地点·天气·遭遇·状态·NPC·关系·背包+并发症），相同种子=相同开局。</div>
+</div>
+<script>
+(async function(){
+/* ═══ 1. 种子RNG工具 ═══ */
+function hashSeed(s){let h=2166136261>>>0;for(let i=0;i<String(s).length;i++){h^=String(s).charCodeAt(i);h=Math.imul(h,16777619);}return h>>>0;}
+function rng(seed){let a=hashSeed(seed)||1;return function(){a|=0;a=(a+0x6D2B79F5)|0;let t=Math.imul(a^(a>>>15),1|a);t=(t+Math.imul(t^(t>>>7),61|t))^t;return((t^(t>>>14))>>>0)/4294967296;};}
+function pick(arr,r){return arr[Math.floor(r()*arr.length)];}
+function pickN(arr,n,r){const s=[...arr];const o=[];for(let i=0;i<Math.min(n,s.length);i++){const idx=Math.floor(r()*s.length);o.push(s.splice(idx,1)[0]);}return o;}
+function rint(a,b,r){return Math.floor(r()*(b-a+1))+a;}
+function rseed(){return[Date.now().toString(36),Math.random().toString(36).slice(2,7)].join('-');}
+function esc(s){return String(s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));}
+
+/* ═══ 2. 角色数据 ═══ */
+const R=[
+  {id:'zhou',name:'周成宰',group:'周成宰 × 金义材',bind:'金义材',rival:'无',route:'固定双人线',gi:1},
+  {id:'jin',name:'金义材',group:'周成宰 × 金义材',bind:'周成宰',rival:'无',route:'固定双人线',gi:0},
+  {id:'han',name:'韩佳温',group:'韩佳温 × 成艺彬 / 朴武镇',bind:'成艺彬/朴武镇',rival:'双线竞争',route:'三角中心',routes:{cheng:{bind:'成艺彬',rival:'朴武镇',route:'成艺彬线',gi:4},park:{bind:'朴武镇',rival:'成艺彬',route:'朴武镇线',gi:3}}},
+  {id:'cheng',name:'成艺彬',group:'韩佳温 × 成艺彬 / 朴武镇',bind:'韩佳温',rival:'朴武镇',route:'三角支线A',gi:5},
+  {id:'park',name:'朴武镇',group:'韩佳温 × 成艺彬 / 朴武镇',bind:'韩佳温',rival:'成艺彬',route:'三角支线B',gi:2},
+  {id:'liu',name:'刘率',group:'刘率 × 崔诺亚',bind:'崔诺亚',rival:'无',route:'固定双人线',gi:7},
+  {id:'cui',name:'崔诺亚',group:'刘率 × 崔诺亚',bind:'刘率',rival:'无',route:'固定双人线',gi:6},
+  {id:'li',name:'李宇林',group:'李宇林 × 白耀汉',bind:'白耀汉',rival:'无',route:'固定双人线',gi:10},
+  {id:'bai',name:'白耀汉',group:'李宇林 × 白耀汉',bind:'李宇林',rival:'无',route:'固定双人线',gi:11},
+  {id:'he',name:'河载京',group:'河载京 × 徐泰贤',bind:'徐泰贤',rival:'无',route:'固定双人线',gi:9},
+  {id:'xu',name:'徐泰贤',group:'河载京 × 徐泰贤',bind:'河载京',rival:'无',route:'固定双人线',gi:8},
+  {id:'shen',name:'申成日',group:'闵时厚 × 申成日',bind:'闵时厚',rival:'无',route:'固定双人线',gi:13},
+  {id:'min',name:'闵时厚',group:'闵时厚 × 申成日',bind:'申成日',rival:'无',route:'固定双人线',gi:12}
+];
+const TG=[
+  {key:'zj',label:'周成宰×金义材',ids:['zhou','jin']},
+  {key:'han',label:'韩佳温△三角',ids:['han','cheng','park']},
+  {key:'lc',label:'刘率×崔诺亚',ids:['liu','cui']},
+  {key:'lb',label:'李宇林×白耀汉',ids:['li','bai']},
+  {key:'hx',label:'河载京×徐泰贤',ids:['he','xu']},
+  {key:'sm',label:'申成日×闵时厚',ids:['shen','min']}
+];
+
+/* ═══ 3. 角色辅助 ═══ */
+function partner(n,l){
+  const m={'周成宰':'金义材','金义材':'周成宰','成艺彬':'韩佳温','朴武镇':'韩佳温','刘率':'崔诺亚','崔诺亚':'刘率','白耀汉':'李宇林','李宇林':'白耀汉','河载京':'徐泰贤','徐泰贤':'河载京','申成日':'闵时厚','闵时厚':'申成日'};
+  if(n==='韩佳温') return l==='成艺彬线'?'成艺彬':l==='朴武镇线'?'朴武镇':'';
+  return m[n]||'';
+}
+function grp(n,l){
+  if(['周成宰','金义材','成艺彬'].includes(n)) return 'mil';
+  if(n==='韩佳温'&&l==='成艺彬线') return 'med';
+  if(n==='韩佳温'&&l==='朴武镇线') return 'gray';
+  if(['朴武镇','申成日','闵时厚'].includes(n)) return 'gray';
+  if(['刘率','崔诺亚'].includes(n)) return 'guild';
+  if(['白耀汉','李宇林'].includes(n)) return 'res';
+  if(['河载京','徐泰贤'].includes(n)) return 'field';
+  return 'gen';
+}
+function llk(k){return k==='cheng'?'成艺彬线':k==='park'?'朴武镇线':'';}
+
+/* ═══ 4. 开局数据池 ═══ */
+const PL={
+mil:{
+  place:['世宗市 710联队军营','世宗市 710联队军营·训练区外侧','世宗市 710联队军营·临时宿舍走廊','世宗市 710联队军营·指挥室外','世宗市 710联队军营·弹药库旁','世宗市 710联队军营·食堂','世宗市 前线哨所·临时观测点','世宗市 联队车库·装甲区','世宗市 710联队军营·通讯塔下','世宗市 前线·防线缺口段','世宗市 710联队军营·禁闭室外','世宗市 710联队军营·医务站'],
+  time:['2030-11-12 04:45','2030-11-12 05:30','2030-11-12 05:50','2030-11-12 06:10','2030-11-12 06:25','2030-11-12 06:40','2030-11-12 07:00','2030-11-12 07:20','2030-11-12 03:15','2030-11-12 08:00'],
+  weather:['阴冷','低温有雾','寒风偏强','天色阴沉','薄雾笼罩','冷风间歇','灰蒙蒙','黎明前的寒意','微雪','冰雨将至'],
+  tags:[['军方','营区','待命'],['军方','晨间报到','警戒'],['军方','任务前','压抑'],['军方','巡逻交接','紧张'],['军方','后勤整备','平静'],['军方','防线','危险'],['军方','通讯','例行']],
+  enc:['营区晨间集合，气氛沉默','远处传来低沉的克锐特嘶鸣','昨夜的战斗留下了弹痕与焦土','一辆补给车刚刚抵达','哨兵报告北方有异常能量波动','食堂排队时听到前线战报','换班的士兵带回了前线情报','有人在角落低声争论编制调整','防线外发现新的克锐特巢穴痕迹','通讯塔信号出现短暂干扰','一名伤兵被紧急送入医务站','弹药库清点发现库存不足']
+},
+med:{
+  place:['世宗市 710联队军营·观察病房','世宗市 710联队军营·临时安置区','世宗市 710联队军营·医务区走廊','世宗市 710联队军营·特护单元','世宗市 710联队军营·康复训练室','世宗市 710联队军营·检查室'],
+  time:['2030-11-12 07:15','2030-11-12 07:40','2030-11-12 08:05','2030-11-12 08:20','2030-11-12 08:40','2030-11-12 09:00'],
+  weather:['阴冷','晨雾未散','气温偏低','微风','薄云低垂','空气干冷'],
+  tags:[['军方','观察期','医疗'],['军方','安置','警戒'],['医务','留观','紧张'],['特护','恢复中','受限'],['康复','测试','观察'],['检查','评估','等候']],
+  enc:['护士查房时提到有新的觉醒者需要稳定','走廊尽头传来压抑的呻吟声','一份关于体内碎片的检测报告放在床头','有人在窗外低声交谈，提到了"漂泊者"','医疗仪器发出规律的嘀声','康复训练时感到胸口碎片隐隐发热','一个被约束的暴走患者在隔壁嘶吼','检查室外排着几个面色苍白的觉醒者']
+},
+gray:{
+  place:['世宗市 城区边缘临时据点','世宗市 旧商区废楼据点','世宗市 军营外围接应点','世宗市 废弃地铁站入口','世宗市 破损天桥下方','大田市 废弃工厂区','首尔南部 旧住宅区废墟','世宗市 地下排水道出口','世宗市 废弃学校操场','首尔 汉江桥下暗道'],
+  time:['2030-11-12 06:30','2030-11-12 07:45','2030-11-12 08:10','2030-11-12 09:00','2030-11-12 09:30','2030-11-12 10:15','2030-11-12 11:00','2030-11-12 05:00','2030-11-12 04:20'],
+  weather:['阴','低温','雾气偏重','冷风夹杂灰尘','天色发暗','闷热潮湿','断续小雨','浓雾','刺骨寒风'],
+  tags:[['城区','潜伏','试探'],['灰区','接应','观察'],['边缘地带','压抑','不稳定'],['废墟','搜索','危险'],['地下','隐蔽','紧张'],['无人区','求生','孤立'],['暗道','逃亡','未知']],
+  enc:['远处传来枪声，不知是哪方势力','一群流浪者正匆忙往南方撤离','地面上有新鲜的克锐特黏液痕迹','一个不明身份的人在暗处观察你','废楼里发现了被遗弃的物资箱','空气中弥漫着淡淡的孢子气味','墙壁上刻着曙龙的地盘标记','发现一具被克锐特同化到一半的尸体','地下通道里传来沉重的脚步声','一扇紧锁的门后似乎有人在呼救']
+},
+guild:{
+  place:['丽水市 太乙公会总部','丽水市 太乙公会·会长办公室外','丽水市 太乙公会·训练场','丽水市 太乙公会·任务大厅','丽水市 太乙公会·宿舍区','丽水市 东区夜市旁','丽水市 太乙公会·情报室','丽水市 太乙公会·地下储藏室'],
+  time:['2030-11-12 07:50','2030-11-12 08:30','2030-11-12 09:00','2030-11-12 09:45','2030-11-12 10:00','2030-11-12 11:20','2030-11-12 08:10'],
+  weather:['晴朗微风','薄云','暖阳初升','海风徐徐','多云','潮湿温暖','晨间薄雾'],
+  tags:[['太乙','公会','日常'],['太乙','任务','准备'],['太乙','训练','社交'],['丽水','城区','繁华'],['太乙','宿舍','休息'],['太乙','情报','调查'],['丽水','夜市','热闹']],
+  enc:['任务板上贴出了新的讨伐委托','几个新加入的觉醒者正在大厅等候','有人在议论最近北方的克锐特异动','夜市的喧嚣隐约传来','公会接到了一笔高额护送任务','训练场上有人在测试新的异能组合','情报室传来一封来自710联队的加急信函','储藏室清点时发现几个核心碎片的存放位异常']
+},
+res:{
+  place:['大田市 特异现象管理厅·研究区','大田市 特异现象管理厅·标本室','大田市 附属医院·特殊病房','大田市 特异现象管理厅·地下档案室','大田市 研究所·实验走廊','大田市 研究所·临时办公区','大田市 研究所·能量监测室','大田市 附属医院·停尸房外'],
+  time:['2030-11-12 06:50','2030-11-12 07:30','2030-11-12 08:15','2030-11-12 08:50','2030-11-12 09:10','2030-11-12 10:30','2030-11-12 07:00'],
+  weather:['阴','室内恒温','低温有雾','灰蒙蒙','冷风间歇','天色发暗','空调运转声'],
+  tags:[['研究所','实验','数据'],['研究所','医疗','观察'],['研究所','档案','调查'],['研究所','标本','分析'],['研究所','紧急','修复'],['研究所','监测','异常'],['研究所','太平间','沉重']],
+  enc:['昨夜的实验数据出现了异常波动','一份加密文件被送到了桌上','标本室的克锐特样本发出了微弱的绿光','有研究员在走廊低声争论什么','医疗仪器监测到觉醒者的精神波动','地下档案室发现了7年前的未解密记录','能量监测室警报响了三次又自动消除','停尸房外的温度异常偏高，有人怀疑遗体复苏']
+},
+field:{
+  place:['丽水市 古董店','丽水市 东区街道','丽水市 地下斗技场入口','丽水市 港口旧仓库','丽水市 西区诊所','丽水市 夜市小巷','丽水市 海边废弃灯塔','丽水市 码头渡轮停靠处','丽水市 旧教堂改造的收容站','丽水市 东区非法改装武器店'],
+  time:['2030-11-12 06:15','2030-11-12 07:40','2030-11-12 08:30','2030-11-12 09:20','2030-11-12 09:50','2030-11-12 10:00','2030-11-12 11:00','2030-11-12 08:00'],
+  weather:['海风吹拂','多云','潮湿','微雨','阳光穿云','闷热','晨雾','盐味海风'],
+  tags:[['丽水','街头','流浪'],['丽水','商铺','交易'],['丽水','地下','危险'],['丽水','港口','隐蔽'],['丽水','诊所','医疗'],['丽水','海边','孤寂'],['丽水','码头','出逃'],['丽水','武器','黑市']],
+  enc:['古董店里有人在低声询问禁品价格','街道上一群人围观着什么','远处传来斗技场的欢呼声','仓库里发现了走私物资的痕迹','诊所排着长队等待治疗','小巷深处有人在交换情报','灯塔上有人留下了暗号标记','码头一艘小船正在偷偷装货','收容站里挤满了从北方逃来的难民','武器店老板压低声音说有新货到了']
+},
+gen:{
+  place:['世宗市 临时安置点','世宗市 街区边缘安全屋','世宗市 废楼低层据点','流浪者营地·路边','检查点附近·等候区','大田-世宗 公路边帐篷','废弃加油站'],
+  time:['2030-11-12 07:30','2030-11-12 08:00','2030-11-12 08:40','2030-11-12 09:10','2030-11-12 10:20'],
+  weather:['阴','低温','空气潮冷','微风','雾气缓缓消散','冷雨','灰暗'],
+  tags:[['安置','观察'],['城市','低烈度危险'],['临时据点','待行动'],['流浪','生存'],['检查点','通行'],['公路','荒废'],['废弃','搜索']],
+  enc:['四周一片安静，但空气中有紧张的气息','有人在分发今天的配给物资','远处传来不明方向的爆炸声','一个受伤的流浪者被人搀扶着走过','检查点的军人正在盘查通行者','帐篷里有人在低声哭泣','废弃加油站里藏着一个小型物资点']
+}};
+
+/* ═══ 5. NPC遭遇池 ═══ */
+const NPC_POOL={
+mil:['崔道允中校路过，停下来看了你一眼','徐睿俊下士正在走廊拖着一箱零件','一个不认识的新兵向你敬礼','韩宇宙从训练场跑来，满头大汗','崔韩光站在角落，面无表情地擦拭武器'],
+med:['一个护士在低声打电话，表情凝重','白耀汉所长手持文件匆匆走过','李宇林下士坐在走廊长椅上发呆','一个不认识的引导者在给暴走患者做安抚','吕太洲端着咖啡走过，向你点了点头'],
+gray:['一个蒙面人在废楼拐角消失','姜勇祖的手下似乎在附近活动','雷登独自坐在废墟上擦着武器','流正靠在墙边警惕地观察着来人','宋诗雨从远处走来，身上沾满灰尘','尹胜浩和白罗谦在暗处低声交谈'],
+guild:['努儿在训练场角落安静地冥想','理斯在任务大厅翻看委托单','吕太洲正在搬运补给品','金懿玄蹲在角落观察一株异常植物','一个太乙新人在向前辈请教异能控制'],
+res:['金懿玄在实验室里做着什么分析','吕太洲在走廊里和一个研究员激烈讨论','一个不认识的研究员慌张地跑过','韩宇礼靠在窗边望着外面发呆','白耀汉所长面色严肃地盯着一份报告'],
+field:['河载京在古董店后门抽烟','一个黑市商人鬼鬼祟祟地走过','努儿在街角卖着不知从哪弄来的草药','宋诗雨在诊所门口等候','一个面生的曙龙成员在打量过往行人'],
+gen:['一个瘦弱的流浪者向你讨要食物','远处一个觉醒者的异能光芒一闪而过','一个带着面具的人从你身边快步走过','韩宇礼坐在路边翻着一本破旧的书','一个自称"信使"的人递来一张纸条']
+};
+
+/* ═══ 6. 关系事件池 ═══ */
+const REL_POOL={
+neutral:['一切如常，尚未发生值得记录的事件','双方保持着安全距离的沉默','最近一次见面是在执行任务时的例行交流'],
+positive:['昨晚CP主动分享了一份食物','CP似乎有意无意地靠近了一些','上次任务中CP替你挡了一击','CP最近总是偷偷看向你的方向','对方在你入睡后替你盖上了外套'],
+tension:['与CP之间产生了一些误会尚未解开','CP最近明显在回避你','一次任务中的分歧让气氛变得微妙','CP对你说了一句意味深长的话后转身离开','第三者的出现让关系变得更加复杂'],
+concern:['CP最近精神状态似乎不太稳定','你注意到CP手上有新的伤口','CP昨晚又做了噩梦，但没有告诉任何人','有人提到CP在暴走边缘被拉了回来','CP的体力消耗过度，但拒绝休息'],
+mission:['收到CP的紧急求援信号','CP独自前往了危险区域','一份与CP相关的情报需要立即确认','CP被安排了一项高风险任务','有人报告在前线看到了CP的身影']
+};
+
+/* ═══ 7. 并发症池 ═══ */
+const COMP_POOL=[
+  {tag:'⚡通讯中断',desc:'区域通讯信号被干扰，手表无法发送或接收消息',varEffect:{path:'世界信息.备注',val:'通讯中断中'}},
+  {tag:'🌧️恶劣天气',desc:'天气急剧恶化，能见度下降，异能者暴走风险上升',varEffect:{path:'世界信息.天气',val:'暴雨·能见度极低'}},
+  {tag:'🦠附近有克锐特活动',desc:'感知到附近有克锐特移动的迹象，需保持高度警惕',varEffect:{path:'世界信息.遭遇事件',suffix:' · 附近有克锐特活动迹象'}},
+  {tag:'🔒物资短缺',desc:'营地/据点的物资配给被削减，食物和医疗用品紧张',varEffect:null},
+  {tag:'📡异常能量波动',desc:'仁川方向传来异常能量波动，觉醒者感到不适',varEffect:{path:'世界信息.备注',val:'仁川方向异常能量波动'}},
+  {tag:'🚨势力冲突升级',desc:'附近两个势力的冲突升级，波及到了你所在的区域',varEffect:null},
+  {tag:'💀有人失踪',desc:'昨夜有人在附近失踪，目前下落不明',varEffect:null},
+  {tag:'🌿孢子雾扩散',desc:'绿色孢子雾正在向此区域扩散，长时间暴露有感染风险',varEffect:{path:'世界信息.天气',suffix:' · 孢子雾扩散中'}},
+  {tag:'⚠️暴走预警',desc:'区域内多名觉醒者出现精神不稳定征兆，引导者被紧急召集',varEffect:null},
+  {tag:'🔥前线战况恶化',desc:'北方防线遭到克锐特集中突破，增援请求频繁',varEffect:null},
+  {tag:'🗝️发现线索',desc:'在角落发现了一份可能与"漂泊者"或姜勇祖相关的情报碎片',varEffect:null},
+  {tag:'💊抑制剂短缺',desc:'觉醒者用的精神抑制剂库存告急，可能影响异能控制',varEffect:null}
+];
+
+/* ═══ 8. 背包生成池 ═══ */
+const BAG_BASE_MED={'绷带':2,'止痛药':1};
+const BAG_BASE_FOOD={'瓶装水':2,'压缩口粮':2};
+const BAG_BASE_INTEL={'随身手电':{描述:'基础照明工具',状态:'可用',数量:1,备注:'开局携带'}};
+const BAG_BONUS={
+mil:[
+  {wd:{'折叠军刀':{余弹:0,最大余弹:0,耐久:100,状态:'可用',备注:'近战'}},md:{'止血贴':1}},
+  {id:{'军营通行条':{描述:'基础通行凭据',状态:'可用',数量:1,备注:'附加'}},fd:{'能量棒':1}},
+  {wd:{'手枪(空弹匣)':{余弹:0,最大余弹:12,耐久:85,状态:'可用',备注:'需补弹药'}},md:{'急救包':1}},
+  {wd:{'战术匕首':{余弹:0,最大余弹:0,耐久:95,状态:'可用',备注:'标配近战'}},fd:{'军用罐头':1}},
+  {id:{'战场笔记':{描述:'前线作战记录片段',状态:'可用',数量:1,备注:'附加'}},md:{'绷带':2,'消毒液':1}}
+],
+med:[
+  {md:{'基础抑制剂':1,'生理盐水':1}},
+  {id:{'临时留观记录':{描述:'观察期记录',状态:'可用',数量:1,备注:'附加'}},fd:{'葡萄糖口服液':1}},
+  {md:{'抗感染药剂':1},fd:{'营养液':1}},
+  {md:{'精神稳定贴片':1,'止血贴':2}},
+  {id:{'碎片检测报告':{描述:'体内碎片初步分析',状态:'可用',数量:1,备注:'附加'}}}
+],
+gray:[
+  {wd:{'折叠刀':{余弹:0,最大余弹:0,耐久:100,状态:'可用',备注:'隐藏'}},fd:{'能量棒':1}},
+  {id:{'匿名联络纸条':{描述:'写有会面提示',状态:'可用',数量:1,备注:'附加'}},md:{'止血绷带':2}},
+  {wd:{'铁管':{余弹:0,最大余弹:0,耐久:70,状态:'可用',备注:'临时武器'}},fd:{'罐头':1}},
+  {id:{'势力地盘草图':{描述:'标注了附近势力范围',状态:'可用',数量:1,备注:'附加'}},md:{'止痛药':1}},
+  {wd:{'改装弩':{余弹:3,最大余弹:5,耐久:60,状态:'可用',备注:'低噪武器'}}}
+],
+guild:[
+  {md:{'太乙制式急救包':1},fd:{'太乙配给餐':1}},
+  {id:{'公会通讯徽章':{描述:'太乙成员标识',状态:'可用',数量:1,备注:'附加'}},fd:{'清水壶':1}},
+  {md:{'高级止痛药':1},id:{'丽水地图':{描述:'标注主要设施',状态:'可用',数量:1,备注:'附加'}}},
+  {fd:{'太乙特制干粮':2},md:{'净水片':2}},
+  {id:{'任务委托单':{描述:'一张尚未完成的委托',状态:'可用',数量:1,备注:'附加'}},wd:{'太乙制式短剑':{余弹:0,最大余弹:0,耐久:90,状态:'可用',备注:'公会配发'}}}
+],
+res:[
+  {md:{'实验用抑制剂':1,'无菌绷带':2}},
+  {id:{'研究所通行卡':{描述:'A级通行权限',状态:'可用',数量:1,备注:'附加'}},md:{'止血贴':2}},
+  {id:{'克锐特样本容器(空)':{描述:'可采集样本',状态:'可用',数量:1,备注:'附加'}},fd:{'营养棒':1}},
+  {md:{'精神稳定注射器':1},id:{'实验日志碎页':{描述:'记录了一个异常数据',状态:'可用',数量:1,备注:'附加'}}},
+  {fd:{'研究所配给咖啡':1},md:{'高级绷带':1,'解毒药':1}}
+],
+field:[
+  {md:{'草药膏':1},fd:{'干粮':2}},
+  {id:{'旧地图页':{描述:'附近路线标注',状态:'可用',数量:1,备注:'附加'}},fd:{'罐头':1}},
+  {wd:{'匕首':{余弹:0,最大余弹:0,耐久:90,状态:'可用',备注:'防身'}},md:{'净水片':2}},
+  {id:{'黑市价目表':{描述:'近期黑市行情',状态:'可用',数量:1,备注:'附加'}},fd:{'烧酒':1}},
+  {wd:{'改装手弩':{余弹:2,最大余弹:4,耐久:65,状态:'可用',备注:'黑市货'}},md:{'草药膏':1}}
+],
+gen:[
+  {md:{'绷带':1},fd:{'瓶装水':1}},
+  {id:{'便签纸':{描述:'空白便签',状态:'可用',数量:1,备注:'附加'}},fd:{'压缩饼干':1}},
+  {md:{'止痛药':1},fd:{'能量棒':1}},
+  {wd:{'削尖木棍':{余弹:0,最大余弹:0,耐久:40,状态:'可用',备注:'简陋武器'}}},
+  {id:{'求救信':{描述:'一封来路不明的求救信',状态:'可用',数量:1,备注:'附加'}},fd:{'野果':2}}
+]};
+
+/* ═══ 9. 起始状态随机 ═══ */
+const STATUS_POOL=[
+  {label:'满状态',hp:100,sp:100,pol:0,injury:'无',mood:'保持观察',prob:35},
+  {label:'轻度疲劳',hp:85,sp:90,pol:0,injury:'无',mood:'有些倦怠',prob:20},
+  {label:'轻伤',hp:70,sp:85,pol:0,injury:'轻微',mood:'忍耐中',prob:12},
+  {label:'精神不稳',hp:90,sp:65,pol:5,injury:'无',mood:'感到焦躁不安',prob:10},
+  {label:'中度损伤',hp:55,sp:70,pol:10,injury:'中等',mood:'勉强撑着',prob:8},
+  {label:'轻微感染',hp:80,sp:75,pol:15,injury:'轻微',mood:'压抑着不安',prob:6},
+  {label:'严重消耗',hp:40,sp:50,pol:5,injury:'中等',mood:'极度疲惫',prob:4},
+  {label:'重伤残余',hp:30,sp:60,pol:20,injury:'严重',mood:'强忍疼痛',prob:3},
+  {label:'暴走余波',hp:65,sp:35,pol:25,injury:'轻微',mood:'混沌初定，记忆模糊',prob:2}
+];
+function pickWeighted(pool,r){
+  const total=pool.reduce((s,x)=>s+x.prob,0);
+  let v=r()*total;
+  for(const x of pool){v-=x.prob;if(v<=0)return x;}
+  return pool[0];
+}
+
+/* ═══ 10. 综合生成函数 ═══ */
+function generate(role,line,seed){
+  const g=grp(role.name,line);
+  const pool=PL[g]||PL.gen;
+  const r1=rng(seed+'|'+g+'|'+role.id);
+  const r2=rng(seed+'|bag|'+g+'|'+role.id);
+  const r3=rng(seed+'|status|'+role.id);
+  const r4=rng(seed+'|npc|'+g);
+  const r5=rng(seed+'|rel|'+role.id);
+  const r6=rng(seed+'|comp|'+g);
+
+  // 地点/天气/标签/遭遇
+  const place=pick(pool.place,r1);
+  // 时间：随机月份(1-12)、随机日(每月7天范围)、随机时分
+  const month=rint(1,12,r1);
+  const maxDay=[31,28,31,30,31,30,31,31,30,31,30,31][month-1];
+  const dayStart=rint(1,Math.max(1,maxDay-6),r1);
+  const dayVal=rint(dayStart,Math.min(maxDay,dayStart+6),r1);
+  const hour=rint(3,23,r1);
+  const minute=rint(0,59,r1);
+  const time='2030-'+String(month).padStart(2,'0')+'-'+String(dayVal).padStart(2,'0')+' '+String(hour).padStart(2,'0')+':'+String(minute).padStart(2,'0');
+  const weather=pick(pool.weather,r1);
+  const tags=pick(pool.tags,r1);
+  const encounter=pick(pool.enc,r1);
+  const day=1;
+
+  // 背包
+  const bpool=BAG_BONUS[g]||BAG_BONUS.gen;
+  const bonus=pick(bpool,r2);
+  const bag={
+    武器:{},武器详情:{...(bonus.wd||{})},
+    医疗:{...BAG_BASE_MED,...(bonus.md||{})},
+    食物水:{...BAG_BASE_FOOD,...(bonus.fd||{})},
+    异能道具:{},情报道具:{},
+    情报道具详情:{...BAG_BASE_INTEL,...(bonus.id||{})},
+    本轮变化:'开局初始装备'
+  };
+
+  // 起始状态
+  const status=pickWeighted(STATUS_POOL,r3);
+
+  // NPC遭遇（60%概率触发）
+  const npcPool=NPC_POOL[g]||NPC_POOL.gen;
+  const hasNpc=r4()<0.6;
+  const npc=hasNpc?pick(npcPool,r4):null;
+
+  // 关系事件（按状态权重）
+  const relKeys=Object.keys(REL_POOL);
+  const relWeights=[30,25,20,15,10];
+  let relTotal=relWeights.reduce((a,b)=>a+b,0),rv=r5()*relTotal,relIdx=0;
+  for(let i=0;i<relWeights.length;i++){rv-=relWeights[i];if(rv<=0){relIdx=i;break;}}
+  const relCategory=relKeys[relIdx];
+  const relEvent=pick(REL_POOL[relCategory],r5);
+
+  // 并发症（40%概率触发1个，10%概率触发2个）
+  const compRoll=r6();
+  let complications=[];
+  if(compRoll<0.10) complications=pickN(COMP_POOL,2,r6);
+  else if(compRoll<0.50) complications=pickN(COMP_POOL,1,r6);
+
+  return {place,time,weather,tags,encounter,day,bag,status,npc,relCategory,relEvent,complications,seed};
+}
+
+/* ═══ 11. UI逻辑 ═══ */
+let cur=R[0],hr=null,at=TG[0].key,res=null;
+const $=id=>document.getElementById(id);
+
+function buildTabs(){
+  const te=$('zs-tabs'),pe=$('zs-tab-panels');
+  te.innerHTML='';pe.innerHTML='';
+  TG.forEach(tg=>{
+    const t=document.createElement('div');
+    t.className='zs-tab'+(tg.key===at?' active':'');
+    t.textContent=tg.label;
+    t.onclick=()=>{at=tg.key;buildTabs();};
+    te.appendChild(t);
+    const p=document.createElement('div');
+    p.className='zs-tab-panel'+(tg.key===at?' active':'');
+    const g=document.createElement('div');
+    g.className='zs-role-grid';
+    tg.ids.forEach(rid=>{
+      const ro=R.find(x=>x.id===rid);if(!ro)return;
+      const b=document.createElement('div');
+      b.className='zs-role'+(ro.id===cur.id?' active':'');
+      b.innerHTML='<div class="zs-role-name">'+esc(ro.name)+'</div><div class="zs-role-meta">绑定：'+esc(ro.bind)+'<br>路线：'+esc(ro.route)+'</div>';
+      b.onclick=()=>{cur=ro;at=tg.key;if(ro.id!=='han')hr=null;res=null;$('zs-pv').classList.remove('show');$('zs-cf').classList.remove('show');buildTabs();brief();};
+      g.appendChild(b);
+    });
+    p.appendChild(g);pe.appendChild(p);
+  });
+}
+
+function brief(){
+  $('zs-bn').textContent=cur.name;
+  let m='绑定：'+cur.bind+' ｜ 路线：'+cur.route;
+  if(cur.id==='han'&&hr&&cur.routes[hr]){const r=cur.routes[hr];m='绑定：'+r.bind+' ｜ 竞争：'+r.rival+' ｜ '+r.route;}
+  $('zs-bm').textContent=m;
+  $('zs-hh').style.display=cur.id==='han'?'flex':'none';
+  if(cur.id==='han'){$('zs-ha').classList.toggle('active',hr==='cheng');$('zs-hb').classList.toggle('active',hr==='park');}
+  $('zs-st').textContent=(cur.id==='han'&&!hr)?'请选韩佳温线路':'READY · 输入种子并生成';
+}
+
+function renderPreview(d){
+  const b=$('zs-pv-body');
+  b.innerHTML='';
+  $('zs-pv-echo').textContent=d.seed;
+
+  // 场景信息
+  let h='<div class="zs-pv-grid">';
+  h+='<div class="zs-pv-item"><div class="zs-pv-label">地点</div><div class="zs-pv-value">'+esc(d.place)+'</div></div>';
+  h+='<div class="zs-pv-item"><div class="zs-pv-label">时间</div><div class="zs-pv-value">'+esc(d.time)+' · 第'+d.day+'天</div></div>';
+  h+='<div class="zs-pv-item"><div class="zs-pv-label">天气</div><div class="zs-pv-value">'+esc(d.weather)+'</div></div>';
+  h+='<div class="zs-pv-item"><div class="zs-pv-label">场景标签</div><div class="zs-pv-tags">'+(d.tags||[]).map(t=>'<span class="zs-pv-tag">'+esc(t)+'</span>').join('')+'</div></div>';
+  h+='</div>';
+
+  // 遭遇
+  h+='<div class="zs-pv-section"><div class="zs-pv-section-h">⚡ 开局遭遇</div><div class="zs-pv-section-body">'+esc(d.encounter)+'</div></div>';
+
+  // NPC遭遇
+  if(d.npc){
+    h+='<div class="zs-pv-section"><div class="zs-pv-section-h">👤 NPC在场</div><div class="zs-pv-section-body">'+esc(d.npc)+'</div></div>';
+  }
+
+  // 关系事件
+  const relColor=d.relCategory==='positive'?'good':d.relCategory==='tension'||d.relCategory==='concern'?'warn':'';
+  h+='<div class="zs-pv-section"><div class="zs-pv-section-h">💞 关系事件 <span class="zs-pv-tag '+relColor+'" style="margin-left:6px">'+esc(d.relCategory)+'</span></div><div class="zs-pv-section-body">'+esc(d.relEvent)+'</div></div>';
+
+  // 起始状态
+  const s=d.status;
+  h+='<div class="zs-pv-section"><div class="zs-pv-section-h">❤️ 起始状态 · '+esc(s.label)+'</div><div class="zs-pv-section-body">';
+  h+=bar('体力',s.hp,'hp')+bar('精神',s.sp,'sp')+bar('污染',s.pol,'pol');
+  h+='<div class="zs-pv-row"><span class="zs-pv-row-name">伤势</span><span class="zs-pv-row-val">'+esc(s.injury)+'</span></div>';
+  h+='<div class="zs-pv-row"><span class="zs-pv-row-name">心态</span><span class="zs-pv-row-val">'+esc(s.mood)+'</span></div>';
+  h+='</div></div>';
+
+  // 并发症
+  if(d.complications.length){
+    h+='<div class="zs-pv-section"><div class="zs-pv-section-h">⚠️ 并发症</div><div class="zs-pv-section-body">';
+    d.complications.forEach(c=>{
+      h+='<div style="margin-bottom:4px"><span class="zs-pv-tag warn">'+esc(c.tag)+'</span> '+esc(c.desc)+'</div>';
+    });
+    h+='</div></div>';
+  }
+
+  // 背包
+  h+='<div class="zs-pv-section"><div class="zs-pv-section-h">🎒 随身背包</div><div class="zs-pv-section-body">';
+  [['武器详情',d.bag.武器详情],['医疗',d.bag.医疗],['食物水',d.bag.食物水],['情报道具详情',d.bag.情报道具详情]].forEach(([cat,obj])=>{
+    Object.keys(obj||{}).forEach(k=>{
+      const v=obj[k];
+      const qty=typeof v==='number'?'×'+v:(v&&v.数量?'×'+v.数量:(v&&v.耐久!=null?'耐久:'+v.耐久:''));
+      h+='<div class="zs-pv-row"><span class="zs-pv-row-name">'+esc(k)+'</span><span class="zs-pv-row-val">'+esc(qty)+'</span></div>';
+    });
+  });
+  h+='</div></div>';
+
+  b.innerHTML=h;
+  $('zs-pv').classList.add('show');
+  $('zs-cf').classList.add('show');
+}
+
+function bar(label,val,cls){
+  return '<div class="zs-pv-bar-wrap"><span class="zs-pv-bar-label">'+label+'</span><div class="zs-pv-bar"><div class="zs-pv-bar-fill '+cls+'" style="width:'+val+'%"></div></div><span class="zs-pv-bar-num">'+val+'</span></div>';
+}
+
+/* ═══ 12. MVU写入 ═══ */
+function mid(){try{return typeof getCurrentMessageId==='function'?getCurrentMessageId():-1;}catch(e){return -1;}}
+function mvuGet(){try{return Mvu.getMvuData({type:'message',message_id:mid()})||{};}catch(e){return {};}}
+function ab(p,d){return _.has(d,'stat_data')?'stat_data.'+p:p;}
+function sv(d,p,v){_.set(d,ab(p,d),v);}
+
+async function writeVars(d){
+  const line=cur.id==='han'?llk(hr):'';
+  const cp=partner(cur.name,line);
+  const data=_.cloneDeep(mvuGet());
+
+  sv(data,'开局状态.已选择角色',cur.name);
+  sv(data,'开局状态.已选择线路',line);
+  sv(data,'开局状态.已完成角色同步',true);
+  sv(data,'开局状态.已进入正式剧情',false);
+  sv(data,'开局状态.开局来源','seed_random');
+  sv(data,'开局状态.开局摘要',[cur.name,line||'默认线','种子:'+d.seed,d.place,d.status.label].filter(Boolean).join(' ｜ '));
+
+  sv(data,'通用状态栏.角色A.姓名',cur.name);
+  sv(data,'通用状态栏.角色A.体力',d.status.hp);
+  sv(data,'通用状态栏.角色A.精神稳定',d.status.sp);
+  sv(data,'通用状态栏.角色A.污染值',d.status.pol);
+  sv(data,'通用状态栏.角色A.伤势',d.status.injury);
+  sv(data,'通用状态栏.角色A.神态',d.status.mood);
+  sv(data,'通用状态栏.角色A.动作','待命');
+  sv(data,'通用状态栏.角色A.希望','确认当前局势');
+  sv(data,'通用状态栏.角色A.内心','先观察，再判断下一步。');
+
+  if(cp){
+    sv(data,'通用状态栏.角色B.姓名',cp);
+    sv(data,'通用状态栏.角色B.体力',100);sv(data,'通用状态栏.角色B.精神稳定',100);
+    sv(data,'通用状态栏.角色B.污染值',0);sv(data,'通用状态栏.角色B.伤势','无');
+    sv(data,'通用状态栏.角色B.神态','保持观察');sv(data,'通用状态栏.角色B.动作','待命');
+  }
+
+  sv(data,'关系面板.视角角色',cur.name);
+  if(cp)sv(data,'关系面板.当前主CP',cp);
+  sv(data,'关系面板.好感',0);
+  sv(data,'关系面板.羁绊','无');
+  sv(data,'关系面板.当前关系事件',d.relEvent);
+
+  sv(data,'世界信息.场所',d.place);
+  sv(data,'世界信息.时间',d.time);
+  sv(data,'世界信息.天气',d.weather);
+  sv(data,'世界信息.当前场景标签',d.tags);
+  sv(data,'世界信息.遭遇事件',d.encounter+(d.npc?' ｜ NPC: '+d.npc:''));
+  sv(data,'世界信息.第几天',d.day);
+  sv(data,'世界信息.是否战斗中',false);
+
+  // 并发症效果
+  d.complications.forEach(c=>{
+    if(c.varEffect){
+      if(c.varEffect.val)sv(data,c.varEffect.path,c.varEffect.val);
+      if(c.varEffect.suffix){
+        const old=_.get(data,ab(c.varEffect.path,data),'');
+        sv(data,c.varEffect.path,old+c.varEffect.suffix);
+      }
+    }
+  });
+
+  sv(data,'背包栏.武器',d.bag.武器);sv(data,'背包栏.武器详情',d.bag.武器详情);
+  sv(data,'背包栏.医疗',d.bag.医疗);sv(data,'背包栏.食物水',d.bag.食物水);
+  sv(data,'背包栏.异能道具',d.bag.异能道具);sv(data,'背包栏.情报道具',d.bag.情报道具);
+  sv(data,'背包栏.情报道具详情',d.bag.情报道具详情);
+  sv(data,'背包栏.本轮变化',d.bag.本轮变化);
+
+  await Mvu.replaceMvuData(data,{type:'message',message_id:mid()});
+}
+
+/* ═══ 13. 发送消息构建 ═══ */
+function buildMsg(d){
+  const line=cur.id==='han'?llk(hr):'';
+  const cp=partner(cur.name,line);
+  const bagItems=[];
+  ['武器详情','医疗','食物水','情报道具详情'].forEach(cat=>{
+    const o=d.bag[cat]||{};
+    Object.keys(o).forEach(k=>{const v=o[k];bagItems.push(k+'×'+(typeof v==='number'?v:(v&&v.数量?v.数量:1)));});
+  });
+
+  const parts=[
+    '【种子随机开局 · '+cur.name+'】',
+    '🎲 种子：'+d.seed,
+    '📍 地点：'+d.place+' ｜ 🕐 '+d.time+' 第'+d.day+'天',
+    '🌤 天气：'+d.weather,
+    '🏷 场景：'+(d.tags||[]).join('、'),
+    '⚡ 遭遇：'+d.encounter,
+    d.npc?'👤 NPC：'+d.npc:'',
+    '💞 关系('+d.relCategory+')：'+d.relEvent,
+    '❤️ 状态：'+d.status.label+' HP:'+d.status.hp+' 精神:'+d.status.sp+' 污染:'+d.status.pol+' 伤势:'+d.status.injury,
+    d.complications.length?'⚠️ 并发：'+d.complications.map(c=>c.tag).join('、'):'',
+    '🎒 背包：'+bagItems.join('、')
+  ];
+  return parts.filter(Boolean).join('\n');
+}
+
+function sendToAi(text){
+  try{
+    const pw=window.parent||window;
+    const doc=pw.document;
+    const HostEvent=pw.Event||Event;
+    const HostKeyboardEvent=pw.KeyboardEvent||KeyboardEvent;
+    const ta=doc.querySelector('#send_textarea');
+    if(!ta){$('zs-st').textContent='FAILED · 未找到输入框';return false;}
+    const proto=(pw.HTMLTextAreaElement&&pw.HTMLTextAreaElement.prototype)?pw.HTMLTextAreaElement.prototype:window.HTMLTextAreaElement.prototype;
+    const setter=Object.getOwnPropertyDescriptor(proto,'value');
+    if(setter&&setter.set)setter.set.call(ta,text);else ta.value=text;
+    ta.dispatchEvent(new HostEvent('input',{bubbles:true}));
+    ta.dispatchEvent(new HostEvent('change',{bubbles:true}));
+    ta.focus();
+
+    const sendBtn=doc.querySelector('#send_but, #mes_send, button[type="submit"], .send_button');
+    if(sendBtn&&typeof sendBtn.click==='function'){
+      sendBtn.click();
+      $('zs-st').textContent='DONE · 变量已写入，已发送给 AI';
+      return true;
+    }
+
+    ta.dispatchEvent(new HostKeyboardEvent('keydown',{key:'Enter',code:'Enter',bubbles:true}));
+    ta.dispatchEvent(new HostKeyboardEvent('keyup',{key:'Enter',code:'Enter',bubbles:true}));
+    $('zs-st').textContent='DONE · 变量已写入，已尝试发送给 AI';
+    return true;
+  }catch(e){
+    console.error(e);
+    $('zs-st').textContent='FAILED · 发送失败';
+    return false;
+  }
+}
+
+/* ═══ 14. 覆盖面板逻辑 ═══ */
+$('zs-ov-toggle').onclick=()=>{
+  const body=$('zs-ov-body'),arrow=$('zs-ov-arrow');
+  body.classList.toggle('open');arrow.classList.toggle('open');
+};
+// 每个开关控制对应输入框和提示的显隐
+document.querySelectorAll('[data-ov]').forEach(cb=>{
+  const key=cb.dataset.ov;
+  const inp=document.querySelector('[data-ov-input="'+key+'"]');
+  const hint=document.querySelector('[data-ov-hint="'+key+'"]');
+  cb.onchange=()=>{
+    if(cb.checked){inp&&inp.classList.add('show');hint&&hint.classList.add('show');}
+    else{inp&&inp.classList.remove('show');hint&&hint.classList.remove('show');}
+  };
+});
+// 读取覆盖值
+function getOverrides(){
+  const ov={};
+  document.querySelectorAll('[data-ov]').forEach(cb=>{
+    if(!cb.checked)return;
+    const key=cb.dataset.ov;
+    const inp=document.querySelector('[data-ov-input="'+key+'"]');
+    ov[key]=(inp&&inp.value.trim())||'';
+  });
+  return ov;
+}
+// 应用覆盖到生成结果
+function applyOverrides(d,ov){
+  if('place' in ov && ov.place) d.place=ov.place;
+  if('time' in ov && ov.time) d.time=ov.time;
+  if('weather' in ov && ov.weather) d.weather=ov.weather;
+  if('encounter' in ov && ov.encounter) d.encounter=ov.encounter;
+  if('relation' in ov){d.relEvent=ov.relation||'无';d.relCategory='custom';}
+  if('npc' in ov){d.npc=ov.npc||null;}
+  if('status' in ov){
+    const name=(ov.status||'').trim();
+    const found=STATUS_POOL.find(s=>s.label===name);
+    if(found) d.status=found;
+    else if(!name) d.status=STATUS_POOL[0]; // 留空=满状态
+    else d.status={label:name,hp:100,sp:100,pol:0,injury:'无',mood:name,prob:0};
+  }
+  return d;
+}
+
+/* ═══ 15. 事件绑定 ═══ */
+$('zs-ha').onclick=()=>{hr='cheng';res=null;$('zs-pv').classList.remove('show');$('zs-cf').classList.remove('show');brief();};
+$('zs-hb').onclick=()=>{hr='park';res=null;$('zs-pv').classList.remove('show');$('zs-cf').classList.remove('show');brief();};
+$('zs-sr').onclick=()=>{$('zs-si').value=rseed();res=null;$('zs-pv').classList.remove('show');$('zs-cf').classList.remove('show');};
+
+$('zs-gen').onclick=()=>{
+  if(cur.id==='han'&&!hr){$('zs-st').textContent='ERROR · 请先选择韩佳温线路';return;}
+  let s=$('zs-si').value.trim();
+  if(!s){s=rseed();$('zs-si').value=s;}
+  const line=cur.id==='han'?llk(hr):'';
+  res=applyOverrides(generate(cur,line,s),getOverrides());
+  renderPreview(res);
+  $('zs-st').textContent='PREVIEW · 确认后写入变量';
+};
+
+$('zs-cf').onclick=async()=>{
+  if(!res){$('zs-st').textContent='ERROR · 请先生成预览';return;}
+  $('zs-st').textContent='SYNCING…';
+  try{
+    await writeVars(res);
+    sendToAi(buildMsg(res));
+  }catch(e){console.error(e);$('zs-st').textContent='FAILED · '+String(e.message||e);}
+};
+
+/* ═══ 15. 字体同步 & 初始化 ═══ */
+let lf=null;
+function syncFont(f){
+  try{
+    const hw=(window.parent&&window.parent!==window)?window.parent:window;
+    const cs=[hw.document.querySelector('.mes_text'),hw.document.querySelector('#send_textarea'),hw.document.body].filter(Boolean);
+    let sz=16;for(const e of cs){const s=parseFloat(hw.getComputedStyle(e).fontSize);if(s&&!isNaN(s)){sz=s;break;}}
+    if(f||lf===null||Math.abs(sz-lf)>0.05){lf=sz;document.documentElement.style.fontSize=sz+'px';}
+  }catch(e){if(f)document.documentElement.style.fontSize='16px';}
+}
+syncFont(true);window.addEventListener('resize',syncFont);setInterval(syncFont,600);
+buildTabs();brief();
+})();
+</script>
+</body>
+</html>

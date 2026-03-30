@@ -1,0 +1,112 @@
+<%_ {
+const plans = getvar('stat_data.计划列表') || {};
+const world = getvar('stat_data.世界信息') || {};
+const nowTime = String(world['时间'] || '');
+const nowPlace = String(world['场所'] || '未知');
+const nowDay = Number(world['第几天'] || 1);
+
+function plan_entriesOf(obj){
+  if (!obj || typeof obj !== 'object') return [];
+  return Object.entries(obj).filter(([_, v]) => v && typeof v === 'object');
+}
+
+const planEntries = plan_entriesOf(plans);
+
+function plan_byPriority(p){
+  const map = { '紧急': 4, '高': 3, '中': 2, '低': 1 };
+  return map[String((p && p['优先级']) || '中')] || 2;
+}
+
+const activePlans = planEntries
+  .filter(([_, p]) => ['待完成', '进行中', '搁置'].includes(String(p['状态'] || '待完成')))
+  .sort((a, b) => plan_byPriority(b[1]) - plan_byPriority(a[1]));
+
+const donePlans = planEntries
+  .filter(([_, p]) => ['已完成', '失败'].includes(String(p['状态'] || '待完成')))
+  .sort((a, b) => Number((b[1] && b[1]['$time']) || 0) - Number((a[1] && a[1]['$time']) || 0));
+_%>
+
+<%_ if (planEntries.length > 0) { _%>
+<计划列表动态提示>
+- <计划列表> 只记录正文中已经成立的事实性计划、约定、待办、任务推进与失败结果，不允许凭空添加“角色其实早就打算做的事”。
+- 计划会影响角色日程与动机，但不能在正文里反复像任务面板一样机械预告。
+- 计划列表属于事件驱动模块：只有本轮真的发生了新约定、新推进、新失败、新延期、新搁置时才更新；未触发时直接沿用旧值。
+- 当前时间：<%= nowTime %>
+- 当前地点：<%= nowPlace %>
+- 当前第 <%= nowDay %> 天
+
+# 计划总约束
+- 新计划生成时必须建立唯一计划ID，不要用同名计划反复堆叠。
+- 同类重复计划应优先更新旧计划，而不是无上限新增。
+- 状态只能使用：待完成 / 进行中 / 已完成 / 失败 / 搁置。
+- 优先级只能使用：低 / 中 / 高 / 紧急。
+- 计划推进后，优先更新状态，其次补充备注。
+- 已完成或失败的计划可以保留一轮作记录，但不应长期占着列表不处理；下一轮可删除或转存历史。
+- 若正文中没有新约定、新目标、新失败、新完成，就不要为了“充实列表”而强行改动。
+- 若本轮没有触发计划变化，就不要输出无意义的轻微改写或同义备注刷新。
+
+<%_ if (activePlans.length > 0) { _%>
+# 当前未结计划
+<%_ activePlans.forEach(([id, p]) => {
+  const target = String(p['对象'] || '未知');
+  const content = String(p['计划内容'] || '无');
+  const time = String(p['时间'] || '未知');
+  const status = String(p['状态'] || '待完成');
+  const priority = String(p['优先级'] || '中');
+  const note = String(p['备注'] || '无');
+_%>
+## <%= id %>
+- 对象：<%= target %>
+- 内容：<%= content %>
+- 时间：<%= time %>
+- 状态：<%= status %>
+- 优先级：<%= priority %>
+- 备注：<%= note %>
+
+- 写作要求：
+  - 该计划仍然有效，应继续影响角色的短期选择、时间安排、路线判断或互动重心。
+  - 不必每轮明说“还有这个计划”，但应在正文里留下行动倾向或心理牵引。
+  - 若当前地点、当前时间、当前人物在场条件已经足够触发该计划，应考虑让它推进，而不是长期悬空。
+<%_ if (status === '待完成') { _%>
+  - 这是尚未开始的计划。正文可体现准备、犹豫、确认时机、等待对象、收集前置条件。
+<%_ } else if (status === '进行中') { _%>
+  - 这是已开始推进的计划。正文应体现执行过程、阶段结果、阻碍或临时变更。
+<%_ } else if (status === '搁置') { _%>
+  - 这是暂时搁置的计划。正文可体现“没忘记，但被更高优先事项压住”。
+<%_ } _%>
+<%_ }) _%>
+<%_ } else { _%>
+# 当前没有未结计划
+- 若正文新产生明确约定、任务、撤离目标、调查方向、补给安排、会面承诺、保护承诺，应新建计划项。
+<%_ } _%>
+
+<%_ if (donePlans.length > 0) { _%>
+# 已完成 / 已失败计划（短期保留区）
+<%_ donePlans.slice(0, 3).forEach(([id, p]) => {
+  const target = String(p['对象'] || '未知');
+  const content = String(p['计划内容'] || '无');
+  const status = String(p['状态'] || '待完成');
+  const note = String(p['备注'] || '无');
+_%>
+## <%= id %>
+- 对象：<%= target %>
+- 内容：<%= content %>
+- 状态：<%= status %>
+- 备注：<%= note %>
+
+- 写作要求：
+  - 这类计划可以作为“刚发生完的后效”保留一轮，用来给正文留下余波。
+  - 若已经在上一轮完整结算过，本轮之后应删除或转存，不要永久堆在列表里。
+<%_ }) _%>
+<%_ } _%>
+
+# 本轮更新触发条件
+- 出现以下情况时，应优先更新计划列表：
+  - 明确约定见面 / 会合 / 送交 / 撤离 / 调查 / 营救 / 搜索
+  - 任务进入下一阶段
+  - 计划被打断、失败、延期、搁置
+  - 角色因关系、危机或资源压力而改变原计划
+- 未出现这些情况时，计划列表可以不动。
+</计划列表动态提示>
+<%_ } %>
+<%_ } _%>

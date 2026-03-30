@@ -1,0 +1,293 @@
+<%_ {
+const nsfw = getvar('stat_data.NSFW状态栏') || {};
+const enabled = !!getvar('stat_data.世界.允许NSFW');
+
+const top = String(nsfw['攻方'] || '未知');
+const bottom = String(nsfw['受方'] || '未知');
+
+const rawProgress = Number(nsfw['爱爱进度'] || 0);
+const progress = Number.isFinite(rawProgress)
+  ? Math.max(0, Math.min(100, Math.trunc(rawProgress)))
+  : 0;
+
+const stageRaw = String(nsfw['当前阶段'] || '无');
+
+const topErect = Number(nsfw['勃起度'] || 0);
+const climaxTop = Number(nsfw['射精临近度'] || 0);
+const bottomErect = Number(nsfw['受方勃起度'] || 0);
+const prostate = Number(nsfw['前列腺快感度'] || 0);
+const climaxBottom = Number(nsfw['高潮临近度'] || 0);
+
+const glans = String(nsfw['龟头状态'] || '平软收缩');
+const shaft = String(nsfw['柱身状态'] || '松弛自然');
+const front = String(nsfw['前端状态'] || '平软');
+const back = String(nsfw['后穴状态'] || '紧闭');
+const topMind = String(nsfw['攻方内心'] || '无');
+const bottomMind = String(nsfw['受方内心'] || '无');
+const summary = String(nsfw['总结骚话'] || '无');
+
+function toBool(v){
+  if (v === true || v === 1) return true;
+  const s = String(v || '').trim().toLowerCase();
+  return s === 'true' || s === '1' || s === 'yes' || s === 'on';
+}
+
+/* 可选隐藏控制量：没有也能靠当前阶段/进度回推 */
+const sumata =
+  toBool(getvar('sumata')) ||
+  toBool(getvar('NSFW_sumata')) ||
+  toBool(getvar('NSFW设定.sumata')) ||
+  toBool(getvar('NSFW控制.sumata'));
+
+const modeLocked = String(
+  getvar('NSFW模式') ||
+  getvar('NSFW主模式') ||
+  getvar('NSFW控制.模式') ||
+  '未锁定'
+);
+
+const poseLocked = String(
+  getvar('NSFW当前体位') ||
+  getvar('NSFW_pose') ||
+  getvar('NSFW控制.当前体位') ||
+  '未指定'
+);
+
+const releaseSignal =
+  toBool(getvar('NSFW允许释放')) ||
+  toBool(getvar('NSFW用户已明确释放')) ||
+  toBool(getvar('NSFW控制.允许进入S4'));
+
+function inferMainStage(cur, p){
+  const s = String(cur || '').replace(/\s+/g, '').toLowerCase();
+
+  if (!s || s === '无') {
+    if (p >= 97) return 'S5';
+    if (p >= 86) return 'S4';
+    if (p >= 61) return 'S3';
+    if (p >= 31) return 'S2';
+    if (p >= 11) return 'S1';
+    if (p > 0) return 'S0';
+    return '无';
+  }
+
+  if (/^s0$|张力|tension/.test(s)) return 'S0';
+  if (/^s1$|探索|exploration/.test(s)) return 'S1';
+  if (/^s2$|升温|escalation/.test(s)) return 'S2';
+  if (/^s3$|临界前|逼近|climaxbuild-up|climaxbuildup/.test(s)) return 'S3';
+  if (/^s4$|释放|release/.test(s)) return 'S4';
+  if (/^s5$|余韵|afterglow/.test(s)) return 'S5';
+
+  if (p >= 97) return 'S5';
+  if (p >= 86) return 'S4';
+  if (p >= 61) return 'S3';
+  if (p >= 31) return 'S2';
+  if (p >= 11) return 'S1';
+  if (p > 0) return 'S0';
+  return '无';
+}
+
+function stageLabel(s){
+  if (s === 'S0') return '张力';
+  if (s === 'S1') return '探索';
+  if (s === 'S2') return '升温';
+  if (s === 'S3') return '临界前';
+  if (s === 'S4') return '释放';
+  if (s === 'S5') return '余韵';
+  return '无';
+}
+
+function stageRange(s){
+  if (s === 'S0') return '0-10';
+  if (s === 'S1') return '11-30';
+  if (s === 'S2') return '31-60';
+  if (s === 'S3') return '61-85';
+  if (s === 'S4') return '86-96';
+  if (s === 'S5') return '97-100';
+  return '0';
+}
+
+function stageBounds(s){
+  if (s === 'S0') return [0, 10];
+  if (s === 'S1') return [11, 30];
+  if (s === 'S2') return [31, 60];
+  if (s === 'S3') return [61, 85];
+  if (s === 'S4') return [86, 96];
+  if (s === 'S5') return [97, 100];
+  return [0, 0];
+}
+
+function normalizeProgress(stage, p){
+  if (stage === '无') return 0;
+  const [min, max] = stageBounds(stage);
+  return Math.max(min, Math.min(max, p));
+}
+
+const finalStage = inferMainStage(stageRaw, progress);
+const normalizedProgress = normalizeProgress(finalStage, progress);
+const finalStageLabel = stageLabel(finalStage);
+const finalStageRange = stageRange(finalStage);
+
+const hasActiveNsfw =
+  enabled &&
+  (
+    progress > 0 ||
+    finalStage !== '无' ||
+    top !== '未知' ||
+    bottom !== '未知' ||
+    topErect > 0 ||
+    climaxTop > 0 ||
+    bottomErect > 0 ||
+    prostate > 0 ||
+    climaxBottom > 0 ||
+    topMind !== '无' ||
+    bottomMind !== '无' ||
+    summary !== '无'
+  );
+_%>
+
+<%_ if (hasActiveNsfw) { _%>
+<NSFW状态栏动态提示>
+- 当前系统允许输出 NSFW 状态栏。正文必须把本轮亲密互动真正写成动作推进、节奏变化、姿势选择、关系张力与身体反应，不要只机械重复字段。
+- 攻方内心 / 受方内心不参与变量规则判定；这两项只根据本轮实际情况、关系氛围、动作推进和角色性格自然生成。
+- 当前阶段与爱爱进度必须优先服从【NSFW流程】的主阶段链条，不得自行跳阶，也不得把细分做爱方式直接混进“当前阶段”字段。
+
+# 本轮状态
+- 攻方：<%= top %>
+- 受方：<%= bottom %>
+- 当前阶段：<%= finalStageLabel %>
+- 爱爱进度：<%= normalizedProgress %>
+- 进度区间：<%= finalStageRange %>
+- 模式锁定：<%= modeLocked %>
+- sumata：<%= sumata ? 'true' : 'false' %>
+- 当前体位：<%= poseLocked %>
+
+- 勃起度：<%= topErect %>
+- 射精临近度：<%= climaxTop %>
+- 受方勃起度：<%= bottomErect %>
+- 前列腺快感度：<%= prostate %>
+- 高潮临近度：<%= climaxBottom %>
+
+- 龟头状态：<%= glans %>
+- 柱身状态：<%= shaft %>
+- 前端状态：<%= front %>
+- 后穴状态：<%= back %>
+
+- 攻方内心：<%= topMind %>
+- 受方内心：<%= bottomMind %>
+- 总结骚话：<%= summary %>
+
+# 主阶段判定规则
+- 当前阶段只允许使用以下主阶段：
+- S0 = 张力
+- S1 = 探索
+- S2 = 升温
+- S3 = 临界前
+- S4 = 释放
+- S5 = 余韵
+
+- 阶段推进链必须遵循：
+- 上一阶段为空或上一轮为 S5，则从 S0 开始
+- S0 -> S1
+- S1 -> S2
+- S2 -> S3
+- S3 只有在 user 已明确表示进入释放/高潮时，才允许进入 S4
+- S4 -> S5
+- 禁止一轮跨越多个主阶段
+
+- 爱爱进度必须服从主阶段区间：
+- S0：0-10
+- S1：11-30
+- S2：31-60
+- S3：61-85
+- S4：86-96
+- S5：97-100
+- 若读取到的当前阶段与现有爱爱进度冲突，以当前阶段对应区间为准，对爱爱进度进行纠偏。
+
+- 爱爱进度的单轮变化原则：
+- 普通推进：+3~+6
+- 明确升级：+6~+10
+- 停顿/安抚/整理：+0~+2
+- 进入 S5 后只允许小幅贴近 100，不再大跳
+
+# 当前阶段转写原则
+<%_ if (finalStage === 'S0') { _%>
+- 这是张力阶段。正文重点是凝视、气息、无意触碰、停顿、靠近和边界试探。
+- 这一阶段只能写“点燃氛围”，不能直接跳到高强度推进。
+- 轻度 Pose 可参考：Oral、Deep Throat、Titty-fuck、Footjob、Sumata、Handjob、Insertion Foreplay*。
+- *若 sumata=true，则禁用 Insertion Foreplay 中的插入动作，只保留外部摩擦逻辑。
+<%_ } else if (finalStage === 'S1') { _%>
+- 这是探索阶段。正文重点是感官特写、爱欲表达、身体互动、姿势与贴合角度的摸索。
+- 若 sumata=true，应强调贴合、摩擦、润滑、角度与节奏，而不是写成插入推进。
+<%_ } else if (finalStage === 'S2') { _%>
+- 这是升温阶段。正文重点是节奏变化、方式探索、互动升级与姿势更换。
+- 若 sumata=true，可改换夹角、压迫点与速度，可引入手/胸/足辅助，但仍不得写成插入。
+<%_ } else if (finalStage === 'S3') { _%>
+- 这是临界前阶段。正文重点是节奏掌控、失控边缘、高潮引导与最后的拉扯。
+- 这一阶段不允许直接跨入释放，除非 user 已明确给出进入高潮/释放的信号。
+- 若 sumata=true，应引导体外释放位置与收尾准备。
+<%_ } else if (finalStage === 'S4') { _%>
+- 这是释放阶段。正文重点是释放本身与紧接其后的强烈生理反应。
+- 若 sumata=true，默认按体外释放处理，并同步写清收尾、整理和安抚动作。
+<%_ } else if (finalStage === 'S5') { _%>
+- 这是余韵阶段。正文重点是放缓、温存、亲密感、整理、贴近、安抚与尾声。
+- 不要在余韵阶段重新拉回高强度推进。
+<%_ } else { _%>
+- 当前未读到有效主阶段。若正文没有实际亲密推进，不要强行加入 NSFW 描写。
+<%_ } _%>
+
+# Pose Selection 模块
+- 体位选择不直接写进“当前阶段”字段；它回答的是“这一步怎么做”，而不是“进行到哪一步”。
+- 通用规则：从 Pose 库中抽取 2-3 种非传教士体位，结合当前主阶段、模式锁定、环境和上一轮连续性来选。
+- 若当前体位已经锁定，正文应优先延续该体位；只有在阶段升级、节奏变化、环境限制或角色主动调整时，才允许换体位。
+- S0 / S1 优先轻度或过渡型体位；S2 允许更明显的体位变化；S3 / S4 应避免频繁切换，保持临界与释放的连贯性；S5 不再引入新的升级型体位。
+
+<%_ if (sumata) { _%>
+- 当前为 sumata=true，Pose Selection 必须优先使用 Sumata Pose 库：
+- Front-Press Sumata（面向坐姿 / 仰卧合腿夹持）
+- Reverse Sumata（背向夹持 / 跨坐摩擦）
+- Standing Sumata（站立抱举 / 墙面支撑）
+- Lotus Sumata（莲坐贴合式）
+- Kneeling Sumata（跪姿股间摩擦）
+
+- sumata=true 时的硬规则：
+- 禁止插入
+- 全程以腿间 / 外部摩擦为核心
+- 释放默认按体外处理
+- 不要把局部状态写成已经进入或持续插入后的状态
+- 后穴状态与前列腺快感度只能在外部刺激或关联动作逻辑内轻微变化，不能写成典型插入后的强推进
+<%_ } else { _%>
+- 当前为非 sumata 主导，Pose Selection 使用常规 Pose 库：
+- Cowgirl
+- Kneeling Doggy
+- Lotus
+- Reverse Cowgirl
+- Frontal Standing
+- Butterfly
+- Full Nelson
+- Bent-Over Doggy
+- Jack-O' Pose
+- Seeding Position
+- The Piledriver
+- The Amazon
+- The Prone Bone
+- The Anvil
+- The Standing Splits
+- The Shoulder Holder
+- The Standing Wheelbarrow
+- The G-Whiz
+- The Scissors
+- Spoons
+<%_ } _%>
+
+# 字段联动要求
+- 攻受由当前剧情判断，并受绑定关系与当前角色设定约束。
+- 当前阶段与爱爱进度必须同步更新到 NSFW状态栏，且数值变化要和正文动作一致。
+- 细分做爱方式、模式锁定与 Pose Selection 主要影响：局部状态条、总结骚话、正文动作边界与节奏，不直接改写主阶段字段。
+- 攻方内心 / 受方内心按本轮实际情况生成，不要拿它们反推阶段。
+- 若当前处于 S3 且 releaseSignal=false，则正文只能写到临界前，不得直接写成已进入 S4。
+- 若当前处于 S4，必须把释放完整落地；若当前处于 S5，必须明显降速并进入余韵处理。
+- 正文、状态栏、模式锁定、Pose Selection 必须互相一致，不要出现正文已经切换体位或方式，状态栏却仍停在前一轮条件的情况。
+</NSFW状态栏动态提示>
+<%_ } %>
+<%_ } _%>

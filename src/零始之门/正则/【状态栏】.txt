@@ -1,0 +1,37 @@
+```html
+<body>
+  <script>
+    (() => {
+      const url = 'http://127.0.0.1:5510/dist/零始之门/界面/状态栏/index.html';
+
+      fetch(encodeURI(url), { cache: 'no-store' })
+        .then(response => {
+          if (!response.ok) throw new Error(`HTTP ${response.status}`);
+          return response.text();
+        })
+        .then(html => {
+          document.open();
+          document.write(html);
+          document.close();
+        })
+        .catch(error => {
+          document.body.innerHTML = `
+            <div style="
+              padding:16px;
+              border-radius:16px;
+              border:1px solid rgba(227,162,209,0.28);
+              background:linear-gradient(180deg, rgba(95,74,124,0.16), rgba(255,255,255,0.04));
+              color:#f0e8db;
+              font-family:'Microsoft YaHei UI', sans-serif;
+              line-height:1.8;
+            ">
+              状态栏前端未连接成功。<br>
+              已尝试连接：<code>${url}</code><br>
+              失败原因：<code>${String(error && error.message ? error.message : error)}</code>
+            </div>
+          `;
+        });
+    })();
+  </script>
+</body>
+```

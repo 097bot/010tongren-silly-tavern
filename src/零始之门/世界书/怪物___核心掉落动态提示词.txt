@@ -1,0 +1,125 @@
+<%_ {
+const monsters = getvar('stat_data.怪物档案') || {};
+const enemies = getvar('stat_data.战斗面板.敌方') || {};
+const resultText = String(getvar('stat_data.战斗面板.战斗结果摘要') || '无');
+const bagIntel = getvar('stat_data.背包栏.情报道具详情') || {};
+const bagPowers = getvar('stat_data.背包栏.异能道具') || {};
+const bagChange = String(getvar('stat_data.背包栏.本轮变化') || '无');
+
+function monster_entriesOf(obj){
+  if (!obj || typeof obj !== 'object') return [];
+  return Object.entries(obj).filter(([_, v]) => v && typeof v === 'object');
+}
+function monster_hpNow(entity){
+  if (!entity || typeof entity !== 'object') return null;
+  const hpObj = entity['HP数值'];
+  if (hpObj && typeof hpObj === 'object') return Number(hpObj['当前'] || 0);
+  const hpText = String(entity['HP'] || '');
+  const m = hpText.match(/^(\d+)\s*\/\s*(\d+)$/);
+  return m ? Number(m[1]) : null;
+}
+function monster_isResolvedEnemy(name, data){
+  const hp = monster_hpNow(data);
+  const note = String((data && data['备注']) || '');
+  if (hp !== null && hp <= 0) return true;
+  if (/击杀|已解决|死亡|崩解|核心摘除|彻底失活/.test(note)) return true;
+  return false;
+}
+function monster_isKretMonster(mon){
+  if (!mon || typeof mon !== 'object') return false;
+  const belong = String(mon['所属'] || '');
+  return /克锐特/.test(belong);
+}
+function monster_rewardType(stage){
+  if (/低/.test(stage)) return '低阶';
+  if (/中/.test(stage)) return '中阶';
+  if (/高/.test(stage)) return '高阶';
+  return '未知';
+}
+
+const monsterList = monster_entriesOf(monsters).filter(([_, m]) => monster_isKretMonster(m));
+const enemyList = monster_entriesOf(enemies);
+const defeatedEnemyNames = enemyList
+  .filter(([name, data]) => monster_isResolvedEnemy(name, data))
+  .map(([name]) => name);
+const relatedDefeated = monsterList.filter(([name, _]) => defeatedEnemyNames.includes(name));
+_%>
+
+<%_ if (monsterList.length > 0 || relatedDefeated.length > 0) { _%>
+<怪物与核心动态提示>
+- 当前存在克锐特相关档案或刚被击倒的克锐特单位。正文中的“解决怪物”“搜尸”“剖核”“爆核”“拾取核心”“感染残留”都必须按当前档案与结果来写，不能空手变出掉落。
+- 核心与掉落只在“明确击杀或解决对应怪物后”才允许结算；若敌人仍未彻底解决，不要提前发奖励。
+- 若核心被直接命中而爆掉，应优先写过载爆炸与近身波及，而不是再给完整掉落。
+- 背包栏的异能道具、情报道具详情、本轮变化，应和掉落结果同步。
+- 当前战斗结果摘要：<%= resultText %>
+- 当前背包变化：<%= bagChange %>
+
+# 当前怪物档案
+<%_ monsterList.forEach(([name, mon]) => {
+  const rank = String(mon['阶级'] || '低阶');
+  const core = String(mon['核心'] || '未显露');
+  const threat = String(mon['威胁'] || '低');
+  const shape = String(mon['形态'] || '无');
+  const behavior = String(mon['行为模式'] || '本能');
+  const status = String(mon['当前状态'] || '潜伏');
+  const weak = String(mon['弱点'] || '无');
+  const note = String(mon['备注'] || '无');
+_%>
+## <%= name %>
+- 阶级：<%= rank %>
+- 威胁：<%= threat %>
+- 核心：<%= core %>
+- 形态：<%= shape %>
+- 行为模式：<%= behavior %>
+- 当前状态：<%= status %>
+- 弱点：<%= weak %>
+- 备注：<%= note %>
+<%_ if (/高阶/.test(rank)) { _%>
+- 高阶克锐特应更具策略性，可伪装、设伏、优先打断引导与稳定链。
+<%_ } else if (/中阶/.test(rank)) { _%>
+- 中阶克锐特应更倾向护核、观察、驱赶、守领地，而不是单纯无脑扑杀。
+<%_ } else { _%>
+- 低阶克锐特优先表现为本能性扑杀、群体试探、受伤后呼叫同类。
+<%_ } _%>
+<%_ }) _%>
+
+<%_ if (relatedDefeated.length > 0) { _%>
+# 已可进入掉落结算的对象
+<%_ relatedDefeated.forEach(([name, mon]) => {
+  const rank = monster_rewardType(String(mon['阶级'] || ''));
+_%>
+## <%= name %> · <%= rank %>
+<%_ if (rank === '低阶') { _%>
+- 掉落规则：通常无明显核心；仅在成功搜索、检视、拆解或认知到位时，才可获得绿核碎片 ×1。
+- 写作要求：低阶掉落不应稳定产出完整核心，最多偶发碎片。
+- 若正文没有“搜索、检视、拆解、剖取”动作，不要直接把碎片写入背包。
+<%_ } else if (rank === '中阶') { _%>
+- 掉落规则：暗绿色核心，可获得绿核碎片 ×1~2。
+- 写作要求：必须先明确中阶个体已被击杀或核心已被摘除，才能结算碎片。
+- 若核心在战斗中受损，掉落可减少或只保留残片。
+<%_ } else if (rank === '高阶') { _%>
+- 掉落规则：明亮绿色核心，可获得完整绿色核心 ×1。
+- 写作要求：完整核心属于稀有能源与高价值物，不应轻描淡写带过。
+- 若战斗中核心被直接命中，则应优先写“过载爆炸 + 近身者 HP -5~-10 的代价”，并可导致掉落损毁或消失。
+<%_ } else { _%>
+- 阶级未明，暂不自动结算核心掉落。正文应先明确其核心特征与解决状态。
+<%_ } _%>
+<%_ }) _%>
+<%_ } _%>
+
+# 核心双重性质
+- 绿色核心既是危险战利品，也是南部地区的高价值能源、武器与医疗驱动资源。
+- 因此，拿到完整核心时，正文应体现它的稀有性、价值感、风险感和势力意义，不要把它写成普通材料。
+
+# 本轮结算约束
+- 若战斗结果摘要仍为“无”或战斗尚未结束，不要提前发放完整掉落。
+- 若背包栏.本轮变化已记录拾取核心/碎片，正文必须给出对应动作依据。
+- 若情报道具详情或异能道具里出现新核心/碎片，应让来源、数量、状态、备注都能被当前战斗解释。
+- 若当前怪物仍标注潜伏、活动、追击、未解决，就不要把它当作已完成掉落对象。
+
+# 感染残留
+- 即使怪物已死，若战斗中发生抓伤、咬伤、孢子命中、体液污染或高阶主动感染，危机仍然继续。
+- 掉落结算不能覆盖感染后果；应同时保留感染危机的推进与处置。
+</怪物与核心动态提示>
+<%_ } %>
+<%_ } _%>

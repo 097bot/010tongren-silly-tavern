@@ -1,0 +1,340 @@
+```html
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Shadows+Into+Light&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --fs-micro: 0.62em;
+  --fs-xxs: 0.72em;
+  --fs-xs: 0.82em;
+  --fs-sm: 0.92em;
+  --fs-md: 1em;
+  --fs-lg: 1.08em;
+  --fs-xl: 1.16em;
+}
+
+body{
+  font-family:'Shadows Into Light',cursive;
+  background:transparent;
+}
+
+.gc-wrap{
+  width:100%;
+  border:1px solid rgba(138,122,80,0.45);
+  border-radius:3px;
+  overflow:hidden;
+  background:rgba(8,14,8,0.90);
+  box-shadow:0 2px 20px rgba(0,0,0,0.6);
+  position:relative;
+}
+.gc-wrap::before{
+  content:'';
+  position:absolute;
+  left:0;top:0;bottom:0;width:2px;
+  background:linear-gradient(180deg,transparent,rgba(138,122,80,0.5),transparent);
+  opacity:0.5;
+  pointer-events:none;
+  z-index:1;
+}
+.gc-header{
+  background:rgba(138,122,80,0.1);
+  border-bottom:1px solid rgba(138,122,80,0.2);
+  padding:5px 12px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  cursor:pointer;
+  user-select:none;
+  transition:background 0.2s;
+}
+.gc-header:hover{background:rgba(138,122,80,0.16);}
+.gc-header .l{
+  font-size:var(--fs-xs);
+  color:rgba(138,122,80,0.9);
+  font-family:monospace;
+  letter-spacing:0.2em;
+}
+.gc-header .r{display:flex;align-items:center;gap:8px;}
+.gc-header .tag{
+  font-size:var(--fs-micro);
+  color:rgba(138,122,80,0.4);
+  font-family:monospace;
+  letter-spacing:0.1em;
+}
+.gc-arrow{
+  font-size:var(--fs-xxs);
+  color:rgba(138,122,80,0.5);
+  font-family:monospace;
+  transition:transform 0.25s ease;
+  display:inline-block;
+}
+.gc-wrap.collapsed .gc-arrow{transform:rotate(-90deg);}
+.gc-collapsible{
+  display:grid;
+  grid-template-rows:1fr;
+  transition:grid-template-rows 0.3s ease;
+  overflow:hidden;
+}
+.gc-wrap.collapsed .gc-collapsible{grid-template-rows:0fr;}
+.gc-collapsible-inner{overflow:hidden;min-height:0;}
+
+.gc-body{padding:10px 14px 4px 16px;}
+.gc-title{
+  font-size:var(--fs-xl);
+  color:#c8a84a;
+  font-weight:bold;
+  letter-spacing:0.04em;
+  margin-bottom:4px;
+}
+.gc-desc{
+  font-size:var(--fs-sm);
+  color:rgba(212,205,184,0.75);
+  line-height:1.7;
+  padding-left:6px;
+  border-left:2px solid rgba(138,122,80,0.2);
+  margin-bottom:8px;
+}
+
+.gc-options{
+  display:flex;
+  flex-direction:column;
+  gap:5px;
+  padding:0 14px 10px 16px;
+}
+.gc-option{
+  display:flex;
+  align-items:baseline;
+  gap:8px;
+  padding:7px 10px;
+  border:1px solid rgba(138,122,80,0.25);
+  border-radius:2px;
+  background:rgba(138,122,80,0.05);
+  cursor:pointer;
+  transition:background 0.2s,border-color 0.2s,transform 0.15s;
+  position:relative;
+  overflow:hidden;
+}
+.gc-option::before{
+  content:'';
+  position:absolute;
+  left:0;top:0;bottom:0;width:2px;
+  background:rgba(138,122,80,0.3);
+  transition:background 0.2s;
+}
+.gc-option:hover{
+  background:rgba(138,122,80,0.12);
+  border-color:rgba(138,122,80,0.5);
+  transform:translateX(3px);
+}
+.gc-option:hover::before{background:#c8a84a;}
+.gc-option:active{
+  transform:translateX(1px);
+  background:rgba(138,122,80,0.18);
+}
+.gc-opt-label{
+  font-family:monospace;
+  font-size:var(--fs-xs);
+  color:rgba(138,122,80,0.6);
+  flex-shrink:0;
+  letter-spacing:0.1em;
+}
+.gc-opt-text{
+  font-size:var(--fs-md);
+  color:#d4cdb8;
+  line-height:1.65;
+}
+
+.gc-footer{
+  border-top:1px solid rgba(138,122,80,0.1);
+  padding:6px 14px 8px 16px;
+  display:flex;
+  gap:14px;
+  flex-wrap:wrap;
+  background:rgba(0,0,0,0.15);
+}
+.gc-footer-item{display:flex;align-items:baseline;gap:4px;}
+.gc-footer-lbl{
+  font-family:monospace;
+  font-size:var(--fs-micro);
+  color:rgba(138,122,80,0.45);
+  letter-spacing:0.12em;
+}
+.gc-footer-val{
+  font-size:var(--fs-xs);
+  color:rgba(200,168,74,0.7);
+}
+.gc-footer-val.risk{color:rgba(200,100,80,0.75);}
+
+@media(max-width:400px){
+  .gc-footer{flex-direction:column;gap:4px;}
+}
+</style>
+</head>
+<body>
+<div class="gc-wrap" id="gc-wrap">
+  <div class="gc-header" id="gc-header">
+    <span class="l">▌ 抉 择</span>
+    <span class="r">
+      <span class="tag">DECISION · POINT</span>
+      <span class="gc-arrow">▼</span>
+    </span>
+  </div>
+
+  <div class="gc-collapsible">
+    <div class="gc-collapsible-inner">
+      <div class="gc-body">
+        <div class="gc-title" id="gc-title"></div>
+        <div class="gc-desc" id="gc-desc"></div>
+      </div>
+
+      <div class="gc-options" id="gc-options"></div>
+
+      <div class="gc-footer" id="gc-footer">
+        <div class="gc-footer-item">
+          <span class="gc-footer-lbl">⚠ 风险：</span>
+          <span class="gc-footer-val risk" id="gc-risk"></span>
+        </div>
+        <div class="gc-footer-item">
+          <span class="gc-footer-lbl">🎲 检定：</span>
+          <span class="gc-footer-val" id="gc-check"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="gc-raw" style="display:none">$1</div>
+
+<script>
+(function(){
+  let lastHostFont = null;
+
+  function syncHostFontScale(force){
+    try{
+      const hostWin = (window.parent && window.parent !== window) ? window.parent : window;
+      const hostDoc = hostWin.document;
+
+      const candidates = [
+        hostDoc.querySelector('.mes_text'),
+        hostDoc.querySelector('.mes_reasoning'),
+        hostDoc.querySelector('#send_textarea'),
+        hostDoc.querySelector('#chat'),
+        hostDoc.querySelector('.chat'),
+        hostDoc.body,
+        hostDoc.documentElement
+      ].filter(Boolean);
+
+      let hostSize = 16;
+
+      for(const el of candidates){
+        const size = parseFloat(hostWin.getComputedStyle(el).fontSize);
+        if(size && !Number.isNaN(size)){
+          hostSize = size;
+          break;
+        }
+      }
+
+      if(force || lastHostFont === null || Math.abs(hostSize - lastHostFont) > 0.05){
+        lastHostFont = hostSize;
+        document.documentElement.style.fontSize = hostSize + 'px';
+      }
+    }catch(e){
+      if(force && !document.documentElement.style.fontSize){
+        document.documentElement.style.fontSize = '16px';
+      }
+    }
+  }
+
+  function dec(s){
+    return s
+      .replace(/&amp;/g,'&')
+      .replace(/&lt;/g,'<')
+      .replace(/&gt;/g,'>')
+      .replace(/&nbsp;/g,' ')
+      .replace(/&quot;/g,'"')
+      .replace(/→/g,'→')
+      .replace(/≥/g,'≥')
+      .replace(/≤/g,'≤');
+  }
+
+  function get(t,k){
+    var m=t.match(new RegExp(k+'[\\uff1a:][^\\S\\n]*([^\\n]+)'));
+    return m?dec(m[1].trim()):'';
+  }
+
+  syncHostFontScale(true);
+  window.addEventListener('resize', syncHostFontScale);
+  setInterval(syncHostFontScale, 600);
+
+  var raw=dec(document.getElementById('gc-raw').innerHTML);
+
+  document.getElementById('gc-title').textContent=get(raw,'标题');
+  document.getElementById('gc-desc').textContent=get(raw,'说明');
+
+  var container=document.getElementById('gc-options');
+  var labels=['A','B','C','D','E','F'];
+
+  for(var i=1;i<=6;i++){
+    var val=get(raw,'选项'+i);
+    if(!val) continue;
+
+    var opt=document.createElement('div');
+    opt.className='gc-option';
+    opt.setAttribute('data-action',val);
+    opt.innerHTML='<span class="gc-opt-label">'+labels[i-1]+'</span><span class="gc-opt-text">'+val+'</span>';
+
+    opt.addEventListener('click',(function(v){
+      return function(e){
+        e.stopPropagation();
+        try{
+          var t=window.parent.document.querySelector('#send_textarea');
+          var slash=window.parent.triggerSlash;
+
+          if(t){
+            var nv=t.value+v;
+            if(slash){
+              slash('/setinput '+nv);
+            }else{
+              t.value=nv;
+              t.dispatchEvent(new Event('input',{bubbles:true}));
+            }
+          }else if(slash){
+            slash('/setinput '+v);
+          }
+        }catch(e){}
+
+        this.style.borderColor='rgba(200,168,74,0.8)';
+        this.style.background='rgba(138,122,80,0.2)';
+        var self=this;
+        setTimeout(function(){
+          self.style.borderColor='';
+          self.style.background='';
+        },600);
+      };
+    })(val));
+
+    container.appendChild(opt);
+  }
+
+  var risk=get(raw,'风险提示');
+  var check=get(raw,'推荐检定');
+  document.getElementById('gc-risk').textContent=risk||'—';
+  document.getElementById('gc-check').textContent=check||'无';
+
+  if(!risk&&!check){
+    document.getElementById('gc-footer').style.display='none';
+  }
+
+  document.getElementById('gc-header').addEventListener('click',function(){
+    document.getElementById('gc-wrap').classList.toggle('collapsed');
+  });
+})();
+</script>
+</body>
+</html>
+```

@@ -1,0 +1,40 @@
+---
+变量输出格式:
+  rule:
+    - you must output the update analysis and the actual update commands at once in the end of the next reply
+    - the output protocol must stay stable so the variable manager can read it reliably
+    - the update commands works like the **JSON Patch (RFC 6902)** standard, must be a valid JSON array containing operation objects, but supports the following operations instead:
+      - replace: replace the value of existing paths
+      - delta: update the value of existing number paths by a delta value
+      - remove
+      - move
+    - analyze only the modules triggered in the current reply, not every module in the whole MVU tree
+    - if a module has no real change in this reply, do not output patch operations for it
+    - in this project, DO NOT use `insert` to create new keys inside object/record variables
+    - when adding a new item under object-like paths such as `/计划列表`, `/背包栏/武器详情`, `/背包栏/情报道具详情`, `/通用状态栏/地图`, `/危机面板`, `/NPC档案`, `/怪物档案`, `/关系面板/角色关系`, `/关系面板/盟友`, `/关系面板/敌对`, `/战斗面板/我方`, `/战斗面板/敌方`, replace the whole parent object with the merged result instead
+    - when replacing a whole parent object, merge with the current value first and do not drop untouched sibling keys
+    - when updating arrays, prefer `replace` on the whole array instead of `insert`
+    - prefer the smallest stable patch set that fully reflects the real changes of this reply
+    - don't update field names starts with `_` as they are readonly, such as `_变量`
+  format: |-
+    <UpdateVariable>
+    <Analysis>$(IN ENGLISH, no more than 80 words)
+    - ${calculate time passed: ...}
+    - ${decide whether dramatic updates are allowed as it's in a special case or the time passed is more than usual: yes/no}
+    - ${list the triggered modules only: ...}
+    - ${analyze only the changed fields based on current reply and current stored values: ...}
+    </Analysis>
+    <JSONPatch>
+    [
+      { "op": "replace", "path": "${/path/to/variable}", "value": "${new_value}" },
+      { "op": "delta", "path": "${/path/to/number/variable}", "value": "${positive_or_negative_delta}" },
+      { "op": "replace", "path": "/计划列表", "value": { "P001": { "对象": "示例角色", "计划内容": "示例计划", "时间": "当前", "状态": "进行中", "优先级": "中", "备注": "无", "$time": 1700000000 } } },
+      { "op": "replace", "path": "/背包栏/武器详情", "value": { "战术手枪": { "余弹": 12, "最大余弹": 15, "耐久": 100, "状态": "可用", "备注": "无" } } },
+      { "op": "replace", "path": "/世界信息/当前场景标签", "value": ["军方", "警戒", "休整"] },
+      { "op": "remove", "path": "${/path/to/object/key}" },
+      { "op": "remove", "path": "${/path/to/array/0}" },
+      { "op": "move", "from": "${/path/to/variable}", "to": "${/path/to/another/path}" },
+      ...
+    ]
+    </JSONPatch>
+    </UpdateVariable>

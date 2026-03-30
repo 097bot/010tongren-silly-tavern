@@ -1,0 +1,1510 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg0:#080e08;
+  --bg1:rgba(13,22,13,0.96);
+  --bg2:rgba(12,20,12,0.88);
+  --line:rgba(138,122,80,0.34);
+  --line-strong:rgba(138,122,80,0.72);
+  --khaki:#8a7a50;
+  --gold:#c8a84a;
+  --green:#4a6741;
+  --green2:#6e8b60;
+  --text:#d4cdb8;
+  --sub:#8a9e7a;
+  --muted:rgba(138,122,80,0.56);
+  --good:#9fc37a;
+  --bad:#c98572;
+
+  /* 跟随系统字体比例 */
+  --fs-micro: 0.68em;
+  --fs-xxs:   0.74em;
+  --fs-xs:    0.82em;
+  --fs-sm:    0.92em;
+  --fs-md:    1em;
+  --fs-lg:    1.12em;
+  --fs-xl:    1.28em;
+  --fs-xxl:   1.55em;
+  --fs-title: 1.86em;
+  --fs-hero:  1.26em;
+}
+
+html,body{width:100%;overflow-x:hidden;scrollbar-width:none;-ms-overflow-style:none}
+html::-webkit-scrollbar,body::-webkit-scrollbar{width:0;height:0}
+body{
+  font-family:"Noto Serif SC","黑体",sans-serif;
+  background:transparent
+}
+
+.zg-home{
+  position:relative;
+  width:100%;
+  overflow:hidden;
+  border:1px solid var(--line);
+  border-radius:4px;
+  background:
+    linear-gradient(180deg,rgba(8,14,8,0.96),rgba(10,18,10,0.94)),
+    repeating-linear-gradient(0deg,transparent,transparent 38px,rgba(138,122,80,0.018) 38px,rgba(138,122,80,0.018) 39px),
+    repeating-linear-gradient(90deg,transparent,transparent 58px,rgba(74,103,65,0.022) 58px,rgba(74,103,65,0.022) 59px);
+  box-shadow:0 10px 34px rgba(0,0,0,0.52), inset 0 1px 0 rgba(138,122,80,0.08);
+}
+.zg-home::before{
+  content:'';
+  position:absolute;left:0;top:0;bottom:0;width:2px;
+  background:linear-gradient(180deg,transparent,rgba(138,122,80,0.45),transparent);
+  opacity:.55;pointer-events:none
+}
+.zg-top{
+  position:relative;
+  padding:12px 16px 10px;
+  border-bottom:1px solid rgba(138,122,80,0.16);
+  background:linear-gradient(180deg,rgba(0,0,0,0.26),rgba(0,0,0,0.06));
+  display:flex;justify-content:space-between;align-items:flex-start;gap:12px
+}
+.zg-sig{display:flex;gap:2px;align-items:flex-end;height:11px}
+.zg-sig span{display:block;width:3px;border-radius:1px;background:var(--khaki);opacity:.82}
+.zg-sig span:nth-child(1){height:4px}.zg-sig span:nth-child(2){height:7px}.zg-sig span:nth-child(3){height:10px}
+.zg-left-top{display:flex;align-items:center;gap:8px;color:var(--muted);font-family:monospace;font-size:var(--fs-xs);letter-spacing:.16em}
+.zg-right-top{color:var(--muted);font-family:monospace;font-size:var(--fs-xxs);letter-spacing:.14em;text-align:right;line-height:1.5}
+.zg-head{
+  padding:16px 16px 14px;
+  border-bottom:1px solid rgba(138,122,80,0.12);
+  background:linear-gradient(180deg,rgba(74,103,65,0.10),rgba(0,0,0,0));
+}
+.zg-kicker{font-family:monospace;font-size:var(--fs-xs);letter-spacing:.24em;color:var(--sub);margin-bottom:6px}
+.zg-title{font-size:var(--fs-title);line-height:1.15;color:var(--gold);font-weight:700;letter-spacing:.05em}
+.zg-subtitle{margin-top:6px;color:var(--text);font-size:var(--fs-md);line-height:1.9}
+.zg-chip-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.zg-chip{
+  padding:3px 8px;border:1px solid rgba(138,122,80,0.28);border-radius:2px;
+  font-size:var(--fs-xs);letter-spacing:.12em;font-family:monospace;color:var(--muted);
+  background:rgba(138,122,80,0.06)
+}
+.zg-main{
+  display:grid;grid-template-columns:1.02fr .98fr;gap:14px;padding:14px
+}
+.zg-panel{
+  border:1px solid rgba(138,122,80,0.18);
+  background:rgba(8,14,8,0.56);
+  border-radius:3px;
+  overflow:hidden;
+  min-height:100%
+}
+.zg-panel-h{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:7px 12px;border-bottom:1px solid rgba(138,122,80,0.12);
+  background:rgba(138,122,80,0.06)
+}
+.zg-panel-h .l{font-family:monospace;font-size:var(--fs-xs);letter-spacing:.16em;color:rgba(138,122,80,0.84)}
+.zg-panel-h .r{font-family:monospace;font-size:var(--fs-micro);letter-spacing:.12em;color:rgba(138,122,80,0.42)}
+.zg-group{
+  border:1px solid rgba(138,122,80,0.12);
+  border-radius:3px;background:rgba(0,0,0,0.14);overflow:hidden
+}
+.zg-group-title{
+  padding:8px 10px;font-size:var(--fs-md);line-height:1.7;color:var(--gold);
+  border-bottom:1px solid rgba(138,122,80,0.08);background:rgba(138,122,80,0.04)
+}
+.zg-role-grid{padding:9px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.zg-role{
+  position:relative;
+  border:1px solid rgba(138,122,80,0.18);border-radius:3px;
+  background:rgba(12,20,12,0.74);padding:10px 10px 9px;cursor:pointer;
+  transition:.18s transform,.18s background,.18s border-color,.18s box-shadow
+}
+.zg-role:hover{transform:translateY(-1px);border-color:rgba(138,122,80,0.45);background:rgba(18,28,18,0.9)}
+.zg-role.active{
+  border-color:rgba(138,122,80,0.72);
+  background:linear-gradient(180deg,rgba(74,103,65,0.26),rgba(12,20,12,0.88));
+  box-shadow:0 0 0 1px rgba(138,122,80,0.16), inset 0 0 0 1px rgba(74,103,65,0.18)
+}
+.zg-role::before{
+  content:'';position:absolute;left:0;top:0;bottom:0;width:2px;
+  background:linear-gradient(180deg,transparent,rgba(138,122,80,0.44),transparent);opacity:.42
+}
+.zg-role-name{font-size:var(--fs-lg);color:var(--text);font-weight:700;letter-spacing:.03em}
+.zg-role-meta{margin-top:4px;font-size:var(--fs-xs);line-height:1.6;color:var(--muted)}
+.zg-view{padding:12px 12px 14px;display:flex;flex-direction:column;gap:10px}
+.zg-view-top{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:start}
+.zg-name{font-size:var(--fs-xxl);color:var(--gold);font-weight:700;line-height:1.15}
+.zg-route{margin-top:5px;font-size:var(--fs-sm);color:var(--sub);line-height:1.7}
+.zg-badge{
+  padding:4px 8px;border:1px solid rgba(74,103,65,0.35);
+  background:rgba(74,103,65,0.16);border-radius:2px;
+  color:#a8c890;font-size:var(--fs-xxs);font-family:monospace;letter-spacing:.14em
+}
+.zg-info{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.zg-info-item{
+  padding:8px 10px;border:1px solid rgba(138,122,80,0.12);background:rgba(0,0,0,0.14);border-radius:3px
+}
+.zg-info-l{font-size:var(--fs-xxs);font-family:monospace;letter-spacing:.12em;color:var(--muted);margin-bottom:3px}
+.zg-info-v{font-size:var(--fs-md);line-height:1.7;color:var(--text)}
+.zg-split{
+  display:flex;align-items:center;justify-content:space-between;gap:8px;
+  border:1px solid rgba(138,122,80,0.14);background:rgba(0,0,0,0.16);border-radius:3px;padding:8px 10px
+}
+.zg-split-l{font-size:var(--fs-sm);color:var(--sub);line-height:1.7}
+.zg-mini-btns{display:flex;gap:6px;flex-wrap:wrap}
+.zg-mini-btn{
+  border:1px solid rgba(138,122,80,0.26);background:rgba(138,122,80,0.07);
+  color:var(--text);font-size:var(--fs-sm);padding:5px 8px;border-radius:2px;cursor:pointer;
+  transition:.18s border-color,.18s background,.18s transform
+}
+.zg-mini-btn:hover{transform:translateY(-1px);border-color:rgba(138,122,80,0.52)}
+.zg-mini-btn.active{border-color:rgba(138,122,80,0.68);background:rgba(74,103,65,0.22)}
+.zg-radar-wrap,.zg-d20-wrap,.zg-greet{
+  border:1px solid rgba(138,122,80,0.16);border-radius:3px;background:rgba(0,0,0,0.18)
+}
+.zg-radar-wrap{padding:10px 8px 12px}
+.zg-radar-title,.zg-d20-title{font-size:var(--fs-sm);color:var(--sub);padding:10px 10px 0;letter-spacing:.08em}
+.zg-radar-box{display:grid;grid-template-columns:1fr 122px;gap:10px;align-items:center;padding:8px 10px 0}
+.zg-radar-labels{display:flex;flex-direction:column;gap:6px}
+.zg-stat{display:grid;grid-template-columns:72px 1fr 34px;gap:8px;align-items:center}
+.zg-stat-n{font-size:var(--fs-sm);color:var(--text)}
+.zg-stat-bar{height:5px;background:rgba(138,122,80,0.10);border-radius:99px;overflow:hidden}
+.zg-stat-fill{height:100%;background:linear-gradient(90deg,rgba(74,103,65,0.75),rgba(200,168,74,0.9))}
+.zg-stat-v{font-size:var(--fs-xs);font-family:monospace;color:var(--muted);text-align:right}
+.zg-greet{padding:10px 11px}
+.zg-greet-l{font-size:var(--fs-xxs);font-family:monospace;color:var(--muted);letter-spacing:.14em;margin-bottom:6px}
+.zg-greet-v{font-size:var(--fs-md);line-height:1.85;color:var(--text);white-space:pre-wrap}
+.zg-d20-wrap{padding:0 0 10px}
+.zg-rule-box{padding:8px 10px 0;font-size:var(--fs-sm);line-height:1.75;color:var(--text)}
+.zg-rule-box .t{color:var(--gold)}
+.zg-mod-grid{padding:10px;display:grid;grid-template-columns:1fr;gap:6px}
+.zg-mod-row{
+  display:grid;grid-template-columns:88px 1fr 58px;gap:8px;align-items:center;
+  padding:7px 8px;border:1px solid rgba(138,122,80,0.10);border-radius:3px;background:rgba(0,0,0,0.14)
+}
+.zg-mod-k{font-size:var(--fs-sm);color:var(--text)}
+.zg-mod-v{font-size:var(--fs-sm);color:var(--sub);line-height:1.5}
+.zg-roll-btn{
+  border:1px solid rgba(74,103,65,0.36);background:rgba(74,103,65,0.18);color:var(--text);
+  font-size:var(--fs-sm);padding:6px 8px;border-radius:2px;cursor:pointer;transition:.18s transform,.18s background,.18s border-color
+}
+.zg-roll-btn:hover{transform:translateY(-1px);border-color:rgba(138,122,80,0.56);background:rgba(74,103,65,0.32)}
+.zg-roll-result{
+  margin:0 10px;padding:10px;border:1px solid rgba(138,122,80,0.12);border-radius:3px;
+  background:rgba(0,0,0,0.16);font-size:var(--fs-md);line-height:1.8;color:var(--text);white-space:pre-wrap
+}
+.zg-roll-result .g{color:var(--good)} .zg-roll-result .b{color:var(--bad)} .zg-roll-result .y{color:var(--gold)}
+.zg-special{
+  margin:10px 10px 0;padding:8px 10px;border:1px solid rgba(138,122,80,0.12);border-radius:3px;
+  background:rgba(138,122,80,0.04);font-size:var(--fs-sm);line-height:1.8;color:var(--muted)
+}
+.zg-actions{
+  display:flex;
+  gap:8px;
+  align-items:center;
+  flex-wrap:wrap
+}
+.zg-start{
+  flex:1 1 240px;
+  min-width:0;
+  max-width:100%;
+  border:1px solid rgba(138,122,80,0.42);border-radius:3px;
+  background:linear-gradient(180deg,rgba(74,103,65,0.44),rgba(40,55,36,0.72));
+  color:var(--text);font-size:var(--fs-md);font-weight:700;letter-spacing:.08em;
+  padding:10px 12px;cursor:pointer;transition:.18s transform,.18s background,.18s border-color
+}
+.zg-start:hover{transform:translateY(-1px);border-color:rgba(138,122,80,0.72);background:linear-gradient(180deg,rgba(74,103,65,0.6),rgba(50,67,46,0.84))}
+.zg-note{font-size:var(--fs-xs);color:var(--muted);line-height:1.7}
+.zg-foot{
+  padding:10px 14px 13px;border-top:1px solid rgba(138,122,80,0.10);
+  background:rgba(0,0,0,0.18);font-size:var(--fs-sm);line-height:1.8;color:var(--muted)
+}
+svg{display:block;width:122px;height:122px;margin:0 auto}
+.zg-status{font-size:var(--fs-xs);color:#a8c890;font-family:monospace;letter-spacing:.12em;min-width:0}
+.zg-modal{
+  position:fixed;inset:0;
+  background:rgba(0,0,0,0.88);
+  backdrop-filter:blur(3px);
+  display:none;align-items:center;justify-content:center;z-index:9999;padding:16px
+}
+.zg-modal.show{display:flex}
+.zg-modal-box{
+  width:min(480px,100%);
+  border:1px solid rgba(200,168,74,0.55);
+  border-radius:6px;
+  background:linear-gradient(160deg,rgba(18,28,18,0.99),rgba(8,14,8,0.98));
+  box-shadow:
+    0 0 0 1px rgba(138,122,80,0.15),
+    0 24px 64px rgba(0,0,0,0.9),
+    0 0 48px rgba(74,103,65,0.14),
+    inset 0 1px 0 rgba(200,168,74,0.18);
+  position:relative;overflow:hidden
+}
+.zg-modal-box::before{
+  content:'';position:absolute;left:0;top:0;bottom:0;width:3px;
+  background:linear-gradient(180deg,transparent,rgba(200,168,74,0.65),transparent)
+}
+.zg-modal-head{
+  padding:16px 18px 14px;
+  border-bottom:1px solid rgba(200,168,74,0.2);
+  background:linear-gradient(180deg,rgba(74,103,65,0.2),rgba(0,0,0,0))
+}
+.zg-modal-title{
+  font-size:var(--fs-xl);color:var(--gold);font-weight:700;letter-spacing:.04em;
+  display:flex;align-items:center;gap:8px
+}
+.zg-modal-title::before{content:'◈';font-size:var(--fs-md);color:rgba(200,168,74,0.7)}
+.zg-modal-sub{margin-top:6px;font-size:var(--fs-md);line-height:1.8;color:#ccd8b8;padding-left:20px}
+.zg-modal-body{padding:14px;display:grid;grid-template-columns:1fr;gap:10px}
+.zg-route-card{
+  border:1px solid rgba(138,122,80,0.38);
+  border-radius:4px;
+  background:rgba(28,46,28,0.9);
+  padding:14px 14px 12px;
+  cursor:pointer;
+  transition:.2s transform,.2s border-color,.2s background,.2s box-shadow;
+  position:relative;overflow:hidden
+}
+.zg-route-card::before{
+  content:'';position:absolute;left:0;top:0;bottom:0;width:2px;
+  background:rgba(138,122,80,0.4);transition:.2s background
+}
+.zg-route-card:hover{
+  transform:translateX(4px);
+  border-color:rgba(200,168,74,0.72);
+  background:rgba(74,103,65,0.28);
+  box-shadow:0 4px 18px rgba(0,0,0,0.45), inset 0 0 0 1px rgba(74,103,65,0.2)
+}
+.zg-route-card:hover::before{background:var(--gold)}
+.zg-route-name{
+  font-size:var(--fs-hero);color:#f2ece0;font-weight:700;letter-spacing:.03em;
+  display:flex;align-items:center;justify-content:space-between
+}
+.zg-route-name::after{content:'▶';font-size:var(--fs-xs);color:rgba(138,122,80,0.5);transition:.2s color}
+.zg-route-card:hover .zg-route-name::after{color:var(--gold)}
+.zg-route-meta{margin-top:7px;font-size:var(--fs-sm);line-height:1.9;color:#b0c898;padding-left:2px}
+.zg-modal-foot{padding:0 14px 14px}
+.zg-close{
+  width:100%;
+  border:1px solid rgba(138,122,80,0.28);
+  background:rgba(0,0,0,0.2);
+  color:#b0c898;
+  font-size:var(--fs-sm);font-family:monospace;letter-spacing:.14em;
+  padding:10px;border-radius:3px;cursor:pointer;
+  transition:.18s border-color,.18s color,.18s background
+}
+.zg-close:hover{border-color:rgba(138,122,80,0.6);color:var(--text);background:rgba(138,122,80,0.1)}
+@media(max-width:760px){
+  .zg-main{grid-template-columns:1fr}
+  .zg-radar-box{grid-template-columns:1fr}
+}
+@media(max-width:450px){
+  .zg-role-grid{grid-template-columns:1fr}
+  .zg-info{grid-template-columns:1fr}
+  .zg-title{font-size:calc(var(--fs-title) * 0.88)}
+  .zg-name{font-size:calc(var(--fs-xxl) * 0.9)}
+  .zg-role-name{font-size:calc(var(--fs-lg) * 0.96)}
+  .zg-route-name{font-size:calc(var(--fs-hero) * 0.95)}
+  .zg-mod-row{grid-template-columns:78px 1fr 54px}
+  .zg-actions{flex-direction:column;align-items:stretch}
+  .zg-start{width:100%;min-width:0;flex:1 1 auto}
+  .zg-status{width:100%;text-align:center}
+}
+
+/* ── 左侧CP Tab ── */
+.zg-tabs{display:flex;flex-wrap:wrap;border-bottom:1px solid rgba(138,122,80,0.18);background:rgba(0,0,0,0.12)}
+.zg-tab{
+  padding:7px 10px;font-size:var(--fs-xs);font-family:monospace;letter-spacing:.08em;
+  color:rgba(138,122,80,0.55);cursor:pointer;border-bottom:2px solid transparent;
+  transition:.18s color,.18s border-color,.18s background;white-space:nowrap;
+  border-right:1px solid rgba(138,122,80,0.08)
+}
+.zg-tab:hover{color:rgba(200,168,74,0.8);background:rgba(138,122,80,0.06)}
+.zg-tab.active{color:var(--gold);border-bottom-color:var(--gold);background:rgba(138,122,80,0.08)}
+.zg-tab-panels{padding:10px 10px 12px}
+.zg-tab-panel{display:none}
+.zg-tab-panel.active{display:block}
+
+/* ── 右侧内容 Tab ── */
+.zg-vtabs{display:flex;border-bottom:1px solid rgba(138,122,80,0.18);background:rgba(0,0,0,0.10)}
+.zg-vtab{
+  flex:1;padding:9px 6px;font-size:var(--fs-sm);font-family:monospace;letter-spacing:.1em;text-align:center;
+  color:rgba(138,122,80,0.5);cursor:pointer;border-bottom:2px solid transparent;
+  transition:.18s color,.18s border-color,.18s background
+}
+.zg-vtab:hover{color:rgba(200,168,74,0.75);background:rgba(138,122,80,0.05)}
+.zg-vtab.active{color:var(--gold);border-bottom-color:var(--gold);background:rgba(138,122,80,0.07)}
+.zg-vpanel{display:none;padding:12px 14px 14px;flex-direction:column;gap:10px}
+.zg-vpanel.active{display:flex}
+
+@media(max-width:380px){
+  .zg-stat{grid-template-columns:1fr auto;grid-template-rows:auto auto;row-gap:3px;column-gap:6px}
+  .zg-stat-n{grid-column:1/2;grid-row:1;font-size:var(--fs-xs)}
+  .zg-stat-v{grid-column:2/3;grid-row:1;font-size:var(--fs-xxs)}
+  .zg-stat-bar{grid-column:1/3;grid-row:2;height:4px}
+  .zg-mod-row{grid-template-columns:auto 1fr;grid-template-rows:auto auto;row-gap:4px}
+  .zg-mod-k{grid-column:1/2;grid-row:1;font-size:var(--fs-xs)}
+  .zg-mod-v{grid-column:2/3;grid-row:1;font-size:var(--fs-xs)}
+  .zg-roll-btn{grid-column:1/3;grid-row:2;width:100%;padding:7px 8px;font-size:var(--fs-xs)}
+}
+</style>
+</head>
+<body>
+<div class="zg-home">
+  <div class="zg-top">
+    <div class="zg-left-top">
+      <div class="zg-sig"><span></span><span></span><span></span></div>
+      <span>GATE ZERO / ENTRY PANEL</span>
+    </div>
+    <div class="zg-right-top">2030 · KR<br>710 LINE / START</div>
+  </div>
+
+  <div class="zg-head">
+    <div class="zg-kicker">末世韩国 · 角色视角开局</div>
+    <div class="zg-title">零始之门同人</div>
+    <div class="zg-subtitle">请选择一个角色视角进入游戏，先点击同步角色再点击固定问候语。
+    自定义和种子随机开局请去下一页</div>
+    <div class="zg-chip-row">
+      <span class="zg-chip">选择自己开局后可以自行编辑</span>
+      <span class="zg-chip">单视角推进</span>
+      <span class="zg-chip">CP绑定</span>
+      <span class="zg-chip">韩佳温带二级线路选择</span>
+    </div>
+  </div>
+
+  <div class="zg-main">
+    <div class="zg-panel">
+      <div class="zg-panel-h"><span class="l">▌ 视角选择</span><span class="r">CHARACTER SELECT</span></div>
+      <div class="zg-tabs" id="zg-tabs"></div>
+      <div class="zg-tab-panels" id="zg-tab-panels"></div>
+    </div>
+
+    <div class="zg-panel">
+      <div class="zg-panel-h"><span class="l">▌ 开局面板</span><span class="r">START VIEW</span></div>
+
+      <div class="zg-vtabs" id="zg-vtabs">
+        <div class="zg-vtab active" data-vtab="info">详情</div>
+        <div class="zg-vtab" data-vtab="stats">战力</div>
+        <div class="zg-vtab" data-vtab="d20">D20</div>
+      </div>
+
+      <div class="zg-vpanel active" id="zg-vpanel-info">
+        <div class="zg-view-top">
+          <div>
+            <div class="zg-name" id="zg-name">—</div>
+            <div class="zg-route" id="zg-route">—</div>
+          </div>
+          <div class="zg-badge" id="zg-badge">未选择</div>
+        </div>
+        <div class="zg-info">
+          <div class="zg-info-item"><div class="zg-info-l">绑定对象</div><div class="zg-info-v" id="zg-bind">—</div></div>
+          <div class="zg-info-item"><div class="zg-info-l">竞争对象</div><div class="zg-info-v" id="zg-rival">—</div></div>
+          <div class="zg-info-item"><div class="zg-info-l">所属关系组</div><div class="zg-info-v" id="zg-group">—</div></div>
+          <div class="zg-info-item"><div class="zg-info-l">开局环境</div><div class="zg-info-v" id="zg-opening">—</div></div>
+        </div>
+        <div class="zg-split" id="zg-han-hint" style="display:none">
+          <div class="zg-split-l">韩佳温为三角关系中心。点击开始后，会弹出二级线路选择。</div>
+          <div class="zg-mini-btns">
+            <button class="zg-mini-btn" id="zg-han-line-a" type="button">成艺彬线</button>
+            <button class="zg-mini-btn" id="zg-han-line-b" type="button">朴武镇线</button>
+          </div>
+        </div>
+        <div class="zg-greet">
+          <div class="zg-greet-l">开局问候语预览</div>
+          <div class="zg-greet-v" id="zg-greet">—</div>
+        </div>
+        <div class="zg-actions">
+          <button class="zg-start" id="zg-start">▶ 同步角色</button>
+          <button class="zg-mini-btn" id="zg-use-default" type="button">填入固定问候语</button>
+          <div class="zg-status" id="zg-status">WAITING</div>
+        </div>
+        <div class="zg-note">“同步角色”只会把角色、线路与关系信息写进变量，不会覆盖你输入框里的自定义开局。想走旧版固定问候语时，再点击“填入固定问候语”。韩佳温会先弹出“成艺彬线 / 朴武镇线”二级选择。</div>
+      </div>
+
+      <div class="zg-vpanel" id="zg-vpanel-stats">
+        <div class="zg-radar-wrap">
+          <div class="zg-radar-title">六维战力系统（ATK / DEF / ESP / GDE / INT / PHY）</div>
+          <div class="zg-radar-box">
+            <div class="zg-radar-labels" id="zg-stats"></div>
+            <svg viewBox="-10 -10 240 240" aria-hidden="true">
+              <g id="zg-rings"></g>
+              <g id="zg-axes"></g>
+              <polygon id="zg-radar-fill" points="" fill="rgba(74,103,65,0.34)" stroke="rgba(200,168,74,0.88)" stroke-width="2"></polygon>
+              <g id="zg-points"></g>
+            </svg>
+          </div>
+        </div>
+        <div class="zg-special" id="zg-special">—</div>
+      </div>
+
+      <div class="zg-vpanel" id="zg-vpanel-d20">
+        <div class="zg-d20-wrap">
+          <div class="zg-d20-title">D20 判定系统</div>
+          <div class="zg-rule-box">
+            <span class="t">自然1或1-：</span>大失败　<span class="t">2–6：</span>失败　<span class="t">7–10：</span>部分成功　<span class="t">11–15：</span>成功　<span class="t">16–19：</span>大成功　<span class="t">自然20或20+：</span>完美
+          </div>
+          <div class="zg-mod-grid" id="zg-mod-grid"></div>
+          <div class="zg-roll-result" id="zg-roll-result">等待投掷。点击某一项右侧"投掷"按钮即可。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="zg-foot">
+    六边形按当前角色的常态主值绘制，条件加成、暴走修正、配对额外加值等不显示。<br>
+    D20 快速投掷属于首页前端演示，不影响游戏内容。
+  </div>
+</div>
+
+<div class="zg-modal" id="zg-modal">
+  <div class="zg-modal-box">
+    <div class="zg-modal-head">
+      <div class="zg-modal-title">韩佳温 · 二级线路选择</div>
+      <div class="zg-modal-sub">你已选中韩佳温。现在请选择要进入的对象线路，再跳转到对应问候语开局。</div>
+    </div>
+    <div class="zg-modal-body">
+      <div class="zg-route-card" id="zg-route-cheng">
+        <div class="zg-route-name">成艺彬线</div>
+        <div class="zg-route-meta">绑定对象：成艺彬<br>竞争对象：朴武镇<br>问候语：成艺彬主动联系韩佳温</div>
+      </div>
+      <div class="zg-route-card" id="zg-route-park">
+        <div class="zg-route-name">朴武镇线</div>
+        <div class="zg-route-meta">绑定对象：朴武镇<br>竞争对象：成艺彬<br>问候语：朴武镇主动联系韩佳温</div>
+      </div>
+    </div>
+    <div class="zg-modal-foot">
+      <button class="zg-close" id="zg-close-modal" type="button">取消</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(async function(){
+  const statDefs = [
+    {key:'ATK', label:'ATK 主动攻击（远程/近战）'},
+    {key:'DEF', label:'DEF 被动防御（闪避/格挡/减伤）'},
+    {key:'ESP', label:'ESP 异能控制与感知'},
+    {key:'GDE', label:'GDE 引导安抚与哨向链接'},
+    {key:'INT', label:'INT 认知与信息处理'},
+    {key:'PHY', label:'PHY 肉体耐久与极限'}
+  ];
+
+  const altGreetings = [
+    `[周成宰对金义材发送消息]
+周成宰看着手表，想象金义材暴跳如雷的样子，嘴角勾起一丝笑意
+“义材啊，吃饭了吗？要是还没吃，可以出来。”`,
+    `[金义材对周成宰发送消息]
+金义材似乎心里不快，死死盯着手表看片刻后…
+“周成宰，你以前不是动不动就找茬吗？怎么现在连消息都不发了？”`,
+    `[韩佳温对朴武镇发送消息]
+韩佳温像是不太熟悉手表的操作方法，摆弄了好一会
+“朴武镇先生，我是韩佳温。您现在在哪里？”`,
+    `[朴武镇对韩佳温发送消息]
+朴武镇不时看向手表，仿佛在等待某人的联络。朴武镇一时间陷入了思考
+“韩佳温，刚才还一副要主动联系的样子，怎么没动静了？”`,
+    `[成艺彬对韩佳温发送消息]
+“您好，韩佳温先生。我是成艺彬。”
+成艺彬的“输入中”的提示出现了几次后便消失了`,
+    `[韩佳温对成艺彬发送消息]
+韩佳温想起成艺彬曾帮自己戴上手表的动作，不自觉抚摸起手腕，随即下定决心般发出了消息
+“成艺彬先生，我是韩佳温。”`,
+    `[刘率对崔诺亚发送消息]
+*小睡片刻醒来的刘率，疑惑地环顾四周，确认诺亚不在后，发去了消息*
+“诺亚，你怎么不打招呼就走了？”`,
+    `[崔诺亚对刘率发送消息]
+“率！”
+“宝贝甜心~”
+“宝贝，有急事。快点！”
+*诺亚不停地发消息催促着*`,
+    `[河载京...没有发送信息，需要徐泰贤主动]
+河载京只是瞥了一眼手表，随即毫无兴趣地移开了视线。
+片刻后...
+河载京依旧对手表毫无兴趣`,
+    `[徐泰贤对河载京发送消息]
+“载京啊，在忙吗？”
+“吃饭了吗？在店里吗？要不要我带点什么过去？”
+徐泰贤紧张地攥着手表
+“载京啊，什么都行。拜托你回我消息吧。拜托拜托拜托...”`,
+    `[白耀汉对李宇林发送消息]
+“李下士，我是白耀汉。之前不是说有需要我确认的文件吗？”
+白耀汉发完消息后，小声嘀咕了一句：“是不是太明显了...”`,
+    `[李宇林对白耀汉发送消息]
+李宇林神情烦乱，在房间里来回踱步。随后像是下定决心般，给白耀汉发了消息
+“局长，您现在方便吗？”`,
+    `[申成日对闵时厚发送消息]
+申成日靠在椅背上，百无聊赖地转着手腕上的手表。片刻后，他瞥了一眼表盘，慢慢坐直了身体。
+“闵时厚，你人在哪。”`,
+    `[闵时厚对申成日发送消息]
+闵时厚将一杯热茶放到桌上，端坐着，视线落在手表上停了片刻。随后，他低下头，嘴角微微上扬，发出了消息。
+“成日，在忙吗？茶泡好了。”`
+  ];
+
+  const roleData = [
+    {id:'zhou',name:'周成宰',group:'周成宰 × 金义材',bind:'金义材',rival:'无',route:'固定双人线',opening:'世宗市 · 710联队军营',greetIndex:1,mods:{ATK:{n:3,t:'+3（远程） / +2（肉搏）'},DEF:{n:1,t:'+1'},ESP:{n:0,t:'0'},GDE:{n:2,t:'+2'},INT:{n:1,t:'+1'},PHY:{n:2,t:'+2'}},special:'远距离 ATK +3，近战 ATK +2；引导金义材时，GDE 额外 +1。'},
+    {id:'jin',name:'金义材',group:'周成宰 × 金义材',bind:'周成宰',rival:'无',route:'固定双人线',opening:'世宗市 · 710联队军营',greetIndex:0,mods:{ATK:{n:3,t:'+3（人形） / +4（兽化）'},DEF:{n:1,t:'+1'},ESP:{n:2,t:'+2'},GDE:{n:-2,t:'-2'},INT:{n:0,t:'0'},PHY:{n:3,t:'+3'}},special:'完全兽化时 ATK +4；暴走时 ATK +4、INT -2。'},
+    {id:'han',name:'韩佳温',group:'韩佳温 × 成艺彬 / 韩佳温 × 朴武镇',bind:'成艺彬 / 朴武镇',rival:'双线竞争',route:'三角关系中心位（开始时二级选择）',opening:'世宗市 · 710联队军营',mods:{ATK:{n:-1,t:'-1'},DEF:{n:-1,t:'-1'},ESP:{n:3,t:'+3'},GDE:{n:5,t:'+5'},INT:{n:2,t:'+2'},PHY:{n:-1,t:'-1'}},special:'唯一可逆转感染3阶段和暴走5阶段（逆转刚刚成为克锐特没多久的人）；体力透支时 GDE 降至 +1；引导成艺彬或朴武镇时，GDE 额外 +1。',routes:{cheng:{bind:'成艺彬',rival:'朴武镇',route:'三角关系支线 A',greetIndex:4},park:{bind:'朴武镇',rival:'成艺彬',route:'三角关系支线 B',greetIndex:3}}},
+    {id:'cheng',name:'成艺彬',group:'韩佳温 × 成艺彬 / 韩佳温 × 朴武镇',bind:'韩佳温',rival:'朴武镇',route:'三角关系支线 A',opening:'世宗市 · 710联队军营',greetIndex:5,mods:{ATK:{n:4,t:'+4'},DEF:{n:2,t:'+2'},ESP:{n:4,t:'+4'},GDE:{n:-2,t:'-2'},INT:{n:3,t:'+3'},PHY:{n:2,t:'+2'}},special:'寒冷环境下 ESP 上限可到 +5；暴走时，周围40米范围角色需进行 PHY 检定 DC10，否则进入冻伤状态。'},
+    {id:'park',name:'朴武镇',group:'韩佳温 × 成艺彬 / 韩佳温 × 朴武镇',bind:'韩佳温',rival:'成艺彬',route:'三角关系支线 B',opening:'世宗市 · 710联队军营',greetIndex:2,mods:{ATK:{n:3,t:'+3'},DEF:{n:4,t:'+4'},ESP:{n:3,t:'+3'},GDE:{n:-2,t:'-2'},INT:{n:1,t:'+1'},PHY:{n:4,t:'+4'}},special:'严寒时全属性 -2；暴走时 ATK +4、INT -2。'},
+    {id:'liu',name:'刘率',group:'刘率 × 崔诺亚',bind:'崔诺亚',rival:'无',route:'固定双人线',opening:'丽水市 · 太乙公会',greetIndex:7,mods:{ATK:{n:0,t:'0'},DEF:{n:1,t:'+1'},ESP:{n:1,t:'+1'},GDE:{n:2,t:'+2'},INT:{n:3,t:'+3（谈判时 +4）'},PHY:{n:1,t:'+1'}},special:'说服 / 谈判场合，INT 额外 +4；引导崔诺亚时，GDE 额外 +1。'},
+    {id:'cui',name:'崔诺亚',group:'刘率 × 崔诺亚',bind:'刘率',rival:'无',route:'固定双人线',opening:'丽水市 · 太乙公会',greetIndex:6,mods:{ATK:{n:2,t:'+2'},DEF:{n:1,t:'+1'},ESP:{n:3,t:'+3'},GDE:{n:-2,t:'-2'},INT:{n:1,t:'+1'},PHY:{n:3,t:'+3'}},special:'暴走时，以自身为中心发生重力失常，周围20米范围角色需进行 DEF 检定 DC12。'},
+    {id:'li',name:'李宇林',group:'李宇林 × 白耀汉',bind:'白耀汉',rival:'无',route:'固定双人线',opening:'大田市 · 特异现象管理厅',greetIndex:10,mods:{ATK:{n:1,t:'+1'},DEF:{n:1,t:'+1'},ESP:{n:3,t:'+3'},GDE:{n:-1,t:'-1'},INT:{n:3,t:'+3'},PHY:{n:2,t:'+2'}},special:'接触物品或人物时，ESP 可选择触发发读取记忆；暴走时 INT -2'},
+    {id:'bai',name:'白耀汉',group:'李宇林 × 白耀汉',bind:'李宇林',rival:'无',route:'固定双人线',opening:'大田市 · 特异现象管理厅',greetIndex:11,mods:{ATK:{n:-1,t:'-1'},DEF:{n:1,t:'+1'},ESP:{n:1,t:'+1'},GDE:{n:2,t:'+2'},INT:{n:3,t:'+3（研究 / 医疗时 +4）'},PHY:{n:0,t:'0'}},special:'研究 / 医疗场合，INT 额外 +4；与李宇林的引导配对GDE额外+1'},
+    {id:'he',name:'河载京',group:'河载京 × 徐泰贤',bind:'徐泰贤',rival:'无',route:'固定双人线',opening:'丽水市 · 古董店里',greetIndex:9,mods:{ATK:{n:-1,t:'-1'},DEF:{n:2,t:'+2'},ESP:{n:1,t:'+1'},GDE:{n:3,t:'+3'},INT:{n:2,t:'+2'},PHY:{n:1,t:'+1'}},special:'非自愿强制引导时 GDE -1；丽水古董店可作为情报 / 黑市交易据点。'},
+    {id:'xu',name:'徐泰贤',group:'河载京 × 徐泰贤',bind:'河载京',rival:'无',route:'固定双人线',opening:'丽水市 · 丽水市街道',greetIndex:8,mods:{ATK:{n:2,t:'+2'},DEF:{n:1,t:'+1'},ESP:{n:3,t:'+3'},GDE:{n:-2,t:'-2'},INT:{n:0,t:'0'},PHY:{n:2,t:'+2'}},special:'暴走时毒雾范围扩大，周围20米范围角色需进行 PHY 检定 DC10，否则中毒；执念目标在场时 INT -1。'},
+    {id:'shen',name:'申成日',group:'闵时厚 × 申成日',bind:'闵时厚',rival:'无',route:'固定双人线',opening:'大田市 · 实验所',greetIndex:13,mods:{ATK:{n:3,t:'+3（战斗场景额外 +1）'},DEF:{n:2,t:'+2（战斗场景额外 +1）'},ESP:{n:3,t:'+3（战斗场景额外 +1）'},GDE:{n:-3,t:'-3'},INT:{n:2,t:'+2'},PHY:{n:2,t:'+2'}},special:'战斗场景中，战斗类属性额外 +1。'},
+    {id:'min',name:'闵时厚',group:'闵时厚 × 申成日',bind:'申成日',rival:'无',route:'固定双人线',opening:'大田市 · 实验所',greetIndex:12,mods:{ATK:{n:0,t:'0'},DEF:{n:0,t:'0'},ESP:{n:3,t:'+3'},GDE:{n:3,t:'+3（非申成日时 -2）'},INT:{n:4,t:'+4'},PHY:{n:2,t:'+2'}},special:'引导申成日时维持 +3；引导非申成日角色时，GDE -2。'}
+  ];
+
+  const quickCommands = {
+    zhou: `/sendas name="零始之门010" [金义材对周成宰发送消息]
+金义材似乎心里不快，死死盯着手表看片刻后…
+“周成宰，你以前不是动不动就找茬吗？怎么现在连消息都不发了？”`,
+    jin: `/sendas name="零始之门010" [周成宰对金义材发送消息]
+周成宰看着手表，想象金义材暴跳如雷的样子，嘴角勾起一丝笑意
+“义材啊，吃饭了吗？要是还没吃，可以出来。”`,
+    cheng: `/sendas name="零始之门010" [韩佳温对成艺彬发送消息]
+韩佳温想起成艺彬曾帮自己戴上手表的动作，不自觉抚摸起手腕，随即下定决心般发出了消息
+“成艺彬先生，我是韩佳温。”`,
+    park: `/sendas name="零始之门010" [韩佳温对朴武镇发送消息]
+韩佳温像是不太熟悉手表的操作方法，摆弄了好一会
+“朴武镇先生，我是韩佳温。您现在在哪里？”`,
+    liu: `/sendas name="零始之门010" [崔诺亚对刘率发送消息]
+“率！”
+“宝贝甜心~”
+“宝贝，有急事。快点！”
+诺亚不停地发消息催促着`,
+    cui: `/sendas name="零始之门010" [刘率对崔诺亚发送消息]
+小睡片刻醒来的刘率，疑惑地环顾四周，确认诺亚不在后，发去了消息
+“诺亚，你怎么不打招呼就走了？”`,
+    li: `/sendas name="零始之门010" [白耀汉对李宇林发送消息]
+“李下士，我是白耀汉。之前不是说有需要我确认的文件吗？”
+白耀汉发完消息后，小声嘀咕了一句：“是不是太明显了...”`,
+    bai: `/sendas name="零始之门010" [李宇林对白耀汉发送消息]
+李宇林神情烦乱，在房间里来回踱步。随后像是下定决心般，给白耀汉发了消息
+“局长，您现在方便吗？”`,
+    he: `/sendas name="零始之门010" [徐泰贤对河载京发送消息]
+“载京啊，在忙吗？”
+“吃饭了吗？在店里吗？要不要我带点什么过去？”
+徐泰贤紧张地攥着手表
+“载京啊，什么都行。拜托你回我消息吧。拜托拜托拜托...”`,
+    xu: `/sendas name="零始之门010" [河载京...没有发送信息，需要徐泰贤主动]
+河载京只是瞥了一眼手表，随即毫无兴趣地移开了视线。
+片刻后...
+河载京依旧对手表毫无兴趣`,
+    shen: `/sendas name="零始之门010" [闵时厚对申成日发送消息]
+闵时厚将一杯热茶放到桌上，端坐着，视线落在手表上停了片刻。随后，他低下头，嘴角微微上扬，发出了消息。
+“成日，在忙吗？茶泡好了。”`,
+    min: `/sendas name="零始之门010" [申成日对闵时厚发送消息]
+申成日靠在椅背上，百无聊赖地转着手腕上的手表。片刻后，他瞥了一眼表盘，慢慢坐直了身体。
+“闵时厚，你人在哪。”`,
+    han_cheng: `/sendas name="零始之门010" [成艺彬对韩佳温发送消息]
+“您好，韩佳温先生。我是成艺彬。”
+成艺彬的“输入中”的提示出现了几次后便消失了`,
+    han_park: `/sendas name="零始之门010" [朴武镇对韩佳温发送消息]
+朴武镇不时看向手表，仿佛在等待某人的联络。朴武镇一时间陷入了思考
+“韩佳温，刚才还一副要主动联系的样子，怎么没动静了？”`
+  };
+
+  const nameEl = document.getElementById('zg-name');
+  const routeEl = document.getElementById('zg-route');
+  const badgeEl = document.getElementById('zg-badge');
+  const bindEl = document.getElementById('zg-bind');
+  const rivalEl = document.getElementById('zg-rival');
+  const groupEl = document.getElementById('zg-group');
+  const openingEl = document.getElementById('zg-opening');
+  const statsEl = document.getElementById('zg-stats');
+  const greetEl = document.getElementById('zg-greet');
+  const statusEl = document.getElementById('zg-status');
+  const startBtn = document.getElementById('zg-start');
+  const defaultBtn = document.getElementById('zg-use-default');
+  const ringsEl = document.getElementById('zg-rings');
+  const axesEl = document.getElementById('zg-axes');
+  const fillEl = document.getElementById('zg-radar-fill');
+  const pointsEl = document.getElementById('zg-points');
+  const modGridEl = document.getElementById('zg-mod-grid');
+  const rollResultEl = document.getElementById('zg-roll-result');
+  const specialEl = document.getElementById('zg-special');
+  const hanHintEl = document.getElementById('zg-han-hint');
+  const hanLineA = document.getElementById('zg-han-line-a');
+  const hanLineB = document.getElementById('zg-han-line-b');
+  const modalEl = document.getElementById('zg-modal');
+  const routeChengEl = document.getElementById('zg-route-cheng');
+  const routeParkEl = document.getElementById('zg-route-park');
+  const closeModalEl = document.getElementById('zg-close-modal');
+
+
+  let current = roleData[0];
+  let hanSelectedRoute = null;
+  let lastHostFont = null;
+  let dirty = false;
+  let lastSnapshot = '';
+  let pendingStartMode = null;
+
+  function esc(s){
+    return String(s).replace(/[&<>"]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
+  }
+
+  function clone(v){
+    return _.cloneDeep(v || {});
+  }
+
+  function lineKeyToLabel(key){
+    if(key === 'cheng') return '成艺彬线';
+    if(key === 'park') return '朴武镇线';
+    return '';
+  }
+
+  function lineLabelToKey(label){
+    if(label === '成艺彬线') return 'cheng';
+    if(label === '朴武镇线') return 'park';
+    return null;
+  }
+
+  function getGreetingByIndex(index){
+    return (index === null || index === undefined) ? '—' : (altGreetings[index] || '—');
+  }
+
+  function getHanMeta(routeKey){
+    const han = roleData.find(r => r.id === 'han');
+    if(routeKey && han && han.routes && han.routes[routeKey]){
+      return {
+        bind: han.routes[routeKey].bind,
+        rival: han.routes[routeKey].rival,
+        route: han.routes[routeKey].route,
+        greeting: getGreetingByIndex(han.routes[routeKey].greetIndex),
+        greetIndex: han.routes[routeKey].greetIndex
+      };
+    }
+    return {
+      bind:'成艺彬 / 朴武镇',
+      rival:'双线竞争',
+      route:'三角关系中心位（开始时二级选择）',
+      greeting:'选择韩佳温后，可先同步角色再自行输入自定义开局；若想走固定问候语，也可直接点“填入固定问候语”。',
+      greetIndex:null
+    };
+  }
+
+  function getCurrentMeta(role, routeKey){
+    if(role.id === 'han') return getHanMeta(routeKey || hanSelectedRoute);
+    return {
+      bind:role.bind,
+      rival:role.rival,
+      route:role.route,
+      greeting:getGreetingByIndex(role.greetIndex),
+      greetIndex:role.greetIndex
+    };
+  }
+
+  function inferPartner(role, line){
+    if (role === '周成宰') return { cp: '金义材', b: '金义材' };
+    if (role === '金义材') return { cp: '周成宰', b: '周成宰' };
+    if (role === '韩佳温') {
+      if (line === '成艺彬线') return { cp: '成艺彬', b: '成艺彬' };
+      if (line === '朴武镇线') return { cp: '朴武镇', b: '朴武镇' };
+      return { cp: '', b: '' };
+    }
+    if (role === '成艺彬') return { cp: '韩佳温', b: '韩佳温' };
+    if (role === '朴武镇') return { cp: '韩佳温', b: '韩佳温' };
+    if (role === '刘率') return { cp: '崔诺亚', b: '崔诺亚' };
+    if (role === '崔诺亚') return { cp: '刘率', b: '刘率' };
+    if (role === '白耀汉') return { cp: '李宇林', b: '李宇林' };
+    if (role === '李宇林') return { cp: '白耀汉', b: '白耀汉' };
+    if (role === '河载京') return { cp: '徐泰贤', b: '徐泰贤' };
+    if (role === '徐泰贤') return { cp: '河载京', b: '河载京' };
+    if (role === '申成日') return { cp: '闵时厚', b: '闵时厚' };
+    if (role === '闵时厚') return { cp: '申成日', b: '申成日' };
+    return { cp: '', b: '' };
+  }
+
+  function guessRoleGroup(role, line) {
+    if (['周成宰', '金义材', '成艺彬'].includes(role)) return 'military';
+    if (role === '韩佳温' && line === '成艺彬线') return 'medical_military';
+    if (role === '韩佳温' && line === '朴武镇线') return 'gray_zone';
+    if (['朴武镇', '申成日', '闵时厚'].includes(role)) return 'gray_zone';
+    if (['刘率', '崔诺亚', '白耀汉', '李宇林', '河载京', '徐泰贤'].includes(role)) return 'field';
+    return 'generic';
+  }
+
+  function hashSeed(input){
+    const str = String(input || 'zero-gate-default-seed');
+    let h = 2166136261 >>> 0;
+    for(let i = 0; i < str.length; i++){
+      h ^= str.charCodeAt(i);
+      h = Math.imul(h, 16777619);
+    }
+    return h >>> 0;
+  }
+
+  function makeSeededRng(seed){
+    let a = hashSeed(seed) || 1;
+    return function(){
+      a |= 0;
+      a = (a + 0x6D2B79F5) | 0;
+      let t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  function seededPick(arr, rng){
+    if(!Array.isArray(arr) || !arr.length) return null;
+    return arr[Math.floor(rng() * arr.length)] || arr[0];
+  }
+
+  function createOpeningSeed(prefix){
+    const salt = Math.random().toString(36).slice(2, 8);
+    return [prefix || 'zero-gate', Date.now().toString(36), salt].join('-');
+  }
+
+  function getPreviewSeed(roleName, lineLabel){
+    const key = `${roleName || '未知'}|${lineLabel || '默认线'}`;
+    if(!window.__zgPreviewSeedMap) window.__zgPreviewSeedMap = {};
+    if(!window.__zgPreviewSeedMap[key]) {
+      window.__zgPreviewSeedMap[key] = createOpeningSeed(key);
+    }
+    return window.__zgPreviewSeedMap[key];
+  }
+
+  function pickOpening(group, seed) {
+    const pools = {
+      military: {
+        place: ['世宗市 710联队军营', '世宗市 710联队军营·训练区外侧', '世宗市 710联队军营·临时宿舍走廊', '世宗市 710联队军营·第一大队指挥室外'],
+        time: ['2030-11-12 05:50', '2030-11-12 06:10', '2030-11-12 06:25', '2030-11-12 06:40'],
+        weather: ['阴冷', '低温有雾', '寒风偏强', '天色阴沉'],
+        tags: [['军方', '营区', '待命'], ['军方', '晨间报到', '警戒'], ['军方', '任务前', '压抑']]
+      },
+      medical_military: {
+        place: ['世宗市 710联队军营·观察病房', '世宗市 710联队军营·临时安置区', '世宗市 710联队军营·医务区走廊'],
+        time: ['2030-11-12 07:40', '2030-11-12 08:05', '2030-11-12 08:20'],
+        weather: ['阴冷', '晨雾未散', '气温偏低'],
+        tags: [['军方', '观察期', '医疗'], ['军方', '安置', '警戒'], ['医务', '留观', '紧张']]
+      },
+      gray_zone: {
+        place: ['世宗市 城区边缘临时据点', '世宗市 旧商区废楼据点', '世宗市 军营外围接应点'],
+        time: ['2030-11-12 08:10', '2030-11-12 09:00', '2030-11-12 09:30'],
+        weather: ['阴', '低温', '雾气偏重'],
+        tags: [['城区', '潜伏', '试探'], ['灰区', '接应', '观察'], ['边缘地带', '压抑', '不稳定']]
+      },
+      field: {
+        place: ['世宗市 临时补给站', '世宗市 郊外检查点', '大田方向交通节点', '丽水方向幸存者转运点'],
+        time: ['2030-11-12 07:20', '2030-11-12 08:30', '2030-11-12 10:00'],
+        weather: ['阴', '风大', '低温有灰霾'],
+        tags: [['补给', '流动', '戒备'], ['检查点', '通行', '危险'], ['转运', '幸存者', '紧张']]
+      },
+      generic: {
+        place: ['世宗市 临时安置点', '世宗市 街区边缘安全屋', '世宗市 废楼低层据点'],
+        time: ['2030-11-12 08:00', '2030-11-12 08:40', '2030-11-12 09:10'],
+        weather: ['阴', '低温', '空气潮冷'],
+        tags: [['安置', '观察'], ['城市', '低烈度危险'], ['临时据点', '待行动']]
+      }
+    };
+
+    const bucket = pools[group] || pools.generic;
+    const rng = makeSeededRng(`${seed || 'default'}|${group}|opening`);
+    return {
+      place: seededPick(bucket.place, rng),
+      time: seededPick(bucket.time, rng),
+      weather: seededPick(bucket.weather, rng),
+      tags: seededPick(bucket.tags, rng)
+    };
+  }
+
+  function buildOpeningEncounter(role, meta, pair, opening){
+    const cp = (pair && pair.cp) || (meta && meta.bind) || '';
+    const place = opening && opening.place ? String(opening.place).trim() : '';
+    if (cp && place) return `${place} · 与${cp}完成开局会合`;
+    if (cp) return `与${cp}完成开局会合`;
+    if (place) return `${place} · 等待进入首轮剧情`;
+    return '开局现场确认';
+  }
+
+  function starterBagByGroup(group, seed) {
+    const commonMedical = { '绷带': 2, '止痛药': 1 };
+    const commonFood = { '瓶装水': 2, '压缩口粮': 2 };
+    const commonIntel = {
+      '随身手电': {
+        '描述': '基础照明工具',
+        '状态': '可用',
+        '数量': 1,
+        '备注': '开局默认携带'
+      }
+    };
+
+    const bonusPools = {
+      military: [
+        { weaponDetail: { '折叠军刀': { '余弹': 0, '最大余弹': 0, '耐久': 100, '状态': '可用', '备注': '基础近战工具' } } },
+        { intelDetail: { '军营通行条': { '描述': '基础通行凭据', '状态': '可用', '数量': 1, '备注': '开局随机附加' } } },
+        { medical: { '止血贴': 2 } }
+      ],
+      medical_military: [
+        { medical: { '基础抑制剂': 1 } },
+        { intelDetail: { '临时留观记录': { '描述': '观察期随身记录', '状态': '可用', '数量': 1, '备注': '开局随机附加' } } },
+        { food: { '葡萄糖口服液': 1 } }
+      ],
+      gray_zone: [
+        { weaponDetail: { '折叠刀': { '余弹': 0, '最大余弹': 0, '耐久': 100, '状态': '可用', '备注': '便于隐藏' } } },
+        { intelDetail: { '匿名联络纸条': { '描述': '写有会面提示', '状态': '可用', '数量': 1, '备注': '开局随机附加' } } },
+        { food: { '能量棒': 1 } }
+      ],
+      field: [
+        { medical: { '净水片': 2 } },
+        { intelDetail: { '简易地图页': { '描述': '附近路线手绘图', '状态': '可用', '数量': 1, '备注': '开局随机附加' } } },
+        { food: { '罐头': 1 } }
+      ],
+      generic: [
+        { medical: { '绷带': 1 } },
+        { food: { '瓶装水': 1 } },
+        { intelDetail: { '便签纸': { '描述': '空白便签', '状态': '可用', '数量': 1, '备注': '开局随机附加' } } }
+      ]
+    };
+
+    const rng = makeSeededRng(`${seed || 'default'}|${group}|bag`);
+    const bonus = seededPick(bonusPools[group] || bonusPools.generic, rng) || {};
+    return {
+      医疗: { ...commonMedical, ...((bonus && bonus.medical) || {}) },
+      食物水: { ...commonFood, ...((bonus && bonus.food) || {}) },
+      情报道具详情: { ...commonIntel, ...((bonus && bonus.intelDetail) || {}) },
+      武器详情: { ...((bonus && bonus.weaponDetail) || {}) }
+    };
+  }
+
+  function guessEmoji(place) {
+    if (!place) return '📍';
+    if (/军营|基地|联队|营区/.test(place)) return '🪖';
+    if (/病房|医院|医务/.test(place)) return '🩺';
+    if (/指挥室|司令部/.test(place)) return '🎯';
+    if (/仓库|储藏|库房/.test(place)) return '📦';
+    if (/街区|城区|路口/.test(place)) return '🏙️';
+    if (/检查点|车站|码头|港/.test(place)) return '🚏';
+    return '📍';
+  }
+
+  function getCurrentFloorMessageId(){
+    try{
+      return typeof getCurrentMessageId === 'function' ? getCurrentMessageId() : -1;
+    }catch(e){
+      return -1;
+    }
+  }
+
+  function getCurrentFloorMvuData(){
+    try{
+      return Mvu.getMvuData({ type: 'message', message_id: getCurrentFloorMessageId() }) || {};
+    }catch(e){
+      return {};
+    }
+  }
+
+  function getDisplayMvuData(){
+    try{
+      return Mvu.getMvuData({ type: 'message', message_id: 'latest' }) || getCurrentFloorMvuData();
+    }catch(e){
+      return getCurrentFloorMvuData();
+    }
+  }
+
+  function abs(path, data){
+    return _.has(data, 'stat_data') ? ('stat_data.' + path) : path;
+  }
+
+  function getVar(data, path, def){
+    return _.get(data, abs(path, data), def);
+  }
+
+  function setVar(data, path, value){
+    return _.set(data, abs(path, data), value);
+  }
+
+  function ensureCharacterDefaults(data, base){
+    if (!getVar(data, `${base}.神态`, '')) setVar(data, `${base}.神态`, '保持观察');
+    if (!getVar(data, `${base}.动作`, '')) setVar(data, `${base}.动作`, '待命');
+    if (!getVar(data, `${base}.希望`, '')) setVar(data, `${base}.希望`, '确认当前局势');
+    if (!getVar(data, `${base}.内心`, '')) setVar(data, `${base}.内心`, '先观察，再判断下一步。');
+    if (getVar(data, `${base}.体力`, null) === null || getVar(data, `${base}.体力`, undefined) === undefined) setVar(data, `${base}.体力`, 100);
+    if (getVar(data, `${base}.精神稳定`, null) === null || getVar(data, `${base}.精神稳定`, undefined) === undefined) setVar(data, `${base}.精神稳定`, 100);
+    if (getVar(data, `${base}.污染值`, null) === null || getVar(data, `${base}.污染值`, undefined) === undefined) setVar(data, `${base}.污染值`, 0);
+    if (!getVar(data, `${base}.伤势`, '')) setVar(data, `${base}.伤势`, '无');
+  }
+
+  function getDisplayState(){
+    const data = getDisplayMvuData();
+    const selectedRole = String(getVar(data, '开局状态.已选择角色', '') || getVar(data, '关系面板.视角角色', '') || getVar(data, '通用状态栏.角色A.姓名', '')).trim();
+    const selectedLine = String(getVar(data, '开局状态.已选择线路', '') || '').trim();
+    return {
+      data,
+      selectedRole,
+      selectedLine,
+      roleBName: String(getVar(data, '通用状态栏.角色B.姓名', '') || '').trim(),
+      currentCP: String(getVar(data, '关系面板.当前主CP', '') || '').trim(),
+      favor: getVar(data, '关系面板.好感', 0),
+      relationEvent: String(getVar(data, '关系面板.当前关系事件', '无') || '无').trim(),
+      place: String(getVar(data, '世界信息.场所', '') || '').trim(),
+      time: String(getVar(data, '世界信息.时间', '') || '').trim(),
+      weather: String(getVar(data, '世界信息.天气', '') || '').trim(),
+      encounter: String(getVar(data, '世界信息.遭遇事件', '无') || '无').trim(),
+      tags: Array.isArray(getVar(data, '世界信息.当前场景标签', [])) ? getVar(data, '世界信息.当前场景标签', []) : [],
+      bagChange: String(getVar(data, '背包栏.本轮变化', '无变化') || '无变化').trim(),
+      rollType: String(getVar(data, '判定状态.最近类型', '无') || '无').trim(),
+      rollAttr: String(getVar(data, '判定状态.最近属性', '无') || '无').trim(),
+      rollRaw: Number(getVar(data, '判定状态.最近骰点', 0) || 0),
+      rollTotal: Number(getVar(data, '判定状态.最终结果', 0) || 0),
+      rollBand: String(getVar(data, '判定状态.结果等级', '无') || '无').trim(),
+      rollDesc: String(getVar(data, '判定状态.附加后果', '无') || '无').trim()
+    };
+  }
+
+  function getTabKeyByRoleId(roleId){
+    const hit = tabGroups.find(tg => tg.ids.includes(roleId));
+    return hit ? hit.key : tabGroups[0].key;
+  }
+
+  function syncHostFontScale(force){
+    try{
+      const hostWin = (window.parent && window.parent !== window) ? window.parent : window;
+      const hostDoc = hostWin.document;
+
+      const candidates = [
+        hostDoc.querySelector('.mes_text'),
+        hostDoc.querySelector('.mes_reasoning'),
+        hostDoc.querySelector('#send_textarea'),
+        hostDoc.querySelector('#chat'),
+        hostDoc.querySelector('.chat'),
+        hostDoc.body,
+        hostDoc.documentElement
+      ].filter(Boolean);
+
+      let hostSize = 16;
+
+      for(const el of candidates){
+        const size = parseFloat(hostWin.getComputedStyle(el).fontSize);
+        if(size && !Number.isNaN(size)){
+          hostSize = size;
+          break;
+        }
+      }
+
+      if(force || lastHostFont === null || Math.abs(hostSize - lastHostFont) > 0.05){
+        lastHostFont = hostSize;
+        document.documentElement.style.fontSize = hostSize + 'px';
+        if(current) renderStats(current);
+      }
+    }catch(e){
+      if(force && !document.documentElement.style.fontSize){
+        document.documentElement.style.fontSize = '16px';
+      }
+    }
+  }
+
+  const tabGroups = [
+    { key:'zhou_jin', label:'周成宰 × 金义材',   ids:['zhou','jin'] },
+    { key:'han',      label:'韩佳温 △ 三角',     ids:['han','cheng','park'] },
+    { key:'liu_cui',  label:'刘率 × 崔诺亚',     ids:['liu','cui'] },
+    { key:'li_bai',   label:'李宇林 × 白耀汉',   ids:['li','bai'] },
+    { key:'he_xu',    label:'河载京 × 徐泰贤',   ids:['he','xu'] },
+    { key:'shen_min', label:'申成日 × 闵时厚',   ids:['shen','min'] },
+  ];
+  let activeTab = tabGroups[0].key;
+
+  function buildGroups(){
+    const tabsEl = document.getElementById('zg-tabs');
+    const panelsEl = document.getElementById('zg-tab-panels');
+    tabsEl.innerHTML = '';
+    panelsEl.innerHTML = '';
+    tabGroups.forEach(tg => {
+      const tab = document.createElement('div');
+      tab.className = 'zg-tab' + (tg.key === activeTab ? ' active' : '');
+      tab.textContent = tg.label;
+      tab.addEventListener('click', () => { activeTab = tg.key; buildGroups(); });
+      tabsEl.appendChild(tab);
+
+      const panel = document.createElement('div');
+      panel.className = 'zg-tab-panel' + (tg.key === activeTab ? ' active' : '');
+
+      const grid = document.createElement('div');
+      grid.className = 'zg-role-grid';
+
+      tg.ids.forEach(rid => {
+        const role = roleData.find(r => r.id === rid);
+        if(!role) return;
+        const btn = document.createElement('div');
+        btn.className = 'zg-role' + (role.id === current.id ? ' active' : '');
+        btn.dataset.role = role.id;
+        btn.innerHTML = '<div class="zg-role-name">'+esc(role.name)+'</div><div class="zg-role-meta">绑定：'+esc(role.bind)+'<br>路线：'+esc(role.route)+'</div>';
+        btn.addEventListener('click', () => {
+          current = role;
+          activeTab = tg.key;
+          dirty = true;
+          if(role.id !== 'han'){
+            hanSelectedRoute = null;
+          }
+          buildGroups();
+          renderCurrent(getDisplayState());
+        });
+        grid.appendChild(btn);
+      });
+
+      panel.appendChild(grid);
+      panelsEl.appendChild(panel);
+    });
+  }
+
+  function point(cx, cy, radius, i, total){
+    const angle = -Math.PI / 2 + i * (Math.PI * 2 / total);
+    return [cx + Math.cos(angle) * radius, cy + Math.sin(angle) * radius];
+  }
+
+  function polyPoints(values, scale){
+    const cx = 110, cy = 110, total = 6;
+    return values.map((v, i) => {
+      const p = point(cx, cy, scale * (v / 100), i, total);
+      return p[0].toFixed(2)+','+p[1].toFixed(2);
+    }).join(' ');
+  }
+
+  function drawRadar(values, role){
+    const cx = 110, cy = 110, total = 6, maxR = 74;
+    ringsEl.innerHTML = '';
+    axesEl.innerHTML = '';
+    pointsEl.innerHTML = '';
+
+    const baseFont = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+    const svgLabelFont = (baseFont * 0.72).toFixed(2);
+
+    for(let level=1; level<=5; level++){
+      const r = maxR * (level / 5);
+      const poly = document.createElementNS('http://www.w3.org/2000/svg','polygon');
+      poly.setAttribute('points', Array.from({length: total}, (_, i) => {
+        const p = point(cx, cy, r, i, total);
+        return p[0].toFixed(2)+','+p[1].toFixed(2);
+      }).join(' '));
+      poly.setAttribute('fill', level === 5 ? 'rgba(74,103,65,0.05)' : 'transparent');
+      poly.setAttribute('stroke', 'rgba(138,122,80,' + (level === 5 ? '0.26' : '0.14') + ')');
+      poly.setAttribute('stroke-width', '1');
+      ringsEl.appendChild(poly);
+    }
+
+    for(let i=0;i<total;i++){
+      const p = point(cx, cy, maxR, i, total);
+      const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+      line.setAttribute('x1', cx);
+      line.setAttribute('y1', cy);
+      line.setAttribute('x2', p[0]);
+      line.setAttribute('y2', p[1]);
+      line.setAttribute('stroke','rgba(138,122,80,0.18)');
+      line.setAttribute('stroke-width','1');
+      axesEl.appendChild(line);
+    }
+
+    fillEl.setAttribute('points', polyPoints(values, maxR));
+
+    values.forEach((v, i) => {
+      const p = point(cx, cy, maxR * (v / 100), i, total);
+      const circle = document.createElementNS('http://www.w3.org/2000/svg','circle');
+      circle.setAttribute('cx', p[0]);
+      circle.setAttribute('cy', p[1]);
+      circle.setAttribute('r', '3.1');
+      circle.setAttribute('fill', 'rgba(200,168,74,0.95)');
+      circle.setAttribute('stroke', 'rgba(74,103,65,0.75)');
+      circle.setAttribute('stroke-width', '1.2');
+      pointsEl.appendChild(circle);
+    });
+
+    statDefs.forEach((d, i) => {
+      const p = point(cx, cy, maxR + 14, i, total);
+      const modVal = role ? role.mods[d.key].n : 0;
+      const valStr = modVal >= 0 ? '+' + modVal : String(modVal);
+
+      let anchor = 'middle';
+      const px = p[0];
+      if(px < cx - 8) anchor = 'end';
+      else if(px > cx + 8) anchor = 'start';
+
+      const keyText = document.createElementNS('http://www.w3.org/2000/svg','text');
+      keyText.setAttribute('x', p[0].toFixed(2));
+      keyText.setAttribute('y', (p[1] - 1).toFixed(2));
+      keyText.setAttribute('text-anchor', anchor);
+      keyText.setAttribute('font-family', 'monospace');
+      keyText.setAttribute('font-size', svgLabelFont);
+      keyText.setAttribute('font-weight', '700');
+      keyText.setAttribute('letter-spacing', '0.06em');
+      keyText.setAttribute('fill', 'rgba(224,204,140,0.92)');
+      keyText.textContent = d.key;
+      pointsEl.appendChild(keyText);
+
+      const valText = document.createElementNS('http://www.w3.org/2000/svg','text');
+      valText.setAttribute('x', p[0].toFixed(2));
+      valText.setAttribute('y', (p[1] + 10).toFixed(2));
+      valText.setAttribute('text-anchor', anchor);
+      valText.setAttribute('font-family', 'monospace');
+      valText.setAttribute('font-size', svgLabelFont);
+      valText.setAttribute('fill', 'rgba(168,200,136,0.88)');
+      valText.textContent = valStr;
+      pointsEl.appendChild(valText);
+    });
+  }
+
+  function modToPercent(n){
+    const v = 50 + n * 10;
+    return Math.max(15, Math.min(100, v));
+  }
+
+  function renderStats(role){
+    statsEl.innerHTML = '';
+    const values = statDefs.map(d => modToPercent(role.mods[d.key].n));
+
+    statDefs.forEach((d, i) => {
+      const row = document.createElement('div');
+      row.className = 'zg-stat';
+      row.innerHTML = '<div class="zg-stat-n">'+esc(d.label)+'</div><div class="zg-stat-bar"><div class="zg-stat-fill" style="width:'+values[i]+'%"></div></div><div class="zg-stat-v">'+role.mods[d.key].t+'</div>';
+      statsEl.appendChild(row);
+    });
+
+    drawRadar(values, role);
+  }
+
+  function renderModRows(role){
+    modGridEl.innerHTML = '';
+    statDefs.forEach(d => {
+      const row = document.createElement('div');
+      row.className = 'zg-mod-row';
+      row.innerHTML = '<div class="zg-mod-k">'+esc(d.label)+'</div><div class="zg-mod-v">'+esc(role.mods[d.key].t)+'</div><button class="zg-roll-btn" data-roll="'+d.key+'" type="button">投掷</button>';
+      modGridEl.appendChild(row);
+    });
+
+    modGridEl.querySelectorAll('.zg-roll-btn').forEach(btn => {
+      btn.addEventListener('click', function(){
+        const k = this.getAttribute('data-roll');
+        doRoll(role, k);
+      });
+    });
+  }
+
+  function getResultBand(raw, total){
+    if(raw === 1) return {name:'大失败', cls:'b', desc:'强制最坏结果，触发随机坏事件'};
+    if(raw === 20) return {name:'完美', cls:'g', desc:'强制成功，触发随机好事件'};
+    if(total <= 6) return {name:'失败', cls:'b', desc:'行动失败，承受后果'};
+    if(total <= 10) return {name:'部分成功', cls:'y', desc:'完成但付出代价（HP-3 / 弹药耗损 / 状态恶化 / 暴走+1）'};
+    if(total <= 15) return {name:'成功', cls:'g', desc:'达成预期效果'};
+    if(total <= 19) return {name:'大成功', cls:'g', desc:'超出预期，额外收益或信息'};
+    return {name:'大成功', cls:'g', desc:'超出预期，额外收益或信息'};
+  }
+
+  async function doRoll(role, key){
+    const mod = role.mods[key].n;
+    const raw = Math.floor(Math.random() * 20) + 1;
+    const total = raw + mod;
+    const band = getResultBand(raw, total);
+    const cls = band.cls === 'b' ? 'b' : (band.cls === 'y' ? 'y' : 'g');
+    rollResultEl.innerHTML = '角色：' + role.name + '\n' +
+      '项目：' + key + '　调整值：' + (mod >= 0 ? '+' + mod : mod) + '\n' +
+      '掷骰：d20(' + raw + ') ' + (mod >= 0 ? '+ ' + mod : '- ' + Math.abs(mod)) + ' = ' + total + '\n' +
+      '结果：<span class="' + cls + '">' + band.name + '</span>\n' +
+      '说明：' + band.desc;
+
+    try{
+      const data = clone(getCurrentFloorMvuData());
+      setVar(data, '判定状态.最近类型', '首页D20演示');
+      setVar(data, '判定状态.最近属性', key);
+      setVar(data, '判定状态.最近骰点', raw);
+      setVar(data, '判定状态.最终结果', total);
+      setVar(data, '判定状态.结果等级', band.name);
+      setVar(data, '判定状态.附加后果', band.desc);
+      setVar(data, '判定状态.是否已结算', true);
+      await Mvu.replaceMvuData(data, { type: 'message', message_id: getCurrentFloorMessageId() });
+    }catch(err){
+      console.error(err);
+    }
+  }
+
+  function setInputAndSend(text){
+    try{
+      const pw = window.parent || window;
+      const doc = pw.document;
+      const textarea = doc.querySelector('#send_textarea');
+      if(!textarea){
+        statusEl.textContent = 'FAILED · 未找到输入框';
+        return;
+      }
+      const areaProto = (pw.HTMLTextAreaElement && pw.HTMLTextAreaElement.prototype) ? pw.HTMLTextAreaElement.prototype : window.HTMLTextAreaElement.prototype;
+      const nativeInputSetter = Object.getOwnPropertyDescriptor(areaProto, 'value');
+      if(nativeInputSetter && nativeInputSetter.set){
+        nativeInputSetter.set.call(textarea, text);
+      } else {
+        textarea.value = text;
+      }
+      textarea.dispatchEvent(new Event('input', {bubbles:true}));
+      textarea.dispatchEvent(new Event('change', {bubbles:true}));
+      textarea.focus();
+      statusEl.textContent = 'READY · 已填入输入框';
+    }catch(err){
+      console.error(err);
+      statusEl.textContent = 'FAILED · ' + (err && err.message ? err.message : '填入失败');
+    }
+  }
+
+  function getQuickKey(){
+    if(current.id === 'han'){
+      if(hanSelectedRoute === 'cheng') return 'han_cheng';
+      if(hanSelectedRoute === 'park') return 'han_park';
+      return null;
+    }
+    return current.id;
+  }
+
+  function openHanModal(){ modalEl.classList.add('show'); }
+  function closeHanModal(){ pendingStartMode = null; modalEl.classList.remove('show'); }
+
+  function formatRollState(state){
+    if(!state || !state.rollAttr || state.rollAttr === '无') return '';
+    const cls = /失败/.test(state.rollBand) ? 'b' : (/部分成功/.test(state.rollBand) ? 'y' : 'g');
+    return '最近判定：' + (state.rollType || '无') + '\n' +
+      '项目：' + state.rollAttr + '\n' +
+      '骰点：' + state.rollRaw + '　最终值：' + state.rollTotal + '\n' +
+      '结果：<span class="' + cls + '">' + (state.rollBand || '无') + '</span>\n' +
+      '说明：' + (state.rollDesc || '无');
+  }
+
+  function renderCurrent(state){
+    const meta = getCurrentMeta(current, hanSelectedRoute);
+    const synced = state && state.selectedRole === current.name;
+    const lineText = synced && state.selectedLine ? state.selectedLine : meta.route;
+    const timeText = synced && state.time ? (' · ' + state.time) : '';
+    const bindText = synced ? (state.currentCP || state.roleBName || meta.bind) : meta.bind;
+    const openingText = synced && (state.place || state.weather || (state.tags && state.tags.length))
+      ? [state.place || '地点待定', state.weather || '', (state.tags && state.tags.length) ? state.tags.join(' / ') : ''].filter(Boolean).join(' ｜ ')
+      : '进入剧情后由 AI 结合当前角色、局势与场景自行判定';
+
+    nameEl.textContent = current.name;
+    routeEl.textContent = lineText + timeText;
+    bindEl.textContent = bindText;
+    rivalEl.textContent = meta.rival;
+    groupEl.textContent = current.group;
+    openingEl.textContent = openingText;
+
+    let greetText = meta.greeting;
+    greetEl.textContent = greetText;
+
+    let specialText = '角色特性：' + current.special;
+    if(synced){
+      const extra = [];
+      if(Number.isFinite(Number(state.favor))) extra.push('好感 ' + Number(state.favor));
+      if(state.relationEvent && state.relationEvent !== '无') extra.push('关系事件：' + state.relationEvent);
+      if(state.bagChange && state.bagChange !== '无变化') extra.push('背包变化：' + state.bagChange);
+      if(extra.length) specialText += '\n' + extra.join(' ｜ ');
+    }
+    specialEl.textContent = specialText;
+
+    renderStats(current);
+    renderModRows(current);
+
+    const rollText = formatRollState(state);
+    if(rollText){
+      rollResultEl.innerHTML = rollText;
+    }
+
+    if(current.id === 'han'){
+      hanHintEl.style.display = 'flex';
+      hanLineA.classList.toggle('active', hanSelectedRoute === 'cheng');
+      hanLineB.classList.toggle('active', hanSelectedRoute === 'park');
+      badgeEl.textContent = '韩佳温 / 二级线路待定';
+      if(hanSelectedRoute === 'cheng') badgeEl.textContent = '韩佳温 / 成艺彬线';
+      if(hanSelectedRoute === 'park') badgeEl.textContent = '韩佳温 / 朴武镇线';
+    }else{
+      hanHintEl.style.display = 'none';
+      badgeEl.textContent = current.name + ' / 待确认';
+    }
+
+    if(dirty){
+      if(current.id !== 'han') badgeEl.textContent = current.name + ' / 待同步';
+      statusEl.textContent = 'DIRTY · 待同步';
+      return;
+    }
+
+    if(synced){
+      if(current.id !== 'han') badgeEl.textContent = current.name + ' / 已同步';
+      statusEl.textContent = 'SYNCED · ' + current.name;
+    }else{
+      statusEl.textContent = 'WAITING';
+    }
+  }
+
+  async function syncSelectionToVariables(){
+    if(!current) return false;
+    if(current.id === 'han' && !hanSelectedRoute){
+      openHanModal();
+      return false;
+    }
+
+    const lineLabel = current.id === 'han' ? lineKeyToLabel(hanSelectedRoute) : '';
+    const meta = getCurrentMeta(current, hanSelectedRoute);
+    const pair = inferPartner(current.name, lineLabel);
+    const opening = pickOpening(
+      guessRoleGroup(current.name, lineLabel),
+      getPreviewSeed(current.name, lineLabel)
+    );
+    const data = clone(getCurrentFloorMvuData());
+
+    setVar(data, '开局状态.已选择角色', current.name);
+    setVar(data, '开局状态.已选择线路', lineLabel);
+    setVar(data, '开局状态.已完成角色同步', true);
+    setVar(data, '开局状态.已进入正式剧情', false);
+    setVar(data, '开局状态.开局来源', 'unknown');
+    setVar(data, '开局状态.开局摘要', [current.name, lineLabel || '默认线', '待玩家自定义开局或剧情首轮写入'].filter(Boolean).join(' ｜ '));
+
+    setVar(data, '通用状态栏.角色A.姓名', current.name);
+    if (pair.b) setVar(data, '通用状态栏.角色B.姓名', pair.b);
+    setVar(data, '关系面板.视角角色', current.name);
+    if (pair.cp) setVar(data, '关系面板.当前主CP', pair.cp);
+    if (!String(getVar(data, '关系面板.羁绊', '') || '').trim()) setVar(data, '关系面板.羁绊', '无');
+    if (!String(getVar(data, '关系面板.当前关系事件', '') || '').trim() || String(getVar(data, '关系面板.当前关系事件', '无')) === '无') {
+      setVar(data, '关系面板.当前关系事件', '开局角色已确认');
+    }
+    if (getVar(data, '关系面板.好感', null) === null || getVar(data, '关系面板.好感', undefined) === undefined) setVar(data, '关系面板.好感', 0);
+
+    ensureCharacterDefaults(data, '通用状态栏.角色A');
+    if (pair.b) ensureCharacterDefaults(data, '通用状态栏.角色B');
+
+    if (!String(getVar(data, '世界信息.场所', '') || '').trim() && opening.place) {
+      setVar(data, '世界信息.场所', opening.place);
+    }
+    if (!String(getVar(data, '世界信息.时间', '') || '').trim() && opening.time) {
+      setVar(data, '世界信息.时间', opening.time);
+    }
+    if (!String(getVar(data, '世界信息.天气', '') || '').trim() && opening.weather) {
+      setVar(data, '世界信息.天气', opening.weather);
+    }
+    const existingSceneTags = getVar(data, '世界信息.当前场景标签', []);
+    const sceneTags = Array.isArray(existingSceneTags)
+      ? existingSceneTags.filter(tag => String(tag || '').trim())
+      : [];
+    if (!sceneTags.length && Array.isArray(opening.tags) && opening.tags.length) {
+      setVar(data, '世界信息.当前场景标签', opening.tags.filter(tag => String(tag || '').trim()));
+    }
+    if (!Number.isFinite(Number(getVar(data, '世界信息.第几天', NaN)))) setVar(data, '世界信息.第几天', 1);
+    if (getVar(data, '世界信息.是否战斗中', null) === null || getVar(data, '世界信息.是否战斗中', undefined) === undefined) {
+      setVar(data, '世界信息.是否战斗中', false);
+    }
+    const existingEncounter = String(getVar(data, '世界信息.遭遇事件', '') || '').trim();
+    if (!existingEncounter || existingEncounter === '无') {
+      setVar(data, '世界信息.遭遇事件', buildOpeningEncounter(current, meta, pair, opening));
+    }
+    if (!String(getVar(data, '背包栏.本轮变化', '') || '').trim()) {
+      setVar(data, '背包栏.本轮变化', '无变化');
+    }
+
+    await Mvu.replaceMvuData(data, { type: 'message', message_id: getCurrentFloorMessageId() });
+    dirty = false;
+    return true;
+  }
+
+  async function syncRoleOnly(){
+    if(!current) return;
+    if(current.id === 'han' && !hanSelectedRoute){
+      pendingStartMode = 'sync';
+      openHanModal();
+      return;
+    }
+    statusEl.textContent = 'SYNCING · ' + current.name;
+    const ok = await syncSelectionToVariables();
+    if(!ok) return;
+    statusEl.textContent = 'SYNCED · 角色已同步';
+  }
+
+  async function startQuickReply(){
+    if(!current) return;
+    if(current.id === 'han' && !hanSelectedRoute){
+      pendingStartMode = 'default';
+      openHanModal();
+      return;
+    }
+    statusEl.textContent = 'SYNCING · ' + current.name;
+    const ok = await syncSelectionToVariables();
+    if(!ok) return;
+
+    const key = getQuickKey();
+    const text = quickCommands[key];
+    if(!text){
+      statusEl.textContent = 'FAILED · 未找到对应快速回复';
+      return;
+    }
+    statusEl.textContent = 'STARTING · ' + current.name;
+    setInputAndSend(text);
+  }
+
+  function chooseHanRoute(routeKey, startMode){
+    hanSelectedRoute = routeKey;
+    dirty = true;
+    renderCurrent(getDisplayState());
+    closeHanModal();
+    const mode = startMode || pendingStartMode;
+    pendingStartMode = null;
+    if(mode === 'default') startQuickReply();
+    if(mode === 'sync') syncRoleOnly();
+  }
+
+  function syncFromVariables(force){
+    if(dirty && !force) return;
+    const state = getDisplayState();
+    const snapshot = JSON.stringify({
+      selectedRole: state.selectedRole,
+      selectedLine: state.selectedLine,
+      currentCP: state.currentCP,
+      roleBName: state.roleBName,
+      place: state.place,
+      time: state.time,
+      weather: state.weather,
+      tags: state.tags,
+      encounter: state.encounter,
+      favor: state.favor,
+      relationEvent: state.relationEvent,
+      bagChange: state.bagChange,
+      rollAttr: state.rollAttr,
+      rollRaw: state.rollRaw,
+      rollTotal: state.rollTotal,
+      rollBand: state.rollBand
+    });
+    if(!force && snapshot === lastSnapshot) return;
+    lastSnapshot = snapshot;
+
+    if(state.selectedRole){
+      const role = roleData.find(r => r.name === state.selectedRole);
+      if(role) current = role;
+    }
+    if(state.selectedLine){
+      hanSelectedRoute = lineLabelToKey(state.selectedLine);
+    }
+
+    activeTab = getTabKeyByRoleId(current.id);
+    buildGroups();
+    renderCurrent(state);
+  }
+
+  startBtn.addEventListener('click', function(){ syncRoleOnly(); });
+  defaultBtn.addEventListener('click', function(){ startQuickReply(); });
+  hanLineA.addEventListener('click', function(){ chooseHanRoute('cheng', false); });
+  hanLineB.addEventListener('click', function(){ chooseHanRoute('park', false); });
+  routeChengEl.addEventListener('click', function(){ chooseHanRoute('cheng'); });
+  routeParkEl.addEventListener('click', function(){ chooseHanRoute('park'); });
+  closeModalEl.addEventListener('click', closeHanModal);
+  modalEl.addEventListener('click', function(e){ if(e.target === modalEl) closeHanModal(); });
+
+  document.getElementById('zg-vtabs').addEventListener('click', function(e){
+    const tab = e.target.closest('.zg-vtab');
+    if(!tab) return;
+    const key = tab.dataset.vtab;
+    document.querySelectorAll('.zg-vtab').forEach(t => t.classList.toggle('active', t.dataset.vtab === key));
+    document.querySelectorAll('.zg-vpanel').forEach(p => p.classList.toggle('active', p.id === 'zg-vpanel-' + key));
+  });
+
+  syncHostFontScale(true);
+  window.addEventListener('resize', syncHostFontScale);
+  setInterval(syncHostFontScale, 600);
+
+  buildGroups();
+  renderCurrent(getDisplayState());
+  syncFromVariables(true);
+  setInterval(() => syncFromVariables(false), 1000);
+})();
+</script>
+</body>
+</html>

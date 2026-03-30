@@ -1,0 +1,35 @@
+# 六维属性定义
+ATK  战斗输出——所有主动攻击行为（远程/近战）
+DEF  防御躲避——闪避/格挡/受击减伤（被动应对伤害）
+ESP  异能感知——异能的使用/控制/感应克锐特
+GDE  引导稳定——引导安抚/精神输出/哨向链接/精神波动探测
+INT  认知判断——情报/谈判/推理/医疗/识破/侦查
+PHY  肉体极限——体力/耐久/徒手格斗/抗毒/负重
+
+# 引导检定DC基准
+轻度暴走（阶段1）DC 8
+中度暴走（阶段2）DC 12
+重度暴走（阶段3）DC 16
+极重暴走（阶段4+）DC 20，仅韩佳温可强行压制
+
+# 特殊规则
+对立骰（双方各骰）：高者胜；差值1–3小胜/4–7明显压制/8+完全碾压
+配对引导加成：与专属哨兵进行引导时GDE额外+1
+
+# 六维初始调整值（主要角色）
+基准：普通人=-1（无ESP和GDE属性） | 上限+5 | 下限-3
+周成宰 ATK+3(远程)/2(肉搏) DEF+1 ESP0 GDE+2 INT+2 PHY+2 (特殊：引导金义材时GDE+1)
+金义材 ATK+3(人形)/+4(兽化) DEF+1 ESP+3 GDE-2 INT0 PHY+3 (特殊：暴走时ATK+4/INT-2)
+韩佳温 ATK-1 DEF-1 ESP+3 GDE+5 INT+2 PHY-1 (特殊：逆转暴走；引导成艺彬/朴武镇时GDE额外+1可破上限)
+成艺彬 ATK+4 DEF+2 ESP+4 GDE-2 INT+3 PHY+2 (特殊：寒冷环境ESP/ATK+2；暴走范围冻伤)
+朴武镇 ATK+3 DEF+4 ESP+3 GDE-2 INT+1 PHY+4 (特殊：严寒全属性-2；暴走时ATK+4/INT-2)
+刘率 ATK0 DEF+1 ESP+1 GDE+2 INT+3 PHY+1 (特殊：说服INT+4；引导崔诺亚GDE+1)
+崔诺亚 ATK+2 DEF+1 ESP+3 GDE-2 INT+1 PHY+3 (特殊：暴走重力失常)
+李宇林 ATK+1 DEF+1 ESP+3 GDE-1 INT+3 PHY+2 (特殊：读取记忆；暴走时INT-2)
+白耀汉 ATK-1 DEF+1 ESP+1 GDE+2 INT+3 PHY+0 (特殊：医疗INT+4；引导李宇林GDE+1)
+河载京 ATK-1 DEF+2 ESP+1 GDE+3 INT+2 PHY+1 (特殊：非自愿引导GDE-1)
+徐泰贤 ATK+2 DEF+1 ESP+3 GDE-2 INT+0 PHY+2 (特殊：暴走毒雾；执念目标在场INT-1)
+申成日 ATK+3 DEF+3 ESP+3 GDE-3 INT+2 PHY+2 (特殊：战斗时战斗属性+1)
+闵时厚 ATK+0 DEF+0 ESP+3 GDE+3 INT+4 PHY+2 (特殊：引导非申成日GDE-2)
+雷登  ATK+3 DEF+1 ESP+3 GDE-2 INT+1 PHY+2 (特殊：操控低阶克锐特)
+流 ATK+1 DEF+2 ESP+1 GDE+2 INT+2 PHY+0 (特殊：引导雷登GDE+1)

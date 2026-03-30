@@ -1,0 +1,718 @@
+```html
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Shadows+Into+Light&display=swap" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+
+    :root{
+      --fs-micro: 0.62em;
+      --fs-xxs: 0.72em;
+      --fs-xs: 0.82em;
+      --fs-sm: 0.92em;
+      --fs-md: 1em;
+      --fs-lg: 1.08em;
+    }
+
+    body{
+      font-family:'Shadows Into Light',cursive;
+      background:transparent;
+    }
+
+    .chat-root{
+      width:100%;
+    }
+
+    .chat-wrap{
+      width:100%;
+      border:1px solid rgba(74,103,65,0.4);
+      border-radius:3px;
+      overflow:hidden;
+      background:rgba(10,16,10,0.95);
+      box-shadow:0 2px 18px rgba(0,0,0,0.55);
+      position:relative;
+    }
+
+    .chat-wrap::before{
+      content:'';
+      position:absolute;
+      left:0;top:0;bottom:0;
+      width:2px;
+      background:linear-gradient(180deg,transparent,rgba(74,103,65,0.5),transparent);
+      opacity:0.5;
+      pointer-events:none;
+      z-index:1;
+    }
+
+    .chat-header{
+      background:rgba(74,103,65,0.12);
+      border-bottom:1px solid rgba(74,103,65,0.22);
+      padding:5px 12px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      cursor:pointer;
+      user-select:none;
+      transition:background 0.2s;
+      position:relative;
+      z-index:5;
+      pointer-events:auto;
+      touch-action:manipulation;
+    }
+
+    .chat-header:hover{background:rgba(74,103,65,0.2);}
+
+    .chat-header .l{
+      font-size:var(--fs-xs);
+      color:#8a9e7a;
+      font-family:monospace;
+      letter-spacing:0.2em;
+    }
+
+    .chat-header .r{
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+
+    .chat-header .rtime{
+      font-size:var(--fs-micro);
+      color:rgba(138,122,80,0.45);
+      font-family:monospace;
+    }
+
+    .chat-arrow{
+      font-size:var(--fs-xxs);
+      color:rgba(74,103,65,0.6);
+      font-family:monospace;
+      transition:transform 0.25s ease;
+      display:inline-block;
+    }
+
+    .chat-wrap.collapsed .chat-arrow{transform:rotate(-90deg);}
+
+    .chat-collapsible{
+      display:grid;
+      grid-template-rows:1fr;
+      transition:grid-template-rows 0.3s ease;
+      overflow:hidden;
+    }
+
+    .chat-wrap.collapsed .chat-collapsible{grid-template-rows:0fr;}
+    .chat-collapsible-inner{overflow:hidden;min-height:0;}
+
+    .chat-timenode{
+      text-align:center;
+      font-size:var(--fs-xs);
+      font-family:monospace;
+      color:rgba(138,122,80,0.42);
+      padding:8px 0 4px;
+      letter-spacing:0.08em;
+    }
+
+    .chat-messages{
+      padding:4px 12px 12px 12px;
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+    }
+
+    .chat-sys,
+    .chat-recall{
+      width:100%;
+      text-align:center;
+      align-self:stretch;
+      padding:2px 0;
+    }
+
+    .chat-sys{
+      padding-top:4px;
+    }
+
+    .chat-sys-pill,
+    .chat-recall-pill{
+      display:inline-block;
+      max-width:88%;
+      padding:2px 8px;
+      border-radius:999px;
+      font-size:var(--fs-xs);
+      font-family:monospace;
+      line-height:1.5;
+      word-break:break-all;
+      white-space:pre-wrap;
+    }
+
+    .chat-sys-pill{
+      color:rgba(138,122,80,0.55);
+      background:rgba(74,103,65,0.08);
+      border:1px solid rgba(74,103,65,0.12);
+      letter-spacing:0.03em;
+    }
+
+    .chat-recall-pill{
+      color:rgba(138,122,80,0.42);
+      background:rgba(138,122,80,0.05);
+      border:1px solid rgba(138,122,80,0.1);
+      font-style:italic;
+    }
+
+    .chat-row-left{
+      display:flex;
+      align-items:flex-end;
+      gap:6px;
+    }
+
+    .chat-avatar{
+      width:28px;
+      height:28px;
+      border-radius:50%;
+      flex-shrink:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:var(--fs-xs);
+      font-family:monospace;
+      color:#fff;
+      font-weight:bold;
+    }
+
+    .chat-col{
+      display:flex;
+      flex-direction:column;
+      gap:2px;
+      max-width:72%;
+    }
+
+    .chat-sender{
+      font-size:var(--fs-xs);
+      font-family:monospace;
+      color:rgba(138,122,80,0.5);
+      padding-left:2px;
+    }
+
+    .chat-bubble-left{
+      background:rgba(30,42,30,0.9);
+      border:1px solid rgba(74,103,65,0.3);
+      border-radius:0 8px 8px 8px;
+      padding:6px 10px;
+      font-size:var(--fs-md);
+      color:#d4cdb8;
+      line-height:1.65;
+      word-break:break-all;
+      white-space:pre-wrap;
+    }
+
+    .chat-quote{
+      border-left:2px solid rgba(138,122,80,0.4);
+      padding:2px 6px;
+      margin-bottom:4px;
+      font-size:var(--fs-xs);
+      color:rgba(212,205,184,0.45);
+      font-family:monospace;
+      white-space:pre-wrap;
+      word-break:break-all;
+    }
+
+    .chat-row-right{
+      display:flex;
+      justify-content:flex-end;
+    }
+
+    .chat-bubble-right{
+      background:rgba(40,80,40,0.85);
+      border:1px solid rgba(74,130,65,0.4);
+      border-radius:8px 0 8px 8px;
+      padding:6px 10px;
+      font-size:var(--fs-md);
+      color:#c8e0b8;
+      line-height:1.65;
+      max-width:72%;
+      word-break:break-all;
+      white-space:pre-wrap;
+    }
+
+    @media (max-width: 768px){
+      .chat-header{
+        padding:6px 10px;
+        gap:8px;
+        align-items:flex-start;
+      }
+
+      .chat-header .l{
+        font-size:var(--fs-xxs);
+        letter-spacing:0.14em;
+      }
+
+      .chat-header .r{
+        gap:6px;
+        flex-wrap:wrap;
+        justify-content:flex-end;
+        max-width:40%;
+      }
+
+      .chat-messages{
+        padding:4px 10px 10px 10px;
+      }
+
+      .chat-row-left{
+        gap:5px;
+      }
+
+      .chat-avatar{
+        width:24px;
+        height:24px;
+      }
+
+      .chat-col,
+      .chat-bubble-right{
+        max-width:80%;
+      }
+    }
+
+    @media (max-width: 480px){
+      .chat-header .r{
+        max-width:48%;
+      }
+
+      .chat-header .rtime,
+      .chat-timenode,
+      .chat-sender,
+      .chat-quote,
+      .chat-sys-pill,
+      .chat-recall-pill{
+        font-size:var(--fs-micro);
+      }
+
+      .chat-col,
+      .chat-bubble-right{
+        max-width:84%;
+      }
+
+      .chat-bubble-left,
+      .chat-bubble-right{
+        font-size:var(--fs-sm);
+        line-height:1.58;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="chat-root">
+    <div class="chat-wrap">
+      <div class="chat-header">
+        <span class="l chat-title">▌ 群聊</span>
+        <span class="r">
+          <span class="rtime chat-time"></span>
+          <span class="chat-arrow">▼</span>
+        </span>
+      </div>
+
+      <div class="chat-collapsible">
+        <div class="chat-collapsible-inner">
+          <div class="chat-timenode"></div>
+          <div class="chat-messages"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="chat-raw" style="display:none">$1</div>
+  </div>
+
+  <script>
+    (function(){
+      var scriptEl = document.currentScript;
+      var root = scriptEl.previousElementSibling;
+      if(!root || !root.classList.contains('chat-root')) return;
+
+      var wrap = root.querySelector('.chat-wrap');
+      var header = root.querySelector('.chat-header');
+      var titleEl = root.querySelector('.chat-title');
+      var timeEl = root.querySelector('.chat-time');
+      var timenodeEl = root.querySelector('.chat-timenode');
+      var messagesEl = root.querySelector('.chat-messages');
+      var rawEl = root.querySelector('.chat-raw');
+
+      if(!wrap || !header || !titleEl || !timeEl || !timenodeEl || !messagesEl || !rawEl) return;
+
+      let lastHostFont = null;
+
+      function syncHostFontScale(force){
+        try{
+          const hostWin = (window.parent && window.parent !== window) ? window.parent : window;
+          const hostDoc = hostWin.document;
+
+          const candidates = [
+            hostDoc.querySelector('.mes_text'),
+            hostDoc.querySelector('.mes_reasoning'),
+            hostDoc.querySelector('#send_textarea'),
+            hostDoc.querySelector('#chat'),
+            hostDoc.querySelector('.chat'),
+            hostDoc.body,
+            hostDoc.documentElement
+          ].filter(Boolean);
+
+          let hostSize = 16;
+
+          for(const el of candidates){
+            const size = parseFloat(hostWin.getComputedStyle(el).fontSize);
+            if(size && !Number.isNaN(size)){
+              hostSize = size;
+              break;
+            }
+          }
+
+          if(force || lastHostFont === null || Math.abs(hostSize - lastHostFont) > 0.05){
+            lastHostFont = hostSize;
+            document.documentElement.style.fontSize = hostSize + 'px';
+          }
+        }catch(e){
+          if(force && !document.documentElement.style.fontSize){
+            document.documentElement.style.fontSize = '16px';
+          }
+        }
+      }
+
+      function dec(s){
+        return (s || '')
+          .replace(/&amp;/g,'&')
+          .replace(/&lt;/g,'<')
+          .replace(/&gt;/g,'>')
+          .replace(/&nbsp;/g,' ')
+          .replace(/&quot;/g,'"');
+      }
+
+      function escapeHtml(s){
+        return (s || '')
+          .replace(/&/g,'&amp;')
+          .replace(/</g,'&lt;')
+          .replace(/>/g,'&gt;')
+          .replace(/"/g,'&quot;');
+      }
+
+      function get(text, key){
+        var m = text.match(new RegExp(key + '[：:][^\\S\\n]*([^\\n]+)'));
+        return m ? dec(m[1].trim()) : '';
+      }
+
+      function hexToRgba(hex,a){
+        var r=parseInt(hex.slice(1,3),16),
+            g=parseInt(hex.slice(3,5),16),
+            b=parseInt(hex.slice(5,7),16);
+        return 'rgba('+r+','+g+','+b+','+a+')';
+      }
+
+      function getAvatarInitial(sender){
+        if(!sender) return '?';
+        var name = sender.trim();
+        if(!name) return '?';
+        if(/\s/.test(name)){
+          return name.split(/\s+/)[0].slice(0,1).toUpperCase();
+        }
+        return name.slice(0,1);
+      }
+
+      function normType(s){
+        s = dec(s || '').trim().toLowerCase();
+
+        if(/^(sys|系统提示|系统|提示|system)$/.test(s)) return 'sys';
+        if(/^(recall|撤回|撤回消息|撤回提示)$/.test(s)) return 'recall';
+        if(/^(right|右|右侧|右边|发送者|本人|我方|自己)$/.test(s)) return 'right';
+        if(/^(left|左|左侧|左边|对方)$/.test(s)) return 'left';
+
+        return '';
+      }
+
+      function isLikelyRecallText(s){
+        s = dec(s || '').trim();
+        return /撤回了一条消息|撤回消息|已撤回|消息已撤回/.test(s);
+      }
+
+      function isLikelySystemText(s){
+        s = dec(s || '').trim();
+        return /(邀请.*加入群聊|邀请.*加入频道|加入了?.*群聊|加入了?.*频道|创建了?.*群聊|创建了?.*频道|修改了?.*群名|修改了?.*频道名称|拍了拍|被移出群聊|移出了群聊|离开了?.*群聊|离开了?.*频道|进入了?.*频道|通过了朋友验证|以上是打招呼内容|现在可以开始聊天|群公告|更换群头像|开启了群禁言|关闭了群禁言)/.test(s);
+      }
+
+      function isLikelyUserName(s){
+        s = dec(s || '').trim();
+        if(!s) return false;
+        if(/[：:]/.test(s)) return false;
+        if(s.length > 12) return false;
+        if(/^(sys|系统提示|系统|提示|recall|撤回|left|right|左|右)$/i.test(s)) return false;
+        return true;
+      }
+
+      function inferSideFromSender(sender){
+        sender = dec(sender || '').trim();
+        if(!sender) return 'left';
+        if(/^\{\{user\}\}$|^你$|^我$|^自己$|^玩家$|^user$/i.test(sender)) return 'right';
+        return 'left';
+      }
+
+      function extractPayload(line){
+        line = dec(line || '').trim();
+        if(!line) return '';
+
+        if(/^<\/?群聊小剧场>/i.test(line)) return '';
+        if(/^(群名|时间|时间节点)[：:]/.test(line)) return '';
+
+        var m = line.match(/^(?:消息|msg|message)\s*\d*\s*[：:]\s*(.+)$/i);
+        if(m) return m[1].trim();
+
+        m = line.match(/^\d+\s*[.)、．]\s*(.+)$/);
+        if(m) return m[1].trim();
+
+        m = line.match(/^[\-•·]\s*(.+)$/);
+        if(m) line = m[1].trim();
+
+        if(line.indexOf('|') >= 0) return line;
+        if(isLikelyRecallText(line)) return line;
+        if(isLikelySystemText(line)) return line;
+
+        var colonMsg = line.match(/^([^：:]{1,12})[：:]\s*(.+)$/);
+        if(colonMsg && isLikelyUserName(colonMsg[1])) return line;
+
+        return '';
+      }
+
+      function parseMessagePayload(payload){
+        var text = dec(payload || '').trim();
+        var result = {
+          type: '',
+          sender: '',
+          content: '',
+          quote: ''
+        };
+
+        if(!text) return result;
+
+        var colonMsg = text.match(/^([^：:]{1,12})[：:]\s*(.+)$/);
+        if(colonMsg && isLikelyUserName(colonMsg[1]) && !normType(colonMsg[1])){
+          result.sender = colonMsg[1].trim();
+          result.content = colonMsg[2].trim();
+          result.type = inferSideFromSender(result.sender);
+          return result;
+        }
+
+        var parts = text.split(/\s*\|\s*/).map(function(x){
+          return dec(x.trim());
+        }).filter(function(x){ return x !== ''; });
+
+        if(parts.length === 0) return result;
+
+        var t0 = normType(parts[0]);
+        var t1 = parts[1] ? normType(parts[1]) : '';
+
+        if(t0){
+          result.type = t0;
+
+          if(result.type === 'sys'){
+            result.content = parts.slice(1).join('|').trim();
+            return result;
+          }
+
+          if(result.type === 'recall'){
+            if(parts.length >= 3){
+              result.sender = (parts[1] || '').trim();
+              result.content = parts.slice(2).join('|').trim();
+            }else{
+              result.content = parts.slice(1).join('|').trim();
+            }
+            return result;
+          }
+
+          if(result.type === 'right'){
+            if(parts.length >= 3){
+              result.sender = (parts[1] || '').trim() || '{{user}}';
+              result.content = (parts[2] || '').trim();
+              result.quote = parts.length > 3 ? parts.slice(3).join('|').trim() : '';
+            }else{
+              result.sender = '{{user}}';
+              result.content = parts.slice(1).join('|').trim();
+            }
+            return result;
+          }
+
+          if(result.type === 'left'){
+            if(parts.length >= 3){
+              result.sender = (parts[1] || '').trim() || '未知';
+              result.content = (parts[2] || '').trim();
+              result.quote = parts.length > 3 ? parts.slice(3).join('|').trim() : '';
+            }else if(parts.length === 2){
+              result.sender = '未知';
+              result.content = parts[1].trim();
+            }
+            return result;
+          }
+        }
+
+        if(t1){
+          result.type = t1;
+
+          if(result.type === 'sys'){
+            result.content = [parts[0]].concat(parts.slice(2)).join('|').trim();
+            return result;
+          }
+
+          if(result.type === 'recall'){
+            result.sender = (parts[0] || '').trim();
+            result.content = parts.slice(2).join('|').trim();
+            return result;
+          }
+
+          result.sender = (parts[0] || '').trim() || (result.type === 'right' ? '{{user}}' : '未知');
+          result.content = (parts[2] || '').trim();
+          result.quote = parts.length > 3 ? parts.slice(3).join('|').trim() : '';
+          return result;
+        }
+
+        if(parts.length === 1){
+          if(isLikelyRecallText(parts[0])){
+            result.type = 'recall';
+            result.content = parts[0];
+            return result;
+          }
+          if(isLikelySystemText(parts[0])){
+            result.type = 'sys';
+            result.content = parts[0];
+            return result;
+          }
+          result.type = 'sys';
+          result.content = parts[0];
+          return result;
+        }
+
+        if(parts.length === 2){
+          if(isLikelyRecallText(text)){
+            result.type = 'recall';
+            result.sender = isLikelyUserName(parts[0]) ? parts[0] : '';
+            result.content = parts[1] || text;
+            return result;
+          }
+
+          if(isLikelySystemText(text)){
+            result.type = 'sys';
+            result.content = text;
+            return result;
+          }
+
+          if(isLikelyUserName(parts[0])){
+            result.sender = parts[0];
+            result.content = parts[1];
+            result.type = inferSideFromSender(result.sender);
+            return result;
+          }
+
+          result.type = 'sys';
+          result.content = text;
+          return result;
+        }
+
+        if(parts.length >= 3){
+          if(isLikelyUserName(parts[0])){
+            result.sender = parts[0];
+            result.content = parts[1];
+            result.quote = parts.slice(2).join('|').trim();
+            result.type = inferSideFromSender(result.sender);
+            return result;
+          }
+
+          result.type = 'sys';
+          result.content = text;
+          return result;
+        }
+
+        result.type = 'sys';
+        result.content = text;
+        return result;
+      }
+
+      syncHostFontScale(true);
+      window.addEventListener('resize', syncHostFontScale);
+      setInterval(syncHostFontScale, 800);
+
+      var raw = dec(rawEl.innerHTML);
+
+      var groupName = get(raw,'群名');
+      var time = get(raw,'时间');
+      var timenode = get(raw,'时间节点');
+
+      titleEl.textContent = '▌ ' + (groupName || '群聊');
+      timeEl.textContent = time || '';
+
+      timenodeEl.textContent = timenode || '';
+      if(!timenode) timenodeEl.style.display = 'none';
+
+      var avatarColors = {};
+      var colorPool = ['#4a6741','#c8a84a','#7a5cbf','#3a8fc8','#c86060','#c87a40','#508060'];
+      var colorIdx = 0;
+
+      function getColor(name){
+        if(!avatarColors[name]){
+          avatarColors[name] = colorPool[colorIdx % colorPool.length];
+          colorIdx++;
+        }
+        return avatarColors[name];
+      }
+
+      var lines = raw.split('\n');
+
+      for(var i=0;i<lines.length;i++){
+        var payload = extractPayload(lines[i]);
+        if(!payload) continue;
+
+        var msg = parseMessagePayload(payload);
+        if(!msg.type) continue;
+
+        var el = document.createElement('div');
+
+        if(msg.type === 'sys'){
+          el.className = 'chat-sys';
+          el.innerHTML = '<span class="chat-sys-pill">' + escapeHtml(msg.content || '系统提示') + '</span>';
+        }
+        else if(msg.type === 'recall'){
+          var recallText = '';
+          if(msg.sender && msg.content){
+            recallText = msg.sender + (/\s/.test(msg.content) ? '' : ' ') + msg.content;
+          }else{
+            recallText = msg.content || msg.sender || '撤回了一条消息';
+          }
+          el.className = 'chat-recall';
+          el.innerHTML = '<span class="chat-recall-pill">' + escapeHtml(recallText) + '</span>';
+        }
+        else if(msg.type === 'right'){
+          var qh = msg.quote ? '<div class="chat-quote">' + escapeHtml(msg.quote) + '</div>' : '';
+          el.className = 'chat-row-right';
+          el.innerHTML = '<div class="chat-bubble-right">' + qh + escapeHtml(msg.content || '') + '</div>';
+        }
+        else{
+          var sender = (msg.sender || '未知');
+          var content = (msg.content || '');
+          var quote = (msg.quote || '');
+          var col = getColor(sender);
+          var init = getAvatarInitial(sender);
+          var qh = quote ? '<div class="chat-quote">' + escapeHtml(quote) + '</div>' : '';
+          el.className = 'chat-row-left';
+          el.innerHTML =
+            '<div class="chat-avatar" style="background:' + hexToRgba(col,0.3) + ';border:1px solid ' + hexToRgba(col,0.5) + ';">' + escapeHtml(init) + '</div>' +
+            '<div class="chat-col">' +
+              '<div class="chat-sender">' + escapeHtml(sender) + '</div>' +
+              '<div class="chat-bubble-left">' + qh + escapeHtml(content) + '</div>' +
+            '</div>';
+        }
+
+        messagesEl.appendChild(el);
+      }
+
+      header.addEventListener('click', function(e){
+        e.preventDefault();
+        e.stopPropagation();
+        wrap.classList.toggle('collapsed');
+      });
+    })();
+  </script>
+</body>
+</html>
+```

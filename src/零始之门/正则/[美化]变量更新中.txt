@@ -1,0 +1,432 @@
+<div style="width: 100%; margin: 1.25em auto;">
+  <details class="loading-details loading-details-miltech">
+    <summary>
+      <span class="ld-left">
+        <span class="ld-icon">▣</span>
+        <span class="ld-text">
+          <span class="ld-title">变 量 更 新</span>
+          <span class="ld-sub">FIELD RECORD / UPDATING</span>
+        </span>
+      </span>
+
+      <span class="ld-right">
+        <span class="ld-tag">SYNC</span>
+        <span class="ld-status-dot"></span>
+        <small>正在更新...</small>
+      </span>
+
+      <span class="loading-shimmer"></span>
+      <span class="scan-line"></span>
+    </summary>
+
+    <div class="ld-panel">
+      <div class="ld-panel-inner">
+$2
+      </div>
+    </div>
+  </details>
+</div>
+
+<style>
+  .loading-details-miltech {
+    --ld-fs-3xs: 0.5625em;
+    --ld-fs-2xs: 0.625em;
+    --ld-fs-xs: 0.6875em;
+    --ld-fs-sm: 0.75em;
+    --ld-fs-md: 0.8125em;
+    position: relative;
+    font-size: 1em;
+    overflow: hidden;
+    border: 1px solid rgba(138,122,80,0.38);
+    border-radius: 3px;
+    background: rgba(8,14,8,0.92);
+    box-shadow: 0 2px 18px rgba(0,0,0,0.58);
+    transition: border-color 0.22s ease, box-shadow 0.22s ease, transform 0.22s ease;
+  }
+
+  .loading-details-miltech::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: linear-gradient(180deg, transparent, rgba(74,103,65,0.72), transparent);
+    opacity: 0.8;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .loading-details-miltech::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+      linear-gradient(90deg, rgba(255,255,255,0.012) 1px, transparent 1px),
+      linear-gradient(rgba(255,255,255,0.012) 1px, transparent 1px);
+    background-size: 18px 18px;
+    opacity: 0.12;
+    z-index: 0;
+  }
+
+  .loading-details-miltech:hover {
+    border-color: rgba(138,122,80,0.56);
+    box-shadow: 0 4px 22px rgba(0,0,0,0.62);
+  }
+
+  .loading-details-miltech summary {
+    position: relative;
+    z-index: 2;
+    list-style: none;
+    cursor: pointer;
+    user-select: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 12px;
+    background: rgba(74,103,65,0.10);
+    border-bottom: 1px solid rgba(138,122,80,0.18);
+    overflow: hidden;
+    transition: background 0.2s ease, border-color 0.2s ease;
+  }
+
+  .loading-details-miltech summary:hover {
+    background: rgba(74,103,65,0.16);
+  }
+
+  .loading-details-miltech[open] summary {
+    background: rgba(74,103,65,0.18);
+    border-bottom-color: rgba(138,122,80,0.24);
+  }
+
+  .loading-details-miltech summary::marker,
+  .loading-details-miltech summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .loading-details-miltech .ld-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+    flex: 1 1 auto;
+    position: relative;
+    z-index: 2;
+  }
+
+  .loading-details-miltech .ld-icon {
+    width: 22px;
+    height: 22px;
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(138,122,80,0.30);
+    border-radius: 2px;
+    background: rgba(138,122,80,0.06);
+    color: #c8a84a;
+    font-size: var(--ld-fs-sm);
+    box-shadow:
+      inset 0 0 0 1px rgba(255,255,255,0.01),
+      0 0 0 rgba(200,168,74,0);
+    animation: ld-icon-breathe 2.4s ease-in-out infinite;
+  }
+
+  .loading-details-miltech .ld-text {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+
+  .loading-details-miltech .ld-title {
+    color: rgba(138,122,80,0.94);
+    font-size: var(--ld-fs-sm);
+    letter-spacing: 0.18em;
+    line-height: 1.2;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  .loading-details-miltech .ld-sub {
+    color: rgba(138,122,80,0.42);
+    font-size: var(--ld-fs-2xs);
+    letter-spacing: 0.12em;
+    line-height: 1.2;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  .loading-details-miltech .ld-right {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    flex: 0 1 auto;
+    min-width: 0;
+    flex-wrap: wrap;
+    position: relative;
+    z-index: 2;
+    white-space: normal;
+  }
+
+  .loading-details-miltech .ld-tag {
+    font-size: var(--ld-fs-2xs);
+    color: rgba(200,168,74,0.60);
+    letter-spacing: 0.10em;
+    border: 1px solid rgba(138,122,80,0.20);
+    background: rgba(138,122,80,0.06);
+    padding: 1px 6px;
+    border-radius: 2px;
+    font-family: monospace;
+    box-shadow: inset 0 0 8px rgba(138,122,80,0.04);
+    white-space: normal;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  .loading-details-miltech .ld-status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #8fc7e0;
+    box-shadow:
+      0 0 0 0 rgba(24,236,243,0.36),
+      0 0 8px rgba(24,236,243,0.95);
+    animation: ld-dot-pulse 1.15s ease-in-out infinite;
+  }
+
+  .loading-details-miltech .ld-right small {
+    font-size: var(--ld-fs-sm);
+    color: rgba(212,205,184,0.82);
+    white-space: normal;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  .loading-details-miltech .loading-shimmer {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(160,180,190,0.00) 18%,
+      rgba(160,180,190,0.06) 34%,
+      rgba(160,180,190,0.16) 50%,
+      rgba(160,180,190,0.06) 66%,
+      rgba(160,180,190,0.00) 82%,
+      transparent 100%
+    );
+    transform: translateX(-120%);
+    animation: ld-shimmer 2.8s linear infinite;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .loading-details-miltech .scan-line {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(130,165,185,0.75),
+      transparent
+    );
+    opacity: 0.55;
+    animation: ld-scan 2.8s linear infinite;
+    pointer-events: none;
+    z-index: 1;
+    box-shadow: 0 0 6px rgba(130,165,185,0.22);
+  }
+
+  /* 展开后保留动效，只稍微压低强度 */
+  .loading-details-miltech[open] .loading-shimmer {
+    opacity: 0.78;
+    animation-duration: 3.1s;
+  }
+
+  .loading-details-miltech[open] .scan-line {
+    opacity: 0.46;
+    animation-duration: 3.1s;
+  }
+
+  .loading-details-miltech .ld-panel {
+    position: relative;
+    z-index: 2;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.32s ease;
+  }
+
+  .loading-details-miltech[open] .ld-panel {
+    max-height: 320px;
+  }
+
+  .loading-details-miltech .ld-panel-inner {
+    max-height: 320px;
+    overflow-y: auto;
+    padding: 9px 14px 11px 16px;
+    color: #d4cdb8;
+    line-height: 1.85;
+    font-size: var(--ld-fs-md);
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    border-top: 1px solid rgba(138,122,80,0.08);
+    background: linear-gradient(180deg, rgba(0,0,0,0.08), rgba(0,0,0,0));
+    transform: translateY(-4px);
+    opacity: 0;
+    transition: opacity 0.2s ease, transform 0.25s ease;
+  }
+
+  .loading-details-miltech[open] .ld-panel-inner {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  .loading-details-miltech .ld-panel-inner::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .loading-details-miltech .ld-panel-inner::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .loading-details-miltech .ld-panel-inner::-webkit-scrollbar-thumb {
+    background: linear-gradient(
+      180deg,
+      rgba(138,122,80,0.45),
+      rgba(74,103,65,0.55)
+    );
+    border-radius: 999px;
+    border: 2px solid rgba(0,0,0,0);
+    background-clip: padding-box;
+  }
+
+  @keyframes ld-dot-pulse {
+    0%, 100% {
+      transform: scale(1);
+      opacity: 0.95;
+      box-shadow:
+        0 0 0 0 rgba(24,236,243,0.34),
+        0 0 8px rgba(24,236,243,0.95);
+    }
+    50% {
+      transform: scale(1.28);
+      opacity: 0.82;
+      box-shadow:
+        0 0 0 4px rgba(24,236,243,0.10),
+        0 0 10px rgba(24,236,243,0.95);
+    }
+  }
+
+  @keyframes ld-icon-breathe {
+    0%, 100% {
+      box-shadow:
+        inset 0 0 0 1px rgba(255,255,255,0.01),
+        0 0 0 rgba(200,168,74,0);
+    }
+    50% {
+      box-shadow:
+        inset 0 0 0 1px rgba(255,255,255,0.01),
+        0 0 10px rgba(200,168,74,0.10);
+    }
+  }
+
+  @keyframes ld-shimmer {
+    0% {
+      transform: translateX(-120%);
+    }
+    100% {
+      transform: translateX(120%);
+    }
+  }
+
+  @keyframes ld-scan {
+    0% {
+      transform: translateY(0);
+      opacity: 0;
+    }
+    10% {
+      opacity: 0.55;
+    }
+    100% {
+      transform: translateY(52px);
+      opacity: 0;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .loading-details-miltech summary {
+      flex-wrap: wrap;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 7px 10px;
+    }
+
+    .loading-details-miltech .ld-left {
+      gap: 8px;
+      width: 100%;
+      min-width: 0;
+    }
+
+    .loading-details-miltech .ld-title {
+      font-size: var(--ld-fs-xs);
+      letter-spacing: 0.14em;
+    }
+
+    .loading-details-miltech .ld-sub {
+      font-size: var(--ld-fs-3xs);
+      letter-spacing: 0.08em;
+    }
+
+    .loading-details-miltech .ld-right {
+      width: 100%;
+      gap: 6px;
+      max-width: none;
+      flex-wrap: wrap;
+      justify-content: flex-start;
+      text-align: left;
+      padding-left: 30px;
+    }
+
+    .loading-details-miltech .ld-right small,
+    .loading-details-miltech .ld-tag {
+      font-size: var(--ld-fs-2xs);
+    }
+
+    .loading-details-miltech[open] .ld-panel {
+      max-height: 70vh;
+    }
+
+    .loading-details-miltech .ld-panel-inner {
+      max-height: 70vh;
+      padding: 8px 10px 10px 12px;
+      font-size: var(--ld-fs-sm);
+      line-height: 1.72;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .loading-details-miltech .ld-icon {
+      width: 20px;
+      height: 20px;
+      font-size: var(--ld-fs-xs);
+    }
+
+    .loading-details-miltech .ld-right {
+      padding-left: 28px;
+    }
+
+    .loading-details-miltech .ld-panel-inner {
+      font-size: var(--ld-fs-xs);
+      line-height: 1.66;
+    }
+  }
+</style>

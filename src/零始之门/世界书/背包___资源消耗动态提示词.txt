@@ -1,0 +1,99 @@
+<%_ {
+const bag = getvar('stat_data.背包栏') || {};
+const world = getvar('stat_data.世界信息') || {};
+const inBattle = !!getvar('stat_data.世界信息.是否战斗中');
+
+const weapons = bag['武器详情'] || bag['武器'] || {};
+const medical = bag['医疗'] || {};
+const food = bag['食物水'] || {};
+const powerItems = bag['异能道具'] || {};
+const intel = bag['情报道具详情'] || bag['情报道具'] || {};
+const changeText = String(bag['本轮变化'] || '无变化');
+const day = Number(world['第几天'] || 1);
+const timeText = String(world['时间'] || '');
+const place = String(world['场所'] || '未知');
+
+function bag_countSlots(obj){
+  if (!obj || typeof obj !== 'object') return 0;
+  return Object.keys(obj).filter(k => {
+    const v = obj[k];
+    if (v == null) return false;
+    if (typeof v === 'number') return v > 0;
+    if (typeof v === 'string') return v !== '' && v !== '无';
+    if (typeof v === 'object') {
+      if ('数量' in v) return Number(v['数量'] || 0) > 0;
+      return true;
+    }
+    return false;
+  }).length;
+}
+
+const slotCount =
+  bag_countSlots(weapons) +
+  bag_countSlots(medical) +
+  bag_countSlots(food) +
+  bag_countSlots(powerItems) +
+  bag_countSlots(intel);
+
+const waterCount =
+  Number(food['饮水'] || 0) ||
+  Number(food['瓶装水'] || 0) ||
+  Number(food['水'] || 0) ||
+  0;
+
+const rationCount =
+  Number(food['口粮'] || 0) ||
+  Number(food['军用口粮'] || 0) ||
+  Number(food['食物'] || 0) ||
+  0;
+_%>
+
+<背包资源动态提示>
+- <背包栏> 每轮都必须继续输出，数量变化必须和正文一致，不能凭空增减。 
+- 若某类物品没有，应写“无”，不要留空。 
+- 当前地点：<%= place %>
+- 当前时间：<%= timeText %>
+- 当前第 <%= day %> 天
+- 当前本轮变化：<%= changeText %>
+
+# 背包同步约束
+- 武器必须体现当前可用性。远程武器要有余弹，近战武器至少要体现耐久或“可用”。 
+- 医疗、食物水、异能道具都应保留数量意识，不允许负数。 
+- 情报道具重点写“是否拿到、是否可用、是否损坏、是否已提交/已读/已破解”，不要把它写成纯装饰。 
+- 本轮变化必须对应正文里的真实动作：获得、消耗、使用、转交、损坏、丢弃、掉落、整理、无变化。 
+
+# 资源消耗
+- 大世界默认规则：每天默认消耗饮水、口粮各 3 份。 
+- 如果时间推进跨天，或正文明确经历了完整一天、生存消耗、长途移动、扎营过夜、多人分配补给，应优先检查饮水和口粮是否需要扣减。 
+- 战斗结束后若出现进食、喝水、补给、休整，可让食物水减少，并在正文中体现“补给恢复”或“吃不饱/补给不足”的后果。 
+- 若当前饮水接近耗尽（≤3）或口粮接近耗尽（≤3），正文应体现生存压力，不要等到归零才突然记起。 
+
+# 当前生存压力
+- 饮水参考数：<%= waterCount %>
+- 口粮参考数：<%= rationCount %>
+<%_ if (waterCount <= 0 || rationCount <= 0) { _%>
+- 当前至少有一种关键生存资源已耗尽。正文必须体现脱水、饥饿、焦躁、体力下降、补给焦虑或被迫搜寻资源。
+<%_ } else if (waterCount <= 3 || rationCount <= 3) { _%>
+- 当前关键生存资源已经进入紧张区。正文应体现节省、分配、犹豫、临时补给或争夺。
+<%_ } else { _%>
+- 当前食物水暂未见底，但仍应保留末世下的资源意识。
+<%_ } _%>
+
+# 负重与整理
+- 大世界默认规则：超过 15 格必须丢弃、转移或整理。 
+- 当前粗略占格数：<%= slotCount %>/15
+<%_ if (slotCount > 15) { _%>
+- 当前负重已超限。正文必须出现整理、转移、丢弃、寄存、分给同伴或现场取舍；不能当作没事继续移动。
+<%_ } else if (slotCount >= 13) { _%>
+- 当前接近负重上限。正文应体现携行压力、选择性取舍或整理意识。
+<%_ } _%>
+
+# 战斗中的背包使用
+<%_ if (inBattle) { _%>
+- 当前仍处于战斗相关场景。急救、换弹、投掷道具、使用稳定剂、拿绿核碎片，都应视为有代价的行动，不能像菜单操作一样无成本完成。
+- 若本轮变化涉及“获得掉落”，必须与战斗结果、怪物/核心掉落结算同步，不要在敌人未解决时直接入袋。
+<%_ } else { _%>
+- 当前不是正式战斗轮。整理背包、盘点物资、分配补给、提交情报道具，可以更自然地落在正文里。
+<%_ } _%>
+</背包资源动态提示>
+<%_ } _%>

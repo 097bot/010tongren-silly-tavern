@@ -1,0 +1,146 @@
+<%_ { 
+const inBattle = !!getvar('stat_data.世界信息.是否战斗中');
+const round = Number(getvar('stat_data.战斗面板.回合') || 0);
+const battlePlace = String(getvar('stat_data.战斗面板.地点') || '无');
+const allies = getvar('stat_data.战斗面板.我方') || {};
+const enemies = getvar('stat_data.战斗面板.敌方') || {};
+const actionText = String(getvar('stat_data.战斗面板.行动') || '无');
+const battleState = String(getvar('stat_data.战斗面板.状态') || '无');
+const resultText = String(getvar('stat_data.战斗面板.战斗结果摘要') || '无');
+const crisisMap = getvar('stat_data.危机面板') || {};
+
+function entriesOf(obj){
+  if (!obj || typeof obj !== 'object') return [];
+  return Object.entries(obj).filter(([_, v]) => v && typeof v === 'object');
+}
+function hpNow(entity){
+  if (!entity || typeof entity !== 'object') return null;
+  const hpObj = entity['HP数值'];
+  if (hpObj && typeof hpObj === 'object') return Number(hpObj['当前'] || 0);
+  const hpText = String(entity['HP'] || '');
+  const m = hpText.match(/^(\d+)\s*\/\s*(\d+)$/);
+  return m ? Number(m[1]) : null;
+}
+function hpMax(entity){
+  if (!entity || typeof entity !== 'object') return null;
+  const hpObj = entity['HP数值'];
+  if (hpObj && typeof hpObj === 'object') return Number(hpObj['最大'] || 0);
+  const hpText = String(entity['HP'] || '');
+  const m = hpText.match(/^(\d+)\s*\/\s*(\d+)$/);
+  return m ? Number(m[2]) : null;
+}
+function isKretName(name){
+  return /克锐特|孢子|异变|感染体|怪物/.test(String(name));
+}
+function isKretEnemy(name, data){
+  const note = String((data && data['备注']) || '');
+  return isKretName(name) || /克锐特|核心|孢子|感染/.test(note);
+}
+function crisisOf(target, type=''){
+  return entriesOf(crisisMap).find(([_, c]) => {
+    if (!c || typeof c !== 'object') return false;
+    const t = String(c['对象'] || '');
+    const k = String(c['类型'] || '');
+    return t === target && (!type || k === type);
+  });
+}
+
+const allyList = entriesOf(allies);
+const enemyList = entriesOf(enemies);
+const livingEnemies = enemyList.filter(([name, data]) => {
+  const cur = hpNow(data);
+  if (cur === null) return true;
+  return cur > 0;
+});
+const kretEnemies = enemyList.filter(([name, data]) => isKretEnemy(name, data));
+_%>
+
+<%_ if (inBattle || round > 0 || enemyList.length > 0) { _%>
+<战斗动态提示>
+- 当前处于战斗相关场景。正文中的关键动作、伤害、失败后果、压制、撤离、安抚、异能控制，都应按高风险 D20 行动来理解，不可空口结算。 
+- <战斗面板> 必须继续输出，并与世界信息、危机面板、通用状态栏同步。
+- 当前回合：<%= round %>
+- 当前地点：<%= battlePlace %>
+- 当前战况：<%= battleState %>
+- 当前行动摘要：<%= actionText %>
+- 当前结果摘要：<%= resultText %>
+
+# 战斗总约束
+- 每轮只写当前轮真正发生的关键动作与后果，不把未来结果提前写死。
+- 战斗中的受伤、失血、倒地、脱战、安抚、暴走、感染都必须落到变量和正文的双重表现上。
+- 若某角色 HP 归零，正文必须体现其失去战斗能力、濒危、倒下或被拖离，不可让其若无其事继续战斗。
+- 若角色进入暴走、重伤、中毒、精神崩溃，危机面板必须继续起效，正文也要体现行动限制与状态异常。
+- 若战斗尚未结束，不要提前把战斗结果摘要写成胜利或已解决。
+- 若世界信息.是否战斗中仍为 true，战斗面板中不应提前清空敌方。
+
+# 我方单位
+<%_ allyList.forEach(([name, data]) => {
+  const cur = hpNow(data);
+  const max = hpMax(data);
+  const esp = String(data['异能分类'] || '无');
+  const berserk = String(data['暴走状态'] || '无');
+  const note = String(data['备注'] || '无');
+  const severeCrisis = crisisOf(name, '重伤');
+  const berserkCrisis = crisisOf(name, '暴走');
+  const poisonCrisis = crisisOf(name, '中毒');
+_%>
+## <%= name %>
+- HP：<%= cur !== null && max !== null ? `${cur}/${max}` : String(data['HP'] || '未知') %>
+- 异能分类：<%= esp %>
+- 暴走状态：<%= berserk %>
+- 备注：<%= note %>
+<%_ if (severeCrisis) { _%>
+- 当前存在重伤危机，正文应体现失血、动作迟缓、被迫硬撑或撤离压力。
+<%_ } _%>
+<%_ if (berserkCrisis) { _%>
+- 当前存在暴走危机，正文必须体现输出失稳、敌我识别受压、感知异常或攻击性升高。
+<%_ } _%>
+<%_ if (poisonCrisis) { _%>
+- 当前存在中毒危机，正文要体现迟缓、眩晕、麻痹、呼吸异常或判断受损。
+<%_ } _%>
+<%_ if (cur !== null && cur <= 0) { _%>
+- 当前 HP 已归零，禁止继续把该角色写成正常参战状态。
+<%_ } _%>
+<%_ }) _%>
+
+# 敌方单位
+<%_ enemyList.forEach(([name, data]) => {
+  const cur = hpNow(data);
+  const max = hpMax(data);
+  const threat = String(data['威胁'] || '未知');
+  const note = String(data['备注'] || '无');
+  const kret = isKretEnemy(name, data);
+_%>
+## <%= name %>
+- 威胁：<%= threat %>
+- HP：<%= cur !== null && max !== null ? `${cur}/${max}` : String(data['HP'] || '未知') %>
+- 备注：<%= note %>
+<%_ if (kret) { _%>
+- 该单位按克锐特处理：若尚未被解决，必须继续保留在战斗面板与怪物档案中。
+- 普通武器难以致命解决克锐特，正文应强调异能打击、核心命中、压制、拖延、撤离、诱导或配合处置。 
+<%_ } _%>
+<%_ if (cur !== null && cur <= 0) { _%>
+- 当前 HP 已归零。若还未宣告彻底解决，应在备注或正文中说明其是否仍会残留风险。
+<%_ } _%>
+<%_ }) _%>
+
+<%_ if (kretEnemies.length > 0) { _%>
+# 克锐特战斗专项约束
+- 当前战场存在克锐特单位。克锐特未被解决时，必须继续显示；若当前场景无克锐特，才允许写“无”。 
+- 低阶本能型可表现为冲锋、试探、受伤后退缩并呼叫；中阶更偏观察与护核；高阶可伪装、设陷阱、优先切断引导者。 
+- 若正文出现“直接命中核心”，必须考虑核心过载爆炸，近身者应承受额外伤害或波及后果。
+- 若正文出现抓伤、咬伤、孢子命中或高阶主动感染，应立即触发感染判定或强制感染阶段，而不是等战后再想起。
+<%_ } _%>
+
+# 感染与危机联动
+- 被低阶克锐特抓伤/咬伤：按 PHY DC10 感染判定理解，失败即触发感染 1 阶段。
+- 被孢子型克锐特击中：按 DC12 感染判定理解，并可波及相邻角色。
+- 被高阶克锐特主动感染：直接进入感染 2 阶段，绕过常规 PHY 检定。
+- 任何感染、暴走、重伤、中毒、精神崩溃结果，都必须同步到危机面板与通用状态栏。 
+
+# 本轮写作重点
+- 让正文体现：谁在进攻、谁在防守、谁在失手、谁在硬撑、谁在被安抚、谁在逼近失控。
+- 让战斗保持“当前轮”的紧张感，不要把整场战斗一次性讲完。
+</战斗动态提示>
+<%_ } %>
+<%_ } _%>

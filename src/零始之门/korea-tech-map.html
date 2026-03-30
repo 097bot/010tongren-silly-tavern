@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KOREA TECH ATLAS · 韩国科技地图</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&family=Noto+Sans+KR:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #020a12;
+    --panel-bg: rgba(2, 12, 24, 0.97);
+    --grid-line: rgba(0, 210, 255, 0.07);
+    --border: rgba(0, 210, 255, 0.18);
+    --accent: #00d8ff;
+    --accent-glow: rgba(0, 216, 255, 0.35);
+    --text: #d0eeff;
+    --text-dim: rgba(160, 210, 255, 0.55);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 100%; height: 100%; overflow: hidden; background: var(--bg); color: var(--text); font-family: 'Share Tech Mono', monospace; }
+
+  /* ── LAYOUT ── */
+  #root { display: flex; flex-direction: column; height: 100vh; }
+
+  #topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 24px; border-bottom: 1px solid var(--border);
+    background: rgba(0, 5, 14, 0.9); flex-shrink: 0;
+    position: relative; z-index: 10;
+  }
+  #topbar::after {
+    content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    box-shadow: 0 0 10px var(--accent); opacity: 0.5;
+  }
+  .tb-brand { display: flex; flex-direction: column; gap: 2px; }
+  .tb-title { font-family: 'Orbitron', sans-serif; font-size: 17px; font-weight: 900; letter-spacing: 4px; color: var(--accent); text-shadow: 0 0 18px var(--accent-glow); }
+  .tb-sub { font-size: 10px; color: var(--text-dim); letter-spacing: 2px; }
+  .tb-right { text-align: right; }
+  .tb-coord { font-size: 10px; color: var(--text-dim); letter-spacing: 1px; }
+  .tb-date { font-size: 9px; color: rgba(0,210,255,0.3); letter-spacing: 1px; margin-top: 3px; }
+
+  #body { display: flex; flex: 1; overflow: hidden; }
+
+  /* ── MAP CONTAINER ── */
+  #map-wrap {
+    flex: 1; position: relative; overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
+  }
+  #map-wrap::before {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background-image: linear-gradient(var(--grid-line) 1px, transparent 1px),
+                      linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+    background-size: 44px 44px;
+  }
+  #map-wrap::after {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background: linear-gradient(transparent 50%, rgba(0,0,0,0.025) 50%);
+    background-size: 100% 3px;
+    animation: scan 12s linear infinite;
+  }
+  @keyframes scan { from { background-position: 0 0; } to { background-position: 0 100%; } }
+
+  #korea-svg { width: 100%; height: 100%; max-width: 680px; max-height: 500px; }
+
+  /* ── CITY MARKERS ── */
+  .city-hit { cursor: pointer; }
+  .city-hit:hover .ring-outer { animation: ring-expand 1.2s ease-out infinite; }
+  .city-hit.active .ring-outer { opacity: 0.7; }
+  .city-hit.active .ring-inner { opacity: 0.9; }
+
+  @keyframes ring-expand {
+    0%   { r: 18; opacity: 0.5; }
+    100% { r: 30; opacity: 0;   }
+  }
+  @keyframes core-pulse {
+    0%, 100% { opacity: 0.75; transform: scale(1); }
+    50%       { opacity: 1;    transform: scale(1.25); }
+  }
+  .core-pulse { animation: core-pulse 2.5s ease-in-out infinite; transform-origin: center; }
+
+  /* ── GYEONGGI REGION ── */
+  .gg-region {
+    fill: rgba(155, 80, 220, 0.07);
+    stroke: rgba(180, 100, 255, 0.45);
+    stroke-width: 1.2; stroke-dasharray: 6 4;
+    cursor: pointer; transition: fill 0.25s;
+  }
+  .gg-region:hover, .gg-region.active { fill: rgba(155, 80, 220, 0.17); }
+
+  /* ── INFO PANEL ── */
+  #panel {
+    width: 310px; flex-shrink: 0;
+    background: var(--panel-bg);
+    border-left: 1px solid var(--border);
+    display: flex; flex-direction: column;
+    position: relative; overflow: hidden;
+    transition: width 0.35s ease;
+  }
+  #panel-shine {
+    position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: var(--accent); box-shadow: 0 0 14px var(--accent);
+    transform: scaleX(0); transform-origin: left;
+    transition: transform 0.4s ease; z-index: 2;
+  }
+  #panel.lit #panel-shine { transform: scaleX(1); }
+
+  #panel-idle {
+    flex: 1; display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 32px; text-align: center; opacity: 0.45;
+  }
+  .idle-glyph { font-size: 52px; color: var(--accent); margin-bottom: 18px; opacity: 0.3; }
+  .idle-text { font-size: 11px; color: var(--text-dim); letter-spacing: 1.5px; line-height: 2; }
+
+  #panel-detail { display: none; flex-direction: column; height: 100%; }
+  #panel-detail.show { display: flex; }
+
+  /* panel header */
+  .ph {
+    padding: 20px 22px 16px;
+    border-bottom: 1px solid var(--border);
+    position: relative; flex-shrink: 0;
+  }
+  .ph-badge {
+    display: inline-block; font-size: 9px; letter-spacing: 2px;
+    padding: 2px 9px; border: 1px solid; border-radius: 2px; margin-bottom: 10px;
+    text-transform: uppercase; font-family: 'Orbitron', sans-serif;
+  }
+  .ph-symbol { position: absolute; top: 18px; right: 20px; font-size: 34px; line-height: 1; }
+  .ph-zh { font-family: 'Noto Sans KR', sans-serif; font-size: 30px; font-weight: 700; line-height: 1; margin-bottom: 5px; }
+  .ph-ko { font-size: 12px; font-family: 'Noto Sans KR', sans-serif; color: var(--text-dim); margin-bottom: 3px; }
+  .ph-en { font-family: 'Orbitron', sans-serif; font-size: 10px; letter-spacing: 2px; color: var(--text-dim); }
+  .ph-close {
+    position: absolute; top: 14px; right: 62px;
+    background: none; border: 1px solid var(--border);
+    color: var(--text-dim); font-family: 'Share Tech Mono', monospace;
+    font-size: 10px; padding: 3px 8px; cursor: pointer;
+    letter-spacing: 1px; transition: 0.2s;
+  }
+  .ph-close:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* panel body */
+  .pb { flex: 1; overflow-y: auto; padding: 18px 22px; scrollbar-width: thin; scrollbar-color: rgba(0,200,255,0.2) transparent; }
+  .pb::-webkit-scrollbar { width: 3px; }
+  .pb::-webkit-scrollbar-thumb { background: rgba(0,200,255,0.2); }
+
+  .ps { margin-bottom: 20px; }
+  .ps-label {
+    font-size: 9px; letter-spacing: 2px; color: var(--text-dim);
+    text-transform: uppercase; margin-bottom: 8px;
+    padding-bottom: 5px; border-bottom: 1px solid var(--border);
+  }
+  .ps-desc { font-size: 12.5px; line-height: 2; font-family: 'Noto Sans KR', sans-serif; font-weight: 300; }
+  .ps-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .ps-stat {
+    background: rgba(0,210,255,0.04); border: 1px solid rgba(0,210,255,0.12);
+    padding: 10px; border-radius: 3px;
+  }
+  .ps-stat-lbl { font-size: 8px; letter-spacing: 1px; color: var(--text-dim); margin-bottom: 4px; }
+  .ps-stat-val { font-family: 'Orbitron', sans-serif; font-size: 13px; }
+  .ps-tags { display: flex; flex-wrap: wrap; gap: 7px; }
+  .tag {
+    font-size: 9px; padding: 3px 9px; border: 1px solid;
+    border-radius: 2px; letter-spacing: 0.5px; opacity: 0.8;
+    font-family: 'Share Tech Mono', monospace;
+  }
+
+  /* panel legend */
+  #panel-legend { padding: 12px 22px; border-top: 1px solid var(--border); flex-shrink: 0; }
+  .leg-title { font-size: 9px; letter-spacing: 2px; color: var(--text-dim); margin-bottom: 8px; text-transform: uppercase; }
+  .leg-list { display: flex; flex-wrap: wrap; gap: 6px 12px; }
+  .leg-item { display: flex; align-items: center; gap: 5px; font-size: 10px; cursor: pointer; transition: opacity 0.2s; }
+  .leg-item:hover { opacity: 0.8; }
+  .leg-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+
+  /* ── STATUS BAR ── */
+  #statusbar {
+    display: flex; align-items: center; gap: 20px;
+    padding: 5px 22px; border-top: 1px solid var(--border);
+    font-size: 9px; color: var(--text-dim); letter-spacing: 1px;
+    background: rgba(0,3,10,0.85); flex-shrink: 0;
+  }
+  .sb-dot { display: inline-block; width: 5px; height: 5px; border-radius: 50%; background: #00ff88; margin-right: 5px; animation: blink 2s ease-in-out infinite; }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.25} }
+
+  /* ── TOOLTIP ── */
+  #tip {
+    position: fixed; background: rgba(0,8,20,0.92);
+    border: 1px solid; padding: 5px 12px; font-size: 11px;
+    pointer-events: none; opacity: 0; transition: opacity 0.15s;
+    z-index: 999; white-space: nowrap; letter-spacing: 0.5px;
+  }
+  #tip.show { opacity: 1; }
+</style>
+</head>
+<body>
+<div id="root">
+
+  <!-- ── TOP BAR ── -->
+  <div id="topbar">
+    <div class="tb-brand">
+      <div class="tb-title">KOREA TECH ATLAS</div>
+      <div class="tb-sub">대한민국 기술 지도 &nbsp;·&nbsp; 韩国科技地图</div>
+    </div>
+    <div class="tb-right">
+      <div class="tb-coord">33°N – 38°N &nbsp;|&nbsp; 124°E – 130°E</div>
+      <div class="tb-date" id="now-date"></div>
+    </div>
+  </div>
+
+  <!-- ── BODY ── -->
+  <div id="body">
+
+    <!-- MAP -->
+    <div id="map-wrap">
+      <div id="tip"></div>
+      <svg id="korea-svg" viewBox="80 60 520 430" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <!-- Glow filters -->
+          <filter id="glow-gold"   x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur in="SourceGraphic" stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+          <filter id="glow-cyan"   x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur in="SourceGraphic" stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+          <filter id="glow-purple" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur in="SourceGraphic" stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+          <filter id="glow-map"    x="-8%"  y="-8%"  width="116%" height="116%"><feGaussianBlur in="SourceGraphic" stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+
+          <!-- Map body gradient -->
+          <radialGradient id="map-fill" cx="50%" cy="50%" r="65%">
+            <stop offset="0%"   stop-color="rgba(0,55,90,0.55)"/>
+            <stop offset="100%" stop-color="rgba(0,18,42,0.4)"/>
+          </radialGradient>
+
+          <!-- Gyeonggi region gradient -->
+          <radialGradient id="gg-fill" cx="50%" cy="50%" r="50%">
+            <stop offset="0%"   stop-color="rgba(155,80,220,0.12)"/>
+            <stop offset="100%" stop-color="rgba(155,80,220,0.03)"/>
+          </radialGradient>
+
+          <!-- animated dash -->
+          <style>
+            @keyframes dash-flow { to { stroke-dashoffset: -80; } }
+            .flow { animation: dash-flow 18s linear infinite; }
+            @keyframes islandPulse { 0%,100%{opacity:0.5} 50%{opacity:1} }
+          </style>
+        </defs>
+
+        <!-- Lat/Lon reference lines (very subtle) -->
+        <!-- lat 37°N ≈ y=(38.7-37)*90+40=193  -->
+        <!-- lat 36°N ≈ y=(38.7-36)*90+40=283  -->
+        <!-- lat 35°N ≈ y=(38.7-35)*90+40=373  -->
+        <!-- lon 127°E ≈ x=(127-124.5)*90+80=305 -->
+        <!-- lon 128°E ≈ x=(128-124.5)*90+80=395 -->
+        <!-- lon 129°E ≈ x=(129-124.5)*90+80=485 -->
+        <line x1="140" y1="193" x2="560" y2="193" stroke="rgba(0,200,255,0.055)" stroke-width="0.5"/>
+        <line x1="140" y1="283" x2="560" y2="283" stroke="rgba(0,200,255,0.055)" stroke-width="0.5"/>
+        <line x1="140" y1="373" x2="560" y2="373" stroke="rgba(0,200,255,0.055)" stroke-width="0.5"/>
+        <line x1="305" y1="70"  x2="305" y2="460" stroke="rgba(0,200,255,0.055)" stroke-width="0.5"/>
+        <line x1="395" y1="70"  x2="395" y2="460" stroke="rgba(0,200,255,0.055)" stroke-width="0.5"/>
+        <line x1="485" y1="70"  x2="485" y2="460" stroke="rgba(0,200,255,0.055)" stroke-width="0.5"/>
+
+        <!-- Grid labels -->
+        <text x="131" y="196" fill="rgba(0,200,255,0.18)" font-size="8" font-family="'Share Tech Mono',monospace">37°N</text>
+        <text x="131" y="286" fill="rgba(0,200,255,0.18)" font-size="8" font-family="'Share Tech Mono',monospace">36°N</text>
+        <text x="131" y="376" fill="rgba(0,200,255,0.18)" font-size="8" font-family="'Share Tech Mono',monospace">35°N</text>
+        <text x="301" y="462" fill="rgba(0,200,255,0.18)" font-size="8" font-family="'Share Tech Mono',monospace">127°E</text>
+        <text x="391" y="462" fill="rgba(0,200,255,0.18)" font-size="8" font-family="'Share Tech Mono',monospace">128°E</text>
+        <text x="481" y="462" fill="rgba(0,200,255,0.18)" font-size="8" font-family="'Share Tech Mono',monospace">129°E</text>
+
+        <!-- ══ KOREA MAIN OUTLINE ══
+          Formula: x=(lon-124.5)*90+80, y=(38.7-lat)*90+40
+          Outline (clockwise from NW border):
+            NW ~126.3°E,38°N  → x=242,y=103
+            N border → 128.5°E,38.2°N → x=441,y=85
+            E coast  → 129.4°E,35.1°N  then south coast → 126.2°E,34.4°N (SW tip)
+            W coast  → back NW
+        -->
+        <path id="korea-body" filter="url(#glow-map)"
+          fill="url(#map-fill)"
+          stroke="#00c8ee" stroke-width="1.4"
+          stroke-linejoin="round" stroke-linecap="round"
+          d="M 242,103
+             L 316,94  L 370,89  L 415,86  L 441,85
+             L 451,86  L 451,113 L 477,128 L 495,160
+             L 522,198 L 522,286 L 517,332 L 503,368
+             L 484,368
+             L 458,385 L 431,385 L 395,394
+             L 368,402 L 332,412 L 307,402
+             L 279,394 L 260,412 L 243,422
+             L 234,432
+             L 224,403 L 251,385 L 251,340
+             L 279,305 L 279,286
+             L 223,224 L 251,214 L 261,205
+             L 289,196
+             L 270,169 L 270,150 L 261,132
+             L 242,103 Z"/>
+
+        <!-- ══ GYEONGGI-DO REGION (clickable) ══ -->
+        <!-- Approx border: N-border down to ~lat37°N in south, lon126.5-128°E roughly -->
+        <polygon class="gg-region" id="gg-poly"
+          points="242,103 316,94 370,89 415,86 431,100 440,128 428,158 402,172 360,182 323,180 305,172 289,157 270,150 261,132 242,103"
+          data-city="gyeonggi"/>
+
+        <!-- ══ PROVINCE BOUNDARY LINES ══ -->
+        <!-- Gyeonggi south border -->
+        <polyline fill="none" stroke="rgba(0,200,255,0.28)" stroke-width="0.8" stroke-dasharray="5 4"
+          points="261,132 270,150 289,157 305,172 323,180 360,182 402,172 428,158 440,128 431,100 415,86"/>
+        <!-- Gangwon south border (approx) -->
+        <polyline fill="none" stroke="rgba(0,200,255,0.22)" stroke-width="0.7" stroke-dasharray="4 5"
+          points="440,128 470,168 490,190 480,220 451,215 428,158"/>
+        <!-- Chungnam/Jeonbuk divider (approx lat 36°N = y=283) -->
+        <polyline fill="none" stroke="rgba(0,200,255,0.22)" stroke-width="0.7" stroke-dasharray="4 5"
+          points="251,286 279,275 340,270 395,268 445,265 490,278 517,286"/>
+        <!-- Jeonbuk/Gyeongbuk divider -->
+        <polyline fill="none" stroke="rgba(0,200,255,0.2)" stroke-width="0.7" stroke-dasharray="4 5"
+          points="279,305 340,298 395,295 450,300 490,310 517,332"/>
+        <!-- Jeonnam/Gyeongnam divider -->
+        <polyline fill="none" stroke="rgba(0,200,255,0.2)" stroke-width="0.7" stroke-dasharray="4 5"
+          points="251,340 279,340 340,338 395,342 440,352 480,360 503,368"/>
+        <!-- Chungnam/Chungbuk vertical divider (approx) -->
+        <line x1="360" y1="182" x2="350" y2="268" stroke="rgba(0,200,255,0.2)" stroke-width="0.7" stroke-dasharray="4 5"/>
+
+        <!-- Province background labels -->
+        <text x="467" y="160" text-anchor="middle" fill="rgba(0,200,255,0.14)" font-size="9" font-family="'Share Tech Mono',monospace">강원도</text>
+        <text x="312" y="250" text-anchor="middle" fill="rgba(0,200,255,0.13)" font-size="9" font-family="'Share Tech Mono',monospace">충청남도</text>
+        <text x="395" y="248" text-anchor="middle" fill="rgba(0,200,255,0.12)" font-size="9" font-family="'Share Tech Mono',monospace">충청북도</text>
+        <text x="273" y="350" text-anchor="middle" fill="rgba(0,200,255,0.12)" font-size="9" font-family="'Share Tech Mono',monospace">전라도</text>
+        <text x="460" y="300" text-anchor="middle" fill="rgba(0,200,255,0.12)" font-size="9" font-family="'Share Tech Mono',monospace">경상도</text>
+
+        <!-- ══ DATA FLOW LINES between cities ══ -->
+        <line class="flow" x1="302" y1="142" x2="278" y2="153" stroke="#00d8ff" stroke-width="0.5" stroke-dasharray="3 8" opacity="0.35"/>
+        <line class="flow" x1="302" y1="142" x2="342" y2="242" stroke="#ffd700" stroke-width="0.5" stroke-dasharray="3 8" opacity="0.28" style="animation-delay:2s"/>
+        <line class="flow" x1="342" y1="242" x2="348" y2="254" stroke="#00ff88" stroke-width="0.5" stroke-dasharray="3 8" opacity="0.28" style="animation-delay:4s"/>
+        <line class="flow" x1="348" y1="254" x2="491" y2="357" stroke="#ff3366" stroke-width="0.5" stroke-dasharray="3 8" opacity="0.25" style="animation-delay:1s"/>
+        <line class="flow" x1="491" y1="357" x2="449" y2="385" stroke="#ff00ff" stroke-width="0.5" stroke-dasharray="3 8" opacity="0.25" style="animation-delay:3s"/>
+        <line class="flow" x1="363" y1="395" x2="449" y2="385" stroke="#00ced1" stroke-width="0.5" stroke-dasharray="3 8" opacity="0.25" style="animation-delay:5s"/>
+        <line class="flow" x1="302" y1="142" x2="491" y2="357" stroke="rgba(255,107,0,0.2)" stroke-width="0.4" stroke-dasharray="2 12" style="animation-delay:6s" class="flow"/>
+
+        <!-- ══ JEJU ISLAND (bonus) ══ -->
+        <ellipse cx="291" cy="454" rx="33" ry="13" fill="rgba(0,200,100,0.07)" stroke="rgba(0,200,100,0.3)" stroke-width="0.9" stroke-dasharray="3 3" style="animation:islandPulse 4s ease-in-out infinite"/>
+        <text x="291" y="458" text-anchor="middle" fill="rgba(0,200,100,0.45)" font-size="8" font-family="'Share Tech Mono',monospace">제주도</text>
+
+        <!-- ══ CITY MARKERS ══ -->
+
+        <!-- SEOUL ★ Gold -->
+        <g class="city-hit" id="m-seoul" data-city="seoul" aria-label="Seoul">
+          <circle class="ring-outer" cx="302" cy="142" r="18" fill="rgba(255,215,0,0.05)" stroke="rgba(255,215,0,0.25)" stroke-width="1"/>
+          <circle class="ring-inner" cx="302" cy="142" r="11" fill="rgba(255,215,0,0.1)"  stroke="rgba(255,215,0,0.55)" stroke-width="1.2"/>
+          <circle cx="302" cy="142" r="5"  fill="#FFD700" filter="url(#glow-gold)" class="core-pulse"/>
+          <text x="302" y="145" text-anchor="middle" fill="#FFD700" font-size="7" font-family="'Share Tech Mono',monospace" style="pointer-events:none">★</text>
+          <text x="302" y="161" text-anchor="middle" fill="rgba(255,215,0,0.9)" font-size="9" font-family="'Noto Sans KR',sans-serif" style="pointer-events:none">서울</text>
+        </g>
+
+        <!-- INCHEON ⬡ Cyan -->
+        <g class="city-hit" id="m-incheon" data-city="incheon" aria-label="Incheon">
+          <circle class="ring-outer" cx="278" cy="153" r="16" fill="rgba(0,229,255,0.05)" stroke="rgba(0,229,255,0.2)" stroke-width="1" style="animation-delay:0.5s"/>
+          <circle class="ring-inner" cx="278" cy="153" r="10" fill="rgba(0,229,255,0.1)"  stroke="rgba(0,229,255,0.6)" stroke-width="1.2"/>
+          <polygon points="278,148 283,151 283,156 278,159 273,156 273,151" fill="#00E5FF" filter="url(#glow-cyan)" class="core-pulse" style="animation-delay:0.5s"/>
+          <text x="278" y="171" text-anchor="middle" fill="rgba(0,229,255,0.9)" font-size="9" font-family="'Noto Sans KR',sans-serif" style="pointer-events:none">인천</text>
+        </g>
+
+        <!-- GYEONGGI ◆ Purple (label only, region is the polygon) -->
+        <g class="city-hit" id="m-gyeonggi" data-city="gyeonggi" aria-label="Gyeonggi-do">
+          <polygon points="388,132 394,138 388,144 382,138" fill="rgba(180,100,255,0.85)" filter="url(#glow-purple)" class="core-pulse" style="animation-delay:1s"/>
+          <text x="388" y="158" text-anchor="middle" fill="rgba(180,100,255,0.9)" font-size="9" font-family="'Noto Sans KR',sans-serif" style="pointer-events:none">경기도</text>
+        </g>
+
+        <!-- SEJONG ◎ Green -->
+        <g class="city-hit" id="m-sejong" data-city="sejong" aria-label="Sejong">
+          <circle class="ring-outer" cx="342" cy="242" r="16" fill="rgba(0,255,136,0.05)" stroke="rgba(0,255,136,0.2)" stroke-width="1" style="animation-delay:1.2s"/>
+          <circle class="ring-inner" cx="342" cy="242" r="10" fill="rgba(0,255,136,0.08)" stroke="rgba(0,255,136,0.6)" stroke-width="1.2"/>
+          <circle cx="342" cy="242" r="4.5" fill="none" stroke="#00FF88" stroke-width="1.8" filter="url(#glow-cyan)" class="core-pulse" style="animation-delay:1.2s"/>
+          <circle cx="342" cy="242" r="1.8" fill="#00FF88"/>
+          <text x="342" y="260" text-anchor="middle" fill="rgba(0,255,136,0.9)" font-size="9" font-family="'Noto Sans KR',sans-serif" style="pointer-events:none">세종</text>
+        </g>
+
+        <!-- DAEJEON ● Orange -->
+        <g class="city-hit" id="m-daejeon" data-city="daejeon" aria-label="Daejeon">
+          <circle class="ring-outer" cx="348" cy="256" r="17" fill="rgba(255,107,0,0.05)" stroke="rgba(255,107,0,0.2)" stroke-width="1" style="animation-delay:1.7s"/>
+          <circle class="ring-inner" cx="348" cy="256" r="10" fill="rgba(255,107,0,0.1)"  stroke="rgba(255,107,0,0.65)" stroke-width="1.2"/>
+          <circle cx="348" cy="256" r="5" fill="#FF6B00" filter="url(#glow-gold)" class="core-pulse" style="animation-delay:1.7s"/>
+          <text x="348" y="274" text-anchor="middle" fill="rgba(255,107,0,0.9)" font-size="9" font-family="'Noto Sans KR',sans-serif" style="pointer-events:none">대전</text>
+        </g>
+
+        <!-- BUSAN ■ Crimson -->
+        <g class="city-hit" id="m-busan" data-city="busan" aria-label="Busan">
+          <circle class="ring-outer" cx="491" cy="357" r="19" fill="rgba(255,51,102,0.05)" stroke="rgba(255,51,102,0.2)" stroke-width="1" style="animation-delay:2.1s"/>
+          <circle class="ring-inner" cx="491" cy="357" r="11" fill="rgba(255,51,102,0.1)"  stroke="rgba(255,51,102,0.65)" stroke-width="1.2"/>
+          <rect x="487" y="353" width="8" height="8" rx="1" fill="#FF3366" filter="url(#glow-gold)" class="core-pulse" style="animation-delay:2.1s"/>
+          <text x="491" y="376" text-anchor="middle" fill="rgba(255,51,102,0.9)" font-size="9" font-family="'Noto Sans KR',sans-serif" style="pointer-events:none">부산</text>
+        </g>
+
+        <!-- YEOSU ▲ Teal -->
+        <g class="city-hit" id="m-yeosu" data-city="yeosu" aria-label="Yeosu">
+          <circle class="ring-outer" cx="363" cy="395" r="16" fill="rgba(0,206,209,0.05)" stroke="rgba(0,206,209,0.2)" stroke-width="1" style="animation-delay:2.6s"/>
+          <circle class="ring-inner" cx="363" cy="395" r="10" fill="rgba(0,206,209,0.1)"  stroke="rgba(0,206,209,0.6)" stroke-width="1.2"/>
+          <polygon points="363,390 368,399 358,399" fill="#00CED1" filter="url(#glow-cyan)" class="core-pulse" style="animation-delay:2.6s"/>
+          <text x="363" y="413" text-anchor="middle" fill="rgba(0,206,209,0.9)" font-size="9" font-family="'Noto Sans KR',sans-serif" style="pointer-events:none">여수</text>
+        </g>
+
+        <!-- GEOJE ISLAND ⬟ Magenta -->
+        <g class="city-hit" id="m-geoje" data-city="geoje" aria-label="Geoje Island">
+          <!-- island shape hint -->
+          <ellipse cx="449" cy="388" rx="18" ry="10" fill="rgba(255,0,255,0.07)" stroke="rgba(255,0,255,0.3)" stroke-width="0.8" style="animation:islandPulse 3s ease-in-out infinite 1s"/>
+          <circle class="ring-outer" cx="449" cy="385" r="16" fill="rgba(255,0,255,0.04)" stroke="rgba(255,0,255,0.18)" stroke-width="1" style="animation-delay:3s"/>
+          <circle class="ring-inner" cx="449" cy="385" r="10" fill="rgba(255,0,255,0.08)" stroke="rgba(255,0,255,0.6)" stroke-width="1.2"/>
+          <polygon points="449,378 455,382 455,388 449,392 443,388 443,382" fill="#FF00FF" filter="url(#glow-purple)" class="core-pulse" style="animation-delay:3s"/>
+          <text x="449" y="404" text-anchor="middle" fill="rgba(255,0,255,0.9)" font-size="9" font-family="'Noto Sans KR',sans-serif" style="pointer-events:none">거제도</text>
+        </g>
+
+      </svg>
+    </div><!-- end map-wrap -->
+
+    <!-- ── INFO PANEL ── -->
+    <div id="panel">
+      <div id="panel-shine"></div>
+
+      <!-- idle state -->
+      <div id="panel-idle">
+        <div class="idle-glyph">◈</div>
+        <div class="idle-text">点击地图上的<br/>城市标记<br/>查看详细信息<br/><br/>CLICK A MARKER<br/>TO EXPLORE</div>
+      </div>
+
+      <!-- detail state -->
+      <div id="panel-detail">
+        <div class="ph" id="ph">
+          <button class="ph-close" id="btn-close">✕ CLR</button>
+          <div class="ph-badge" id="ph-badge">TYPE</div>
+          <div class="ph-symbol" id="ph-sym">★</div>
+          <div class="ph-zh" id="ph-zh">城市</div>
+          <div class="ph-ko" id="ph-ko">한국어</div>
+          <div class="ph-en" id="ph-en">ENGLISH</div>
+        </div>
+        <div class="pb">
+          <div class="ps">
+            <div class="ps-label">// 概况 OVERVIEW</div>
+            <div class="ps-desc" id="pd-desc">—</div>
+          </div>
+          <div class="ps">
+            <div class="ps-label">// 数据 STATISTICS</div>
+            <div class="ps-grid">
+              <div class="ps-stat">
+                <div class="ps-stat-lbl">人口 POPULATION</div>
+                <div class="ps-stat-val" id="pd-pop">—</div>
+              </div>
+              <div class="ps-stat">
+                <div class="ps-stat-lbl">面积 AREA</div>
+                <div class="ps-stat-val" id="pd-area">—</div>
+              </div>
+              <div class="ps-stat">
+                <div class="ps-stat-lbl">类型 TYPE</div>
+                <div class="ps-stat-val" id="pd-type" style="font-size:10px">—</div>
+              </div>
+              <div class="ps-stat">
+                <div class="ps-stat-lbl">坐标 COORD</div>
+                <div class="ps-stat-val" id="pd-coord" style="font-size:9px">—</div>
+              </div>
+            </div>
+          </div>
+          <div class="ps">
+            <div class="ps-label">// 关键词 KEYWORDS</div>
+            <div class="ps-tags" id="pd-tags"></div>
+          </div>
+        </div>
+        <div id="panel-legend">
+          <div class="leg-title">// 图例 LEGEND</div>
+          <div class="leg-list" id="leg-list"></div>
+        </div>
+      </div><!-- end panel-detail -->
+
+    </div><!-- end panel -->
+
+  </div><!-- end body -->
+
+  <!-- STATUS BAR -->
+  <div id="statusbar">
+    <span><span class="sb-dot"></span>SYSTEM ONLINE</span>
+    <span>대한민국 · KOR</span>
+    <span id="sb-loc">SELECT A LOCATION</span>
+    <span id="sb-time" style="margin-left:auto"></span>
+  </div>
+
+</div><!-- end root -->
+
+<div id="tip"></div>
+
+<script>
+  /* ── DATA ── */
+  const CITIES = {
+    seoul: {
+      zh:'首尔', ko:'서울특별시', en:'Seoul',
+      badge:'CAPITAL', type:'首都特别市', color:'#FFD700', symbol:'★',
+      pop:'약 970만', area:'605 km²', coord:'N37°34′ E126°58′',
+      desc:'韩国首都曾经的最大城市，政治、经济、文化的绝对核心。汉江横贯城市，将其分为江北与江南两片。景福宫、昌德宫等朝鲜王朝古迹与现代摩天大楼并肩而立。江南区是全球瞩目的流行文化（韩流）与科技创新中心，每年吸引数千万国际游客。现在沦为危险地带，由曙龙占领。鉴于头目姜勇祖的性格，与“粗暴凶狠的犯罪团伙”相比，更接近“收取部分保护费并替代管理地区治安，有时也使用武力”的利益集团。他们不是单纯的暴力组织，而是将暴力作为手段使用的利益团体。实际上，他们在一定程度上维护着首尔的治安，有时也从新虎派手中保护市民。曙龙通过在首尔的走私贸易等活动增加收益，并从中获利，但不会从事人口买卖等严重犯罪。组织成员非常信赖姜勇祖，并称呼他为“老师”，因为他们各自都欠过他恩情。',
+      tags:['首都','K-POP/한류','金融中心','UNESCO遗产','古宫殿群','国际都市']
+    },
+    incheon: {
+      zh:'仁川', ko:'인천광역시', en:'Incheon',
+      badge:'METRO', type:'广域市', color:'#00E5FF', symbol:'⬡',
+      pop:'약 300만', area:'1,063 km²', coord:'N37°27′ E126°42′',
+      desc:'曾经是韩国第三大城市，西海岸最重要的国际门户。仁川国际机场屡获全球最佳机场殊荣，是亚太地区最繁忙的航空枢纽之一。仁川港作为韩国最大贸易港口，连接世界各地航线。松岛国际新城是全球领先的智慧城市建设示范区，汇聚众多跨国企业总部。但如今是陨石坠落之处，也是首道“门”开启之地。周围一切都被洪水淹没，唯有那颗陨石，孤寂地屹立在永宗岛上。',
+      tags:['인천국제공항','国际贸易港','松岛新城','自由经济区','智慧城市','海洋门户']
+    },
+    gyeonggi: {
+      zh:'京畿道', ko:'경기도', en:'Gyeonggi-do',
+      badge:'PROVINCE', type:'道（省级）', color:'#B464FF', symbol:'◆',
+      pop:'약 1,360만', area:'10,192 km²', coord:'N37°16′ E127°15′',
+      desc:'昔日的京畿道曾是韩国疆域最广、人口最盛之所，如圆环般紧紧环抱首尔与仁川。这里曾汇集超过1360万众，是全球最为稠密的人烟聚集地，更是三星、现代与LG等顶级财阀核心命脉的盘踞之所。其北境直抵板门店非军事区，与北方的分界线隔开。然而，往昔的盛景已化作荒芜，幸存的难民们在这片破碎的土地上艰难求生。为了抵御寄生型克锐特的侵袭，他们不得不将周身皮肤严实地遮蔽。这些流离失所的人们往往结伴而行，即便南迁之路险阻重重，仍心存抵达安全地带的希冀。在这些蹒跚的身影中，有人为求生存而沦为走私的亡命之徒，亦有人成功在南部寻得立足之地',
+      tags:['最大行政区','三星/LG/현대','DMZ非军事区','科技走廊','半导体产业','工业核心']
+    },
+    daejeon: {
+      zh:'大田', ko:'대전광역시', en:'Daejeon',
+      badge:'METRO', type:'广域市', color:'#FF6B00', symbol:'●',
+      pop:'약 148만', area:'540 km²', coord:'N36°21′ E127°23′',
+      desc:'曾经是韩国"科技之都"，大德研究特区（Daedeok Innopolis）坐落于此，集聚了韩国科学技术院（KAIST）、韩国原子能研究所、电子通信研究院等300余所顶尖研究机构与高新科技企业。地处国土中心，是KTX高速铁路的重要节点，是连接首尔与南部地区的交通枢纽。现在在这里有“特异现象管理厅”，是管辖异常现象及觉醒者的官方机构。首次“门”事件爆发时虽由军队应对，但随着觉醒者等存在陆续出现，统一管辖的必要性凸显，该机构遂应运而生。研究所隶属于特异现象管理厅，是为研究克锐特现象而在缓冲地带设立的研究机构。由于研究者们都冒着生命危险进行工作，其中不乏特立独行之人。',
+      tags:['KAIST','大德研究特区','科技之都','원자력연구소','KTX枢纽','研发中心']
+    },
+    sejong: {
+      zh:'世宗', ko:'세종특별자치시', en:'Sejong',
+      badge:'ADMIN CAPITAL', type:'特别自治市', color:'#00FF88', symbol:'◎',
+      pop:'약 39万', area:'465 km²', coord:'N36°29′ E127°17′',
+      desc:'“门”事件前是韩国行政新首都，2012年正式成立的特别自治市，以朝鲜王朝最伟大的君主"世宗大王"命名。国务总理府、各大中央部委已陆续由首尔迁驻于此，旨在疏解首都过于集中的行政功能压力。这座以可持续发展理念精心规划的新城，是全球最具未来感的智慧城市建设范本。现在710联队在此地驻扎，第710特攻联队是在“门”事件爆发后，于五年前成立的觉醒者部队，主要职责是划定并维护克锐特与人类之间的防线。由成艺彬等“最初异能者”英雄们组成的核心团队，成功阻止了克锐特向南部扩散，奠定了第710特攻联队的基石。作为最前线的工作部队，他们驻扎于世宗市，最终目标是将克锐特向北逼退，逐步收复失地。联队内部奉行隐性的能力主义：只要是强大的觉醒者，无论服役年限长短，都能获得更快速的晋升。',
+      tags:['행정수도','新行政都市','智慧城市','可持续规划','政府迁移','세종대왕']
+    },
+    busan: {
+      zh:'釜山', ko:'부산광역시', en:'Busan',
+      badge:'METRO', type:'广域市', color:'#FF3366', symbol:'■',
+      pop:'약 340만', area:'770 km²', coord:'N35°10′ E129°04′',
+      desc:'曾经是韩国第二大城市，素有"海洋首都"之誉。釜山港是全球前五大集装箱港口之一，支撑着韩国约三分之一的进出口贸易。海云台海水浴场、广安里海滩是亚洲最著名的滨海度假地。每年十月举办的釜山国际电影节（BIFF）是亚洲最具声誉的电影盛事，与戛纳、威尼斯并列全球三大电影节。现为大韩民国首都。环境洁净到近乎洁癖的程度，氛围冷峻，但能保障生命安全。仅允许持有许可的市民出入',
+      tags:['국제항구','全球TOP5港口','해운대','BIFF电影节','海洋经济','旅游名城']
+    },
+    yeosu: {
+      zh:'丽水', ko:'여수시', en:'Yeosu',
+      badge:'CITY', type:'市', color:'#00CED1', symbol:'▲',
+      pop:'약 28万', area:'503 km²', coord:'N34°45′ E127°39′',
+      desc:'曾经是全罗南道南海岸的壮美港湾城市，以奇幻夜景、新鲜海产与热闹夜市（여수 밤바다）驰名全韩。2012年世界博览会（丽水世博）在此盛大举办，主题为"활력이 넘치는 바다와 연안：资源多样性与可持续发展"。GS加德士石化园区是当地重要经济支柱，与旅游业并驾齐驱。六年前以刘率为核心成立，逐步扩大规模，开始带动整个丽水的发展。自五年前起稳固立足，成为韩国的主要势力之一。现在已经基本恢复到灾难前的状态。',
+      tags:['2012麗水世博','여수밤바다','南海景胜','海鲜圣地','旅游胜地','石化基地']
+    },
+    geoje: {
+      zh:'巨济岛', ko:'거제도', en:'Geoje Island',
+      badge:'ISLAND', type:'岛屿', color:'#FF00FF', symbol:'⬟',
+      pop:'약 25万', area:'382 km²', coord:'N34°52′ E128°37′',
+      desc:'韩国第二大岛，位于庆尚南道南端海域。以全球顶级造船业享誉国际——大宇造船海洋（DSME）与三星重工两大世界级造船厂驻扎于此，每年下水的船舶总吨位位居全球前列。岛上"海金刚"、도장포湾等壮美自然景观吸引大批游客，是韩国最具特色的海岛旅游目的地之一。',
+      tags:['韩国第二大岛','DSME造船','三星重工','해금강','岛屿旅游','조선업메카']
+    }
+  };
+
+  /* ── BUILD LEGEND ── */
+  const legList = document.getElementById('leg-list');
+  Object.entries(CITIES).forEach(([key, c]) => {
+    const el = document.createElement('div');
+    el.className = 'leg-item';
+    el.innerHTML = `<div class="leg-dot" style="background:${c.color};box-shadow:0 0 5px ${c.color}"></div><span style="color:${c.color}">${c.zh}</span>`;
+    el.addEventListener('click', () => openCity(key));
+    legList.appendChild(el);
+  });
+
+  /* ── PANEL LOGIC ── */
+  let activeCity = null;
+
+  function openCity(key) {
+    const c = CITIES[key];
+    if (!c) return;
+    activeCity = key;
+
+    // Switch panel state
+    document.getElementById('panel-idle').style.display = 'none';
+    document.getElementById('panel-detail').classList.add('show');
+    document.getElementById('panel').classList.add('lit');
+
+    // Populate
+    const badge = document.getElementById('ph-badge');
+    badge.textContent = c.badge;
+    badge.style.borderColor = c.color;
+    badge.style.color = c.color;
+
+    document.getElementById('ph-sym').textContent = c.symbol;
+    document.getElementById('ph-sym').style.color = c.color;
+    document.getElementById('ph-zh').textContent = c.zh;
+    document.getElementById('ph-zh').style.color = c.color;
+    document.getElementById('ph-ko').textContent = c.ko;
+    document.getElementById('ph-en').textContent = c.en;
+    document.getElementById('pd-desc').textContent = c.desc;
+    document.getElementById('pd-pop').textContent = c.pop;
+    document.getElementById('pd-pop').style.color = c.color;
+    document.getElementById('pd-area').textContent = c.area;
+    document.getElementById('pd-area').style.color = c.color;
+    document.getElementById('pd-type').textContent = c.type;
+    document.getElementById('pd-coord').textContent = c.coord;
+
+    // Tags
+    const tagsEl = document.getElementById('pd-tags');
+    tagsEl.innerHTML = '';
+    c.tags.forEach(t => {
+      const span = document.createElement('span');
+      span.className = 'tag';
+      span.textContent = t;
+      span.style.borderColor = c.color + '55';
+      span.style.color = c.color;
+      span.style.background = c.color + '0d';
+      tagsEl.appendChild(span);
+    });
+
+    // Status
+    document.getElementById('sb-loc').textContent = `${c.zh}  ${c.coord}`;
+
+    // Highlight markers
+    document.querySelectorAll('.city-hit').forEach(el => {
+      el.style.opacity = el.id === `m-${key}` ? '1' : '0.35';
+    });
+    const gg = document.getElementById('gg-poly');
+    gg.style.opacity = key === 'gyeonggi' ? '1' : '0.4';
+
+    // Smooth scroll panel-detail to top
+    document.querySelector('.pb').scrollTop = 0;
+  }
+
+  function closePanel() {
+    activeCity = null;
+    document.getElementById('panel-idle').style.display = '';
+    document.getElementById('panel-detail').classList.remove('show');
+    document.getElementById('panel').classList.remove('lit');
+    document.getElementById('sb-loc').textContent = 'SELECT A LOCATION';
+    document.querySelectorAll('.city-hit').forEach(el => el.style.opacity = '1');
+    document.getElementById('gg-poly').style.opacity = '1';
+  }
+
+  document.getElementById('btn-close').addEventListener('click', closePanel);
+
+  /* ── ATTACH CLICKS & TOOLTIP ── */
+  const tip = document.getElementById('tip');
+
+  document.querySelectorAll('.city-hit').forEach(el => {
+    const key = el.dataset.city;
+    const c = CITIES[key];
+    if (!c) return;
+
+    el.addEventListener('click', () => openCity(key));
+
+    el.addEventListener('mouseenter', ev => {
+      tip.textContent = `${c.zh}  ·  ${c.ko}`;
+      tip.style.borderColor = c.color;
+      tip.style.color = c.color;
+      tip.style.background = 'rgba(0,8,20,0.94)';
+      tip.classList.add('show');
+    });
+    el.addEventListener('mousemove', ev => {
+      tip.style.left = (ev.clientX + 14) + 'px';
+      tip.style.top  = (ev.clientY - 10) + 'px';
+    });
+    el.addEventListener('mouseleave', () => tip.classList.remove('show'));
+  });
+
+  /* Gyeonggi region polygon click */
+  const ggPoly = document.getElementById('gg-poly');
+  ggPoly.addEventListener('click', () => openCity('gyeonggi'));
+  ggPoly.addEventListener('mouseenter', ev => {
+    tip.textContent = '京畿道 · 경기도';
+    tip.style.borderColor = '#B464FF';
+    tip.style.color = '#B464FF';
+    tip.classList.add('show');
+  });
+  ggPoly.addEventListener('mousemove', ev => {
+    tip.style.left = (ev.clientX + 14) + 'px';
+    tip.style.top  = (ev.clientY - 10) + 'px';
+  });
+  ggPoly.addEventListener('mouseleave', () => tip.classList.remove('show'));
+
+  /* ── CLOCK & DATE ── */
+  function updateClock() {
+    const now = new Date();
+    const kst = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Seoul' }));
+    const h = String(kst.getHours()).padStart(2,'0');
+    const m = String(kst.getMinutes()).padStart(2,'0');
+    const s = String(kst.getSeconds()).padStart(2,'0');
+    document.getElementById('sb-time').textContent = `KST ${h}:${m}:${s}`;
+    const d = kst.toLocaleDateString('zh-CN', { year:'numeric', month:'2-digit', day:'2-digit', timeZone:'Asia/Seoul' });
+    document.getElementById('now-date').textContent = `KST ${d}`;
+  }
+  updateClock();
+  setInterval(updateClock, 1000);
+
+  /* ── ANIMATED RING on outer circles (CSS handles hover, JS for initial pulse offset) ── */
+  document.querySelectorAll('.ring-outer').forEach((el, i) => {
+    el.style.animationDelay = (i * 0.4) + 's';
+  });
+</script>
+</body>
+</html>

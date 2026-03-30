@@ -1,0 +1,232 @@
+```html
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Shadows+Into+Light&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+
+:root{
+  --fs-micro: 0.62em;
+  --fs-xxs: 0.72em;
+  --fs-xs: 0.82em;
+  --fs-sm: 0.92em;
+  --fs-md: 1em;
+  --fs-lg: 1.08em;
+}
+
+body{
+  font-family:'Shadows Into Light',cursive;
+  background:transparent;
+}
+
+.nsfw-wrap{
+  width:100%;
+  border:1px solid rgba(120,60,80,0.45);
+  border-radius:3px;
+  overflow:hidden;
+  background:rgba(8,14,8,0.92);
+  box-shadow:0 2px 18px rgba(0,0,0,0.55);
+  position:relative;
+}
+
+.nsfw-wrap::before{
+  content:'';
+  position:absolute;
+  left:0;top:0;bottom:0;
+  width:2px;
+  background:linear-gradient(180deg,transparent,rgba(180,60,90,0.5),transparent);
+  opacity:0.6;
+  pointer-events:none;
+  z-index:1;
+}
+
+.nsfw-header{
+  background:rgba(120,40,60,0.15);
+  border-bottom:1px solid rgba(120,60,80,0.25);
+  padding:5px 12px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  cursor:pointer;
+  user-select:none;
+  transition:background 0.2s;
+}
+
+.nsfw-header:hover{background:rgba(120,40,60,0.22);}
+
+.nsfw-header .l{
+  font-size:var(--fs-xs);
+  color:rgba(200,120,140,0.85);
+  font-family:monospace;
+  letter-spacing:0.2em;
+}
+
+.nsfw-header .r{
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+
+.nsfw-header .rtag{
+  font-size:var(--fs-micro);
+  color:rgba(180,100,120,0.45);
+  font-family:monospace;
+  letter-spacing:0.1em;
+}
+
+.nsfw-arrow{
+  font-size:var(--fs-xxs);
+  color:rgba(180,100,120,0.5);
+  font-family:monospace;
+  transition:transform 0.25s ease;
+  display:inline-block;
+}
+
+.nsfw-wrap.collapsed .nsfw-arrow{transform:rotate(-90deg);}
+
+.nsfw-collapsible{
+  display:grid;
+  grid-template-rows:1fr;
+  transition:grid-template-rows 0.3s ease;
+  overflow:hidden;
+}
+
+.nsfw-wrap.collapsed .nsfw-collapsible{grid-template-rows:0fr;}
+.nsfw-collapsible-inner{overflow:hidden;min-height:0;}
+
+.nsfw-body{
+  padding:12px 16px 14px 18px;
+  font-size:var(--fs-md);
+  color:rgba(212,195,200,0.82);
+  line-height:2;
+  letter-spacing:0.02em;
+  white-space:pre-wrap;
+}
+
+@media (max-width: 768px){
+  .nsfw-header{
+    padding:6px 10px;
+    gap:8px;
+    align-items:flex-start;
+  }
+
+  .nsfw-header .l{
+    font-size:var(--fs-xxs);
+    letter-spacing:0.14em;
+  }
+
+  .nsfw-header .r{
+    gap:6px;
+    flex-wrap:wrap;
+    justify-content:flex-end;
+    max-width:42%;
+  }
+
+  .nsfw-body{
+    padding:10px 12px 12px 14px;
+    line-height:1.82;
+  }
+}
+
+@media (max-width: 480px){
+  .nsfw-header .r{
+    max-width:50%;
+  }
+
+  .nsfw-header .rtag{
+    font-size:var(--fs-micro);
+  }
+
+  .nsfw-body{
+    font-size:var(--fs-sm);
+    line-height:1.72;
+  }
+}
+</style>
+</head>
+<body>
+<div class="nsfw-wrap" id="nsfw-wrap">
+  <div class="nsfw-header" id="nsfw-header">
+    <span class="l">▌ 番 外</span>
+    <span class="r">
+      <span class="rtag">PRIVATE · RECORD</span>
+      <span class="nsfw-arrow">▼</span>
+    </span>
+  </div>
+
+  <div class="nsfw-collapsible">
+    <div class="nsfw-collapsible-inner">
+      <div class="nsfw-body" id="nsfw-body"></div>
+    </div>
+  </div>
+</div>
+
+<div id="nsfw-raw" style="display:none">$1</div>
+
+<script>
+(function(){
+  let lastHostFont = null;
+
+  function syncHostFontScale(force){
+    try{
+      const hostWin = (window.parent && window.parent !== window) ? window.parent : window;
+      const hostDoc = hostWin.document;
+
+      const candidates = [
+        hostDoc.querySelector('.mes_text'),
+        hostDoc.querySelector('.mes_reasoning'),
+        hostDoc.querySelector('#send_textarea'),
+        hostDoc.querySelector('#chat'),
+        hostDoc.querySelector('.chat'),
+        hostDoc.body,
+        hostDoc.documentElement
+      ].filter(Boolean);
+
+      let hostSize = 16;
+
+      for(const el of candidates){
+        const size = parseFloat(hostWin.getComputedStyle(el).fontSize);
+        if(size && !Number.isNaN(size)){
+          hostSize = size;
+          break;
+        }
+      }
+
+      if(force || lastHostFont === null || Math.abs(hostSize - lastHostFont) > 0.05){
+        lastHostFont = hostSize;
+        document.documentElement.style.fontSize = hostSize + 'px';
+      }
+    }catch(e){
+      if(force && !document.documentElement.style.fontSize){
+        document.documentElement.style.fontSize = '16px';
+      }
+    }
+  }
+
+  function dec(s){
+    return (s || '')
+      .replace(/&amp;/g,'&')
+      .replace(/&lt;/g,'<')
+      .replace(/&gt;/g,'>')
+      .replace(/&nbsp;/g,' ')
+      .replace(/&quot;/g,'"');
+  }
+
+  syncHostFontScale(true);
+  window.addEventListener('resize', syncHostFontScale);
+  setInterval(syncHostFontScale, 600);
+
+  var raw = dec(document.getElementById('nsfw-raw').innerHTML).trim();
+  document.getElementById('nsfw-body').textContent = raw;
+
+  document.getElementById('nsfw-header').addEventListener('click',function(){
+    document.getElementById('nsfw-wrap').classList.toggle('collapsed');
+  });
+})();
+</script>
+</body>
+</html>
+```

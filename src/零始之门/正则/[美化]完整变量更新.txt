@@ -1,0 +1,382 @@
+<div style="width: 100%; margin: 1.25em auto;">
+  <details class="thinking-description thinking-description-miltech">
+    <summary>
+      <span class="td-left">
+        <span class="td-icon">▣</span>
+        <span class="td-text">
+          <span class="td-title">变 量 更 新</span>
+          <span class="td-sub">FIELD RECORD / WORLD STATE</span>
+        </span>
+      </span>
+
+      <span class="td-right">
+        <span class="td-tag">ARCHIVE</span>
+        <span class="td-status-dot"></span>
+        <span class="thinking-summary" data-close="点击查看" data-open="点击隐藏"></span>
+        <span class="td-arrow">▼</span>
+      </span>
+
+      <span class="td-scan-line"></span>
+      <span class="td-glow"></span>
+    </summary>
+
+    <div class="td-panel">
+      <div class="td-panel-inner">
+$2
+      </div>
+    </div>
+  </details>
+</div>
+
+<style>
+  .thinking-description-miltech {
+    --td-fs-3xs: 0.5625em;
+    --td-fs-2xs: 0.625em;
+    --td-fs-xs: 0.6875em;
+    --td-fs-sm: 0.75em;
+    --td-fs-md: 0.8125em;
+    position: relative;
+    font-size: 1em;
+    overflow: hidden;
+    border: 1px solid rgba(138,122,80,0.38);
+    border-radius: 3px;
+    background: rgba(8,14,8,0.92);
+    box-shadow: 0 2px 18px rgba(0,0,0,0.58);
+    transition: border-color 0.22s ease, box-shadow 0.22s ease;
+  }
+
+  .thinking-description-miltech::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: linear-gradient(180deg, transparent, rgba(74,103,65,0.72), transparent);
+    opacity: 0.8;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .thinking-description-miltech::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+      linear-gradient(90deg, rgba(255,255,255,0.012) 1px, transparent 1px),
+      linear-gradient(rgba(255,255,255,0.012) 1px, transparent 1px);
+    background-size: 18px 18px;
+    opacity: 0.12;
+    z-index: 0;
+  }
+
+  .thinking-description-miltech:hover {
+    border-color: rgba(138,122,80,0.52);
+    box-shadow: 0 4px 22px rgba(0,0,0,0.62);
+  }
+
+  .thinking-description-miltech summary {
+    position: relative;
+    z-index: 2;
+    list-style: none;
+    cursor: pointer;
+    user-select: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 12px;
+    background: rgba(74,103,65,0.10);
+    border-bottom: 1px solid rgba(138,122,80,0.18);
+    overflow: hidden;
+    transition: background 0.2s ease;
+  }
+
+  .thinking-description-miltech summary:hover {
+    background: rgba(74,103,65,0.16);
+  }
+
+  .thinking-description-miltech summary::marker,
+  .thinking-description-miltech summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .thinking-description-miltech .td-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+    flex: 1 1 auto;
+    position: relative;
+    z-index: 2;
+  }
+
+  .thinking-description-miltech .td-icon {
+    width: 22px;
+    height: 22px;
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(138,122,80,0.28);
+    border-radius: 2px;
+    background: rgba(138,122,80,0.06);
+    color: #c8a84a;
+    font-size: var(--td-fs-sm);
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.01);
+  }
+
+  .thinking-description-miltech .td-text {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+
+  .thinking-description-miltech .td-title {
+    color: rgba(138,122,80,0.94);
+    font-size: var(--td-fs-sm);
+    letter-spacing: 0.18em;
+    line-height: 1.2;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  .thinking-description-miltech .td-sub {
+    color: rgba(138,122,80,0.42);
+    font-size: var(--td-fs-2xs);
+    letter-spacing: 0.12em;
+    line-height: 1.2;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  .thinking-description-miltech .td-right {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    flex: 0 1 auto;
+    min-width: 0;
+    flex-wrap: wrap;
+    position: relative;
+    z-index: 2;
+  }
+
+  .thinking-description-miltech .td-tag {
+    font-size: var(--td-fs-2xs);
+    color: rgba(200,168,74,0.54);
+    letter-spacing: 0.10em;
+    border: 1px solid rgba(138,122,80,0.18);
+    background: rgba(138,122,80,0.05);
+    padding: 1px 6px;
+    border-radius: 2px;
+    font-family: monospace;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  .thinking-description-miltech .td-status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #7fabc1;
+    box-shadow: 0 0 6px rgba(24,236,243,1);
+    animation: td-dot-pulse 1.5s ease-in-out infinite;
+  }
+
+  .thinking-description-miltech .thinking-summary {
+    font-size: var(--td-fs-sm);
+    color: rgba(212,205,184,0.72);
+    white-space: normal;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  .thinking-description-miltech .thinking-summary::after {
+    content: attr(data-close);
+  }
+
+  .thinking-description-miltech[open] .thinking-summary::after {
+    content: attr(data-open);
+  }
+
+  .thinking-description-miltech .td-arrow {
+    font-size: var(--td-fs-xs);
+    color: rgba(138,122,80,0.5);
+    transition: transform 0.25s ease;
+    display: inline-block;
+    font-family: monospace;
+  }
+
+  .thinking-description-miltech[open] .td-arrow {
+    transform: rotate(180deg);
+  }
+
+  .thinking-description-miltech .td-scan-line {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(152,230,63,0.55), transparent);
+    opacity: 0.42;
+    animation: td-scan 3.4s linear infinite;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .thinking-description-miltech .td-glow {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(160,180,190,0.00) 28%,
+      rgba(160,180,190,0.03) 50%,
+      rgba(160,180,190,0.00) 72%,
+      transparent 100%
+    );
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .thinking-description-miltech .td-panel {
+    position: relative;
+    z-index: 2;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.32s ease;
+  }
+
+  .thinking-description-miltech[open] .td-panel {
+    max-height: 320px;
+  }
+
+  .thinking-description-miltech .td-panel-inner {
+    max-height: 320px;
+    overflow-y: auto;
+    padding: 9px 14px 11px 16px;
+    color: #d4cdb8;
+    line-height: 1.85;
+    font-size: var(--td-fs-md);
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    border-top: 1px solid rgba(138,122,80,0.08);
+    background: linear-gradient(180deg, rgba(0,0,0,0.08), rgba(0,0,0,0));
+    transform: translateY(-4px);
+    opacity: 0;
+    transition: opacity 0.2s ease, transform 0.25s ease;
+  }
+
+  .thinking-description-miltech[open] .td-panel-inner {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  .thinking-description-miltech .td-panel-inner::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .thinking-description-miltech .td-panel-inner::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .thinking-description-miltech .td-panel-inner::-webkit-scrollbar-thumb {
+    background: linear-gradient(
+      180deg,
+      rgba(138,122,80,0.45),
+      rgba(74,103,65,0.55)
+    );
+    border-radius: 999px;
+    border: 2px solid rgba(0,0,0,0);
+    background-clip: padding-box;
+  }
+
+  @keyframes td-dot-pulse {
+    0%, 100% { transform: scale(1); opacity: 0.95; }
+    50% { transform: scale(1.18); opacity: 0.68; }
+  }
+
+  @keyframes td-scan {
+    0% { transform: translateY(0); opacity: 0; }
+    12% { opacity: 0.42; }
+    100% { transform: translateY(38px); opacity: 0; }
+  }
+
+  @media (max-width: 768px) {
+    .thinking-description-miltech summary {
+      flex-wrap: wrap;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 7px 10px;
+    }
+
+    .thinking-description-miltech .td-left {
+      gap: 8px;
+      width: 100%;
+      min-width: 0;
+    }
+
+    .thinking-description-miltech .td-title {
+      font-size: var(--td-fs-xs);
+      letter-spacing: 0.14em;
+    }
+
+    .thinking-description-miltech .td-sub {
+      font-size: var(--td-fs-3xs);
+      letter-spacing: 0.08em;
+    }
+
+    .thinking-description-miltech .td-right {
+      width: 100%;
+      gap: 6px;
+      max-width: none;
+      flex-wrap: wrap;
+      justify-content: flex-start;
+      text-align: left;
+      padding-left: 30px;
+    }
+
+    .thinking-description-miltech .td-tag,
+    .thinking-description-miltech .thinking-summary {
+      font-size: var(--td-fs-2xs);
+    }
+
+    .thinking-description-miltech[open] .td-panel {
+      max-height: 70vh;
+    }
+
+    .thinking-description-miltech .td-panel-inner {
+      max-height: 70vh;
+      padding: 8px 10px 10px 12px;
+      font-size: var(--td-fs-sm);
+      line-height: 1.72;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .thinking-description-miltech .td-icon {
+      width: 20px;
+      height: 20px;
+      font-size: var(--td-fs-xs);
+    }
+
+    .thinking-description-miltech .td-right {
+      padding-left: 28px;
+    }
+
+    .thinking-description-miltech .thinking-summary {
+      white-space: normal;
+    }
+
+    .thinking-description-miltech .td-panel-inner {
+      font-size: var(--td-fs-xs);
+      line-height: 1.66;
+    }
+  }
+</style>
