@@ -2,7 +2,7 @@
 <body>
   <script>
     (() => {
-      const url = 'http://127.0.0.1:5510/dist/零始之门/界面/开局首页/index.html';
+      const url = 'https://cdn.jsdelivr.net/gh/097bot/010tongren-silly-tavern@main/dist/零始之门/界面/开局首页/index.html';
 
       fetch(encodeURI(url), { cache: 'no-store' })
         .then(response => {
